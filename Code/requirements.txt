@@ -1,0 +1,5 @@
+#1. Below requirements can be directly installed using command - pip install opencv-python
+numpy==1.21.1
+opencv-python==4.5.3.56
+
+#2. 
