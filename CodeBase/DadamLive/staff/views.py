@@ -65,7 +65,7 @@ def basicChecking(request):
         return redirect('home')
     try:
         info=UserInformation.objects.get(user=request.user)
-        if info.userType.userTypeCode==-872:
+        if info.userType.userTypeCode==settings.CODE_STAFF:
             staff=Staff.objects.get(user=request.user)
             return staff
     except:

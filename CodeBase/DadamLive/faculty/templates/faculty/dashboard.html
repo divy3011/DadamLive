@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>   
+<html>   
+<head>  
+<title> Faculty Dashboard </title>  
+</head>    
+<body>     
+    <h1>Janab aap apne features dekhe</h1>
+
+    <div>
+        <p>Pehle aap dekhe ki aapne kitne saare courses banae hai.</p>
+        {% for course in courses %}
+        <div>
+            <p>{{course.courseName}} created on {{course.created_on}}</p>
+            <a href="{% url 'view_course' course_id=course.id %}">Click to view more...</a>
+        </div>
+        <br>
+        {% endfor %}
+    </div>
+
+    <a href="{% url 'start_new_course' %}">Naye course add karne ke liye hampe mouse hover karke right click kare🥺</a>
+
+</body>     
+</html>

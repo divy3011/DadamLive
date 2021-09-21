@@ -1,3 +1,4 @@
+from faculty.views import dashboardFaculty
 from django.http.response import JsonResponse
 from django.core import serializers
 from django.shortcuts import render,HttpResponse,redirect
@@ -87,9 +88,12 @@ def login_request(request):
 def login_redirecter(request):
     try:
         info=UserInformation.objects.get(user=request.user)
-        if info.userType.userTypeCode==-872:
+        if info.userType.userTypeCode==settings.CODE_STAFF:
             #Staff User
             return redirect(dashboardStaff)
+        if info.userType.userTypeCode==settings.CODE_FACULTY:
+            #Faculty User
+            return redirect(dashboardFaculty)
     except:
         return HttpResponse("<h1>Unable to fetch account details</h1>")
 
