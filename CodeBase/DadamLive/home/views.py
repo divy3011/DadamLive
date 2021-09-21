@@ -19,6 +19,7 @@ from email.mime.image import MIMEImage
 from django.contrib.staticfiles import finders
 from functools import lru_cache
 import pandas as pd
+from staff.views import dashboardStaff
 
 class Email_thread(Thread):
     def __init__(self,subject,message,email):
@@ -53,4 +54,46 @@ def SENDMAIL(subject, message, email):
     # send_mail( subject, message, email_from, recipient_list )
 
 def home(request):
-    return HttpResponse("<h1>Welcome to DadamLive Home Page</h1>")
+    return render(request,"home/home.html",context={})
+
+def login_request(request):
+    if request.user.is_authenticated:
+        return login_redirecter(request)
+    if request.method=='POST':
+        useremail=request.POST.get('useremail')
+        password=request.POST.get('password')
+        try:
+            checker = User.objects.get(username=useremail)
+            user = authenticate(request, username=useremail, password=password)
+            if user is not None:
+                pass
+            else:
+                return JsonResponse({"error": "Invalid Credentials"}, status=400)
+        except:
+            try:
+                checker = User.objects.get(email=useremail)
+                user = authenticate(request, username=checker.username, password=password)
+                if user is not None:
+                    pass
+                else:
+                    return JsonResponse({"error": "Invalid Credentials"}, status=400)
+            except:
+                return JsonResponse({"error": "Invalid Credentials"}, status=400)
+        login(request,user)
+        return JsonResponse({"success": "Login is Successful."}, status=200)  
+    else:
+        return render(request,'home/login.html',context={})
+
+def login_redirecter(request):
+    try:
+        info=UserInformation.objects.get(user=request.user)
+        if info.userType.userTypeCode==-872:
+            #Staff User
+            return redirect(dashboardStaff)
+    except:
+        return HttpResponse("<h1>Unable to fetch account details</h1>")
+
+def logout_request(request):
+    if request.user.is_authenticated:
+        logout(request)
+    return redirect('home')

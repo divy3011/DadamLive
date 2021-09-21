@@ -9,6 +9,7 @@ class UserType(models.Model):
     #For Student -  (645)
     #For Faculty -  (823)
     #For Staff -    (-872)
+    #For TA -       (679)
 
     def __str__(self):
         return self.userType
@@ -45,6 +46,7 @@ class Faculty(models.Model):
 class Staff(models.Model):
     user=models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     userInformation=models.ForeignKey(UserInformation, on_delete=models.CASCADE, null=True, blank=True)
+    canAddUsers=models.BooleanField(default=True, null=True)
 
     def __str__(self):
         if self.user:

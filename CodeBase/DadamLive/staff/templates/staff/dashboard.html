@@ -1,0 +1,14 @@
+{% load static %}
+<!DOCTYPE html>   
+<html>   
+<head>  
+<title> Staff Dashboard </title>  
+</head>    
+<body>     
+    <h1>Janab aap apne features dekhe</h1>
+
+    {% if  staff.canAddUsers %}
+    <a href="{% url 'add_users' %}">Naye accounts banane ke liye click kare mujhpe🥺</a>
+    {% endif %}
+</body>     
+</html>

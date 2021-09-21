@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>   
+<html>   
+<head>  
+<title> Add new Users Page </title>  
+</head>    
+<body>     
+    {% if  staff.canAddUsers %}
+    <h1>Janab aab yaha pe aap naye users aa kar sakte hai shook se. Dhyan rakhe ki dubara hii ek user ko add na kiya jae.</h1>
+
+    <h2 style="padding-bottom: 12px">Please follow the instructions to create new users in a genunine manner.</h2>
+    <p style="padding-bottom: 10px">1. Only CSV and EXCEL files are allowed. <a href="{% static 'Sample/sample_new_accounts.xlsx' %}">Sample Excel File</a></p>
+    <p style="padding-bottom: 10px">2. There could be multiple columns, there order does not matter, for example - email can be given in the column after or before username but inside email column, only email should be there.</p>
+    <p style="padding-bottom: 10px">3. If any duplicate entry is found, then first copy will be taken to create account.</p>
+    <p style="padding-bottom: 10px">4. Compulsory Columns are : Email, Username, Account Type. Account type can be "Student", "Faculty", "Staff" or "TA". Column Names should be in title case.</p>
+    <p style="padding-bottom: 10px;">5. Teaching Assistant are also students so there will be 2 handles for them.</p>
+    <p style="padding-bottom: 10px">6. An auto-generated password would be sent to th email address, which will also contain account type and other login credentials.</p>
+    
+
+    <form action="{% url 'add_users' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="file">Upload file here</label>
+        <input type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" name="file" required>
+        <input type="submit" value="Create Accounts">
+    </form>
+
+    <br>
+    <h1>{{message}}</h1>
+    {% endif %}
+</body>     
+</html>
