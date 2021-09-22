@@ -97,4 +97,113 @@ def view_course(request,course_id):
     if request.user=="POST":
         pass
     else:
-        return render(request,"faculty/view_course.html",context={})
+        return render(request,"faculty/view_course.html",context={"course": course})
+
+def add_student_ta(request,course_id):
+    faculty=basicChecking(request)
+    if faculty==False:
+        return redirect('home')
+    course=""
+    try:
+        course=Course.objects.get(id=int(course_id))
+        if course.instructor!=request.user:
+            return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    except:
+        return JsonResponse({"message": "Course was not found on this server"}, status=400)
+
+    if request.method!="POST":
+        return JsonResponse({"message": "Course was not found on this server"}, status=400)
+
+    form=FileForm(request.POST,request.FILES)
+    if form.is_valid():
+        file=form.cleaned_data['file']
+        if str(file).endswith('.csv'):
+            # csv file
+            data=pd.read_csv(file)
+        elif str(file).endswith('.xlsx'):
+            # excel file
+            data=pd.read_excel(file)
+        else:
+            return render(request,"faculty/view_course.html",context={"course": course, "message": "Not an excel or csv file"})
+        return add_student_ta_helper(request, data, course)
+    return render(request,"faculty/view_course.html",context={"course": course, "message": "Error Occured."})
+
+def add_student_ta_helper(request, data, course):
+    if 'Email' not in data.columns and 'Username' not in data.columns:
+        return render(request,"faculty/view_course.html",context={"course": course, "message": "Email column was not found in the file."})     
+    emailGiven=True 
+    if 'Email' not in data.columns:
+        emailGiven=False
+    if 'Role' not in data.columns:
+        return render(request,"faculty/view_course.html",context={"course": course, "message": "Account Type column was not found in the file."})      
+
+    total_accounts=0
+    try:
+        total_accounts=len(data['Email'])
+    except:
+        total_accounts=len(data['Username'])
+    field_with_unknown_values=[]
+    field_with_duplicate_data=[]
+    for i in range(total_accounts):
+        user=""
+        if emailGiven:
+            email=data['Email'][i]
+            try:
+                user=User.objects.get(email=email)
+            except:
+                field_with_unknown_values.append(i+1)
+                continue 
+        else:
+            try:
+                user=User.objects.get(username=data['Username'][i])
+            except:
+                field_with_unknown_values.append(i+1)
+                print("feog\n\n\n\n\n")
+                continue
+        role=data['Role'][i]
+        if role!='Student' and role!="TA":
+            field_with_unknown_values.append(i+1)
+            continue
+        if user and role:
+            try:
+                Enrolment.objects.get(user=user,course=course)
+                field_with_duplicate_data.append(i+1)
+                continue
+            except:
+                pass
+            userType=""
+            if role=="Student":
+                userType=UserType.objects.get(userTypeCode=int(settings.CODE_STUDENT))
+                try:
+                    Student.objects.get(user=user)
+                except:
+                    field_with_unknown_values.append(i+1)
+                    continue 
+            if role=="TA":
+                userType=UserType.objects.get(userTypeCode=int(settings.CODE_TA))
+                try:
+                    TeachingAssistant.objects.get(user=user)
+                except:
+                    field_with_unknown_values.append(i+1)
+                    continue 
+            Enrolment.objects.create(user=user, course=course, userType=userType)
+            subject="Enrolment Confirmation in DadamLive"
+            message="You have been enroled as "+role+" in "+course.courseName+" in DadamLive. You can leave the course if you want but all the progress including tests will be lost if you do so."
+            try:
+                Email_thread(subject,message,email).start()
+            except:
+                print("Unable to send email")
+        else:
+            field_with_unknown_values.append(i+1)
+
+    if len(field_with_unknown_values)==0 and len(field_with_duplicate_data)==0:
+        return render(request,"faculty/view_course.html",context={"course": course, "message": "All users have been added successfully."})    
+    elif len(field_with_unknown_values)==0:  
+        error="Rows with duplicate data are : "+str(field_with_duplicate_data)+" . You can cross-verify, users have been added from rest of the rows."
+    elif len(field_with_duplicate_data)==0:  
+        error="Rows with empty email and empty username or undefined role are : "+str(field_with_unknown_values)+" . You can cross-verify, users have been added from rest of the rows."
+    else:
+        error1="Rows with duplicate data are : "+str(field_with_duplicate_data)+" ."
+        error2="Rows with empty email and empty username or undefined role are : "+str(field_with_unknown_values)+" .\nYou can cross-verify, users have been added from rest of the rows."
+        error=error1+"\n"+error2
+    return render(request,"faculty/view_course.html",context={"course": course, "message": error})

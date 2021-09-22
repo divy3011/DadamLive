@@ -28,6 +28,7 @@ class Quiz(models.Model):
     end_date=models.DateTimeField(default=datetime.datetime.now())
     created_on=models.DateTimeField(default=datetime.datetime.now())
     quizHeld=models.BooleanField(default=False)
+    hidden=models.BooleanField(default=True)
 
     def __str__(self):
         return self.course.courseName
