@@ -1,4 +1,13 @@
-{% load static %}
+{% extends 'faculty/base.html' %} {% load static %}
+
+{% block title %}
+{{request.user.email}} | Faculty in DadamLive
+{% endblock %}
+
+{% block css %}
+
+{% endblock %}
+
 <!DOCTYPE html>   
 <html>   
 <head>  
