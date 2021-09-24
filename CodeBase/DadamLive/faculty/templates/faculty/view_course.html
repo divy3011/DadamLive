@@ -175,6 +175,25 @@
                 </tbody>
               </table>
             </div>
+            <div class="tab-pane" id="quizes">
+              <table class="table">
+                <tbody>
+                  {% for each in quizes %}
+                  <tr>
+                    <td>
+                      {{each.start_date}} - {{each.end_date}}
+                    </td>
+                    <td>{{each.quiz_name}}   </td>
+                    <td class="td-actions text-right">
+                      <a href="#" type="button" rel="tooltip" title="Edit Quiz" class="btn btn-primary btn-link btn-sm">
+                        <i class="material-icons">edit</i>
+                      </a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -235,6 +254,50 @@
                   <textarea class="form-control" name="ann_message" id="ann_message" rows="4" required></textarea>
                 </div>
                 <input type="submit" class="btn btn-primary mb-2" value="Announce">
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3 -->
+  <div class="modal fade" id="modal3" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Quiz Manager</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <h4 style="padding-bottom: 12px"><b>Quiz Announcements can only be deleted before it has been held.</b></h4>
+
+            <form action="{% url 'announce_quiz' course_id=course.id %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                  <label class="bmd-label-floating">Quiz Name</label>
+                  <input type="text" class="form-control" id="quiz_name" name="quiz_name" required>
+                </div>
+                <div class="form-group">
+                  <label class="bmd-label-floating">Start Datetime of Quiz</label>
+                  <input type="datetime-local" class="form-control" id="start_date" name="start_date" required>
+                </div>
+                <div class="form-group">
+                  <label class="bmd-label-floating">End Datetime of Quiz</label>
+                  <input type="datetime-local" class="form-control" id="end_date" name="end_date" required>
+                </div>
+                <div class="form-group">
+                  <label class="bmd-label-floating">Hide Mode - Students will not able to see until quiz starts</label>
+                  <select class="form-control" id="hidden_quiz" name="hidden_quiz" required>
+                    <option value="1">On (Recommended)</option>
+                    <option value="2">Off</option>
+                  </select>
+                </div>
+                <input type="submit" class="btn btn-primary mb-2" value="Announce Quiz">
             </form>
         </div>
         <div class="modal-footer">

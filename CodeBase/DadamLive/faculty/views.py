@@ -99,8 +99,10 @@ def view_course(request,course_id):
     else:
         enrolments=Enrolment.objects.filter(course=course)
         announcements=Announcement.objects.filter(course=course)
+        quizes=Quiz.objects.filter(course=course)
         #Also to add thesr in post request later
-        return render(request,"faculty/view_course.html",context={"course": course, "enrolments": enrolments, "announcements": announcements})
+        context={"course": course, "enrolments": enrolments, "announcements": announcements, "quizes": quizes}
+        return render(request,"faculty/view_course.html",context=context)
 
 def add_student_ta(request,course_id):
     faculty=basicChecking(request)
@@ -225,6 +227,38 @@ def faculty_announcement(request,course_id):
     if request.method=="POST":
         message=request.POST.get("ann_message")
         Announcement.objects.create(course=course, message=message)
+        return redirect('view_course', course_id)
+    else:
+        return JsonResponse({"error": "Course was not found on this server"}, status=400)
+
+def announce_quiz(request, course_id):
+    faculty=basicChecking(request)
+    if faculty==False:
+        return redirect('home')
+    course=""
+    try:
+        course=Course.objects.get(id=int(course_id))
+        if course.instructor!=request.user:
+            return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    except:
+        return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    
+    if request.method=="POST":
+        quiz_name=request.POST.get("quiz_name")
+        start_date=request.POST.get("start_date")
+        end_date=request.POST.get("end_date")
+        hidden_quiz=request.POST.get("hidden_quiz")
+        hide=True
+        if int(hidden_quiz)==2:
+            hide=False
+        start_date=datetime.datetime.strptime(start_date, '%Y-%m-%dT%H:%M')
+        end_date=datetime.datetime.strptime(end_date, '%Y-%m-%dT%H:%M')
+        print(start_date)
+        if end_date<start_date:
+            return JsonResponse({"error": "Start time must be less than end time"}, status=400)
+        if start_date<datetime.datetime.now():
+            return JsonResponse({"error": "Quiz can only be started in future"}, status=400)
+        Quiz.objects.create(course=course, quiz_name=quiz_name, start_date=start_date, end_date=end_date, hidden=hide)
         return redirect('view_course', course_id)
     else:
         return JsonResponse({"error": "Course was not found on this server"}, status=400)

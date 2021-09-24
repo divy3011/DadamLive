@@ -24,6 +24,7 @@ class Enrolment(models.Model):
 
 class Quiz(models.Model):
     course=models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
+    quiz_name=models.CharField(null=True, max_length=500)
     start_date=models.DateTimeField(default=datetime.datetime.now())
     end_date=models.DateTimeField(default=datetime.datetime.now())
     created_on=models.DateTimeField(default=datetime.datetime.now())
