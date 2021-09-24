@@ -94,7 +94,7 @@ def view_course(request,course_id):
     except:
         return JsonResponse({"message": "Course was not found on this server"}, status=400)
     
-    if request.user=="POST":
+    if request.method=="POST":
         pass
     else:
         enrolments=Enrolment.objects.filter(course=course)
@@ -209,3 +209,22 @@ def add_student_ta_helper(request, data, course):
         error2="Rows with empty email and empty username or undefined role are : "+str(field_with_unknown_values)+" .\nYou can cross-verify, users have been added from rest of the rows."
         error=error1+"\n"+error2
     return render(request,"faculty/view_course.html",context={"course": course, "message": error})
+
+def faculty_announcement(request,course_id):
+    faculty=basicChecking(request)
+    if faculty==False:
+        return redirect('home')
+    course=""
+    try:
+        course=Course.objects.get(id=int(course_id))
+        if course.instructor!=request.user:
+            return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    except:
+        return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    
+    if request.method=="POST":
+        message=request.POST.get("ann_message")
+        Announcement.objects.create(course=course, message=message)
+        return redirect('view_course', course_id)
+    else:
+        return JsonResponse({"error": "Course was not found on this server"}, status=400)
