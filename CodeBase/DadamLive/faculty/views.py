@@ -161,7 +161,6 @@ def add_student_ta_helper(request, data, course):
                 user=User.objects.get(username=data['Username'][i])
             except:
                 field_with_unknown_values.append(i+1)
-                print("feog\n\n\n\n\n")
                 continue
         role=data['Role'][i]
         if role!='Student' and role!="TA":

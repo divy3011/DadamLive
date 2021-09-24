@@ -27,7 +27,7 @@
         </div>
         <div class="card-footer">
           <div class="stats">
-            <a href="javascript:;">Upload Excel or CSV</a>
+            <a data-toggle="modal" data-target="#modal1" href="#">Upload Excel or CSV</a>
           </div>
         </div>
       </div>
@@ -43,7 +43,7 @@
         </div>
         <div class="card-footer">
           <div class="stats">
-            <a href="javascript:;">Write Something ...</a>
+            <a data-toggle="modal" data-target="#modal2" href="#">Write Something ...</a>
           </div>
         </div>
       </div>
@@ -59,7 +59,7 @@
         </div>
         <div class="card-footer">
           <div class="stats">
-            <a href="javascript:;">Add Questions</a>
+            <a data-toggle="modal" data-target="#modal3" href="#">Add Questions</a>
           </div>
         </div>
       </div>
@@ -76,13 +76,13 @@
         </div>
         <div class="card-footer">
           <div class="stats">
-            <a href="javascript:;">Download Excel File</a>
+            <a data-toggle="modal" data-target="#modal4" href="#">Download Excel File</a>
           </div>
         </div>
       </div>
     </div>
   </div>
-
+  <p style="color: chocolate;">{{message}}</p>
   <div class="row">
     <div class="col-lg-12 col-md-12">
       <div class="card">
@@ -181,25 +181,42 @@
     </div>
   </div>
 
-        <div>
-            <h2 style="padding-bottom: 12px">Please follow the instructions to add new Students or TA's in a genunine manner.</h2>
+
+  <!-- Modals -->
+  <div class="modal fade" id="modal1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Students and TA's</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <h4 style="padding-bottom: 12px"><b>Please follow the instructions to add new Students or TA's in a genunine manner.</b></h4>
             <p style="padding-bottom: 10px">1. Only CSV and EXCEL files are allowed. <a href="{% static 'Sample/sample_add_student_ta.xlsx' %}">Sample Excel File</a></p>
             <p style="padding-bottom: 10px">2. There could be multiple columns, there order does not matter, for example - email can be given in the column after or before username but inside email column, only email should be there.</p>
             <p style="padding-bottom: 10px">3. If any duplicate entry is found, then first copy will be taken to create account.</p>
             <p style="padding-bottom: 10px">4. Compulsory Columns are : Email or Username(atleast one of them is needed), Role. Role can be "Student" or "TA". Column Names should be in title case.</p>
             <p style="padding-bottom: 10px">5. All the students and tas will be added and informed through email</p>
-            
-    
-            <form action="{% url 'add_student_ta' course_id=course.id %}" method="POST" enctype="multipart/form-data">
+
+            <form action="{% url 'add_student_ta' course_id=course.id %}" class="form-inline" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
-                <label for="file">Upload file here</label>
-                <input type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" name="file" required>
-                <input type="submit" value="Add students/ta's">
+                <div class="mb-2">
+                    <input type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="" name="file" required>
+                </div>
+                <input type="submit" class="btn btn-primary mb-2" value="Add members">
             </form>
-    
-            <br>
-            <h1>{{message}}</h1>
         </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  
 
 {% endblock %}
 
