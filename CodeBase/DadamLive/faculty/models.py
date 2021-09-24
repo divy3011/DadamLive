@@ -73,3 +73,11 @@ class Submission(models.Model):
 
     def __str__(self):
         return self.quiz.course.courseName
+
+class Announcement(models.Model):
+    course=models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
+    message=models.CharField(null=True, max_length=5000)
+    created_on=models.DateTimeField(default=datetime.datetime.now())
+
+    def __str__(self):
+        return self.course.courseName

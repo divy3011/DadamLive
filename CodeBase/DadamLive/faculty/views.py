@@ -97,7 +97,10 @@ def view_course(request,course_id):
     if request.user=="POST":
         pass
     else:
-        return render(request,"faculty/view_course.html",context={"course": course})
+        enrolments=Enrolment.objects.filter(course=course)
+        announcements=Announcement.objects.filter(course=course)
+        #Also to add thesr in post request later
+        return render(request,"faculty/view_course.html",context={"course": course, "enrolments": enrolments, "announcements": announcements})
 
 def add_student_ta(request,course_id):
     faculty=basicChecking(request)
