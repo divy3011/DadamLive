@@ -8,4 +8,8 @@ urlpatterns = [
     path('course/add/alumini/<str:course_id>',views.add_student_ta,name="add_student_ta"),
     path('course/announce/text/<str:course_id>',views.faculty_announcement,name="faculty_announcement"),
     path('course/announce/quiz/<str:course_id>',views.announce_quiz,name="announce_quiz"),
+    path('course/manage/quiz/<str:quiz_id>',views.manage_quiz,name="manage_quiz"),
+    path('course/manage/quiz/change/status/<str:quiz_id>',views.change_quiz_status,name="change_quiz_status"),
+    
+
 ]

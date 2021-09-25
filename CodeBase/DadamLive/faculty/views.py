@@ -262,3 +262,50 @@ def announce_quiz(request, course_id):
         return redirect('view_course', course_id)
     else:
         return JsonResponse({"error": "Course was not found on this server"}, status=400)
+
+def manage_quiz(request,quiz_id):
+    faculty=basicChecking(request)
+    if faculty==False:
+        return redirect('home')
+    quiz=""
+    try:
+        quiz=Quiz.objects.get(id=int(quiz_id))
+        course=quiz.course
+        if course.instructor!=request.user:
+            return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    except:
+        return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    
+    if request.method=="POST":
+        question_type=request.POST.get("question_type")
+        if int(question_type)==1:
+            pass
+        if int(question_type)==2:
+            question_written=request.POST.get("question_written")
+            max_marks_written=float(request.POST.get("max_marks_written"))
+            WrittenQuestion.objects.create(quiz=quiz, question=question_written, maximum_marks=max_marks_written)
+        return redirect('manage_quiz',quiz_id)
+    else:
+        mcq=MCQ.objects.filter(quiz=quiz)
+        written=WrittenQuestion.objects.filter(quiz=quiz)
+        return render(request,"faculty/manage_quiz.html",context={"quiz": quiz, "mcq": mcq, "written": written})
+
+def change_quiz_status(request,quiz_id):
+    faculty=basicChecking(request)
+    if faculty==False:
+        return redirect('home')
+    quiz=""
+    try:
+        quiz=Quiz.objects.get(id=int(quiz_id))
+        course=quiz.course
+        if course.instructor!=request.user:
+            return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    except:
+        return JsonResponse({"message": "Course was not found on this server"}, status=400)
+
+    if quiz.hidden:
+        quiz.hidden=False
+    else:
+        quiz.hidden=True
+    quiz.save()
+    return redirect('manage_quiz',quiz_id)

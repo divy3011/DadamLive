@@ -43,6 +43,7 @@ class MCQ(models.Model):
 
     correct_answers=ListTextField(base_field=models.IntegerField(default=0), size=10)
     note=models.CharField(null=True, max_length=500)
+    maximum_marks=models.FloatField(null=True, blank=True, default=1)
     max_time_limit_allowed=models.IntegerField(default=600, null=True, blank=True)
     #In seconds for obvious. Default is 10 minutes
 
@@ -53,6 +54,7 @@ class WrittenQuestion(models.Model):
     quiz=models.ForeignKey(Quiz, on_delete=models.CASCADE, null=True, blank=True)
     question=models.CharField(null=True, max_length=500)
     note=models.CharField(null=True, max_length=500)
+    maximum_marks=models.FloatField(null=True, blank=True, default=1)
     max_time_limit_allowed=models.IntegerField(default=600, null=True, blank=True)
     #In seconds for obvious. Default is 10 minutes
 

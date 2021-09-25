@@ -1,0 +1,257 @@
+{% extends 'faculty/base.html' %} {% load static %}
+
+{% block title %}{{request.user.email}} | Faculty in DadamLive{% endblock %}
+
+{% block heading %}{{course.courseName}}{% endblock %}
+
+{% block css %}{% endblock %}
+
+{% block extra_js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript " src="{% static 'Faculty/NewCourse/start_new_course.js' %} "></script>
+{% endblock %}
+
+{% block main_body %}    
+
+<div class="row">
+    <div class="col-lg-4 col-md-6 col-sm-6">
+      <div class="card card-stats">
+        <div class="card-header card-header-warning card-header-icon">
+          <div class="card-icon">
+            <i class="material-icons">flaky</i>
+          </div>
+          <p class="card-category">MCQ</p>
+          <h5 class="card-title">
+            <small>Medium Level</small>
+          </h5>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+              {% if quiz.quizHeld %}
+              Quiz has been held
+              {% else %}
+                <a data-toggle="modal" data-target="#modal1" href="#">Add MCQ Question to quiz</a>
+              {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4 col-md-6 col-sm-6">
+      <div class="card card-stats">
+        <div class="card-header card-header-success card-header-icon">
+          <div class="card-icon">
+            <i class="material-icons">create</i>
+          </div>
+          <p class="card-category">Written</p>
+          <h5 class="card-title"><small>Hard Level</small></h5>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            {% if quiz.quizHeld %}
+            Quiz has been held
+            {% else %}
+            <a data-toggle="modal" data-target="#modal2" href="#">Add short/long question to quiz</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4 col-md-6 col-sm-6">
+      <div class="card card-stats">
+        <div class="card-header card-header-info card-header-icon">
+          <div class="card-icon">
+            <i class="material-icons">visibility</i>
+          </div>
+          <p class="card-category">Quiz Hidder</p>
+          <h5 class="card-title">
+            <small>
+                {% if quiz.hidden %}Hidden{% else %}Visible{% endif %}
+            </small></h5>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            <a href="{% url 'change_quiz_status' quiz_id=quiz.id %}">{% if quiz.hidden %}Unhide Quiz{% else %}Hide Quiz{% endif %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p style="color: chocolate;">{{message}}</p>
+  <div class="row">
+    <div class="col-lg-12 col-md-12">
+      <div class="card">
+        <div class="card-header card-header-tabs card-header-primary">
+          <div class="nav-tabs-navigation">
+            <div class="nav-tabs-wrapper">
+              <span class="nav-tabs-title">Activity</span>
+              <ul class="nav nav-tabs" data-tabs="tabs">
+                <li class="nav-item">
+                  <a class="nav-link active" href="#mcqs" data-toggle="tab">
+                    <i class="material-icons">flaky</i> MCQ Questions
+                    <div class="ripple-container"></div>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#writtens" data-toggle="tab">
+                    <i class="material-icons">create</i> Written Questions
+                    <div class="ripple-container"></div>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#assign" data-toggle="tab">
+                    <i class="material-icons">turned_in</i> Assign Marks
+                    <div class="ripple-container"></div>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="tab-content">
+            <div class="tab-pane active" id="mcqs">
+                <table class="table table-hover">
+                    <thead class="text-warning">
+                      <th>Student Name</th>
+                      <th>Email Address</th>
+                      <th>Roll Number / Username</th>
+                    </thead>
+                    <tbody>
+                        {% for each in mcq %}
+                        <tr>
+                            <td>{{each.user.first_name}} {{each.user.last_name}}</td>
+                            <td>{{each.user.email}}</td>
+                            <td>{{each.user.username}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>        
+            </div>
+            <div class="tab-pane" id="writtens">
+                <table class="table table-hover">
+                    <thead class="text-warning">
+                      <th>Teaching Assistant Name</th>
+                      <th>Email Address</th>
+                      <th>Roll Number / Username</th>
+                    </thead>
+                    <tbody>
+                        {% for each in written %}1
+                        <tr>
+                            <td>{{each.course}}</td>
+                            <td>{{each.user.email}}</td>
+                            <td>{{each.user.username}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>              
+            </div>
+            <div class="tab-pane" id="assign">
+              <table class="table">
+                <tbody>
+                  {% for each in announcements %}
+                  <tr>
+                    <td>
+                      Created on {{each.created_on}}
+                    </td>
+                    <td>{{each.message}}   </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal 1 -->
+  <div class="modal fade" id="modal1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Students and TA's</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <h4 style="padding-bottom: 12px"><b>Please follow the instructions to add new Students or TA's in a genunine manner.</b></h4>
+            <p style="padding-bottom: 10px">1. Only CSV and EXCEL files are allowed. <a href="{% static 'Sample/sample_add_student_ta.xlsx' %}">Sample Excel File</a></p>
+            <p style="padding-bottom: 10px">2. There could be multiple columns, there order does not matter, for example - email can be given in the column after or before username but inside email column, only email should be there.</p>
+            <p style="padding-bottom: 10px">3. If any duplicate entry is found, then first copy will be taken to create account.</p>
+            <p style="padding-bottom: 10px">4. Compulsory Columns are : Email or Username(atleast one of them is needed), Role. Role can be "Student" or "TA". Column Names should be in title case.</p>
+            <p style="padding-bottom: 10px">5. All the students and tas will be added and informed through email</p>
+
+            <form action="#" class="form-inline" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-2">
+                    <input type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="" name="file" required>
+                </div>
+                <input type="submit" class="btn btn-primary mb-2" value="Add members">
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2 -->
+  <div class="modal fade" id="modal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add a written type question</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <h4 style="padding-bottom: 12px"><b>1. Students will be given a question and have to write the answer using keyboard</b></h4>
+            <h4 style="padding-bottom: 12px"><b>2. Questions will not be visible to students unless quiz is hided</b></h4>
+            <h4 style="padding-bottom: 12px"><b>3. Editing feature for question is not available at this moment</b></h4>
+
+            <form action="{% url 'manage_quiz' quiz_id=quiz.id %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="question_type" value="2" required>
+                <div class="form-group">
+                  <label class="bmd-label-floating">Type the question below</label>
+                  <textarea class="form-control" name="question_written" id="question_written" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="bmd-label-floating">Maximum Marks for the question</label>
+                   <input type="number" class="form-control" name="max_marks_written" required>
+                  </div>
+                <input type="submit" class="btn btn-primary mb-2" value="Add Question">
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ 
+
+{% endblock %}
+
+
+{% block left_panel %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'dashboardFaculty' %}">
+      <i class="material-icons">dashboard</i>
+      <p>Dashboard</p>
+    </a>
+  </li>
+  <li class="nav-item ">
+    <a class="nav-link" href="{% url 'start_new_course' %}">
+      <i class="material-icons">content_paste</i>
+      <p>New Course</p>
+    </a>
+  </li>
+{% endblock %}

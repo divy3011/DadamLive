@@ -185,7 +185,7 @@
                     </td>
                     <td>{{each.quiz_name}}   </td>
                     <td class="td-actions text-right">
-                      <a href="#" type="button" rel="tooltip" title="Edit Quiz" class="btn btn-primary btn-link btn-sm">
+                      <a href="{% url 'manage_quiz' quiz_id=each.id %}" type="button" rel="tooltip" title="Edit Quiz" class="btn btn-primary btn-link btn-sm">
                         <i class="material-icons">edit</i>
                       </a>
                     </td>
