@@ -8,7 +8,7 @@
 
 {% block extra_js %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script type="text/javascript " src="{% static 'Faculty/NewCourse/start_new_course.js' %} "></script>
+<script type="text/javascript" src="{% static 'Faculty/NewCourse/start_new_course.js' %} "></script>
 {% endblock %}
 
 {% block main_body %}    
@@ -114,6 +114,7 @@
                       <th>Question</th>
                       <th>Options</th>
                       <th>Correct Options(0-based indexing)</th>
+                      <th>Marking Scheme</th>
                       <th>Maximum Marks</th>
                     </thead>
                     <tbody>
@@ -122,6 +123,17 @@
                           <td>{{each.question}}</td>
                           <td>{{each.options}}</td>
                           <td>{{each.correct_answers}}</td>
+                          <td>
+                            {% ifequal each.markingScheme 1 %}
+                            Partial Marking - Negative Consideration
+                            {% endifequal %}
+                            {% ifequal each.markingScheme 2 %}
+                            Partial Marking - Positive Consideration
+                            {% endifequal %}
+                            {% ifequal each.markingScheme 3 %}
+                            No Partial Marking
+                            {% endifequal %}
+                          </td>
                           <td>{{each.maximum_marks}}</td>
                         </tr>
                         {% endfor %}
