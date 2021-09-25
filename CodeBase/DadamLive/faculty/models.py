@@ -47,6 +47,11 @@ class MCQ(models.Model):
     max_time_limit_allowed=models.IntegerField(default=600, null=True, blank=True)
     #In seconds for obvious. Default is 10 minutes
 
+    markingScheme=models.IntegerField(default=1, null=True)
+    # 1 - Partial with negative consideration
+    # 2 - Partial without negative
+    # 3 - No partial
+
     def __str__(self):
         return self.quiz.course.courseName
 

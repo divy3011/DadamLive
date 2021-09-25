@@ -279,8 +279,22 @@ def manage_quiz(request,quiz_id):
     if request.method=="POST":
         question_type=request.POST.get("question_type")
         if int(question_type)==1:
-            pass
-        if int(question_type)==2:
+            question_written=request.POST.get("question_written")
+            max_marks_written=float(request.POST.get("max_marks_written"))
+            scheme=int(request.POST.get("marking_scheme"))
+            mcq=MCQ.objects.create(quiz=quiz, question=question_written, maximum_marks=max_marks_written, markingScheme=scheme)
+            index=0
+            for i in range(1,7):
+                select=request.POST.get("sel"+str(i))
+                if int(select)!=1:
+                    option=request.POST.get("opt"+str(i))
+                    mcq.options.append(option)
+                    if int(select)==2:
+                        mcq.correct_answers.append(index)
+                    index=index+1
+            mcq.save()
+
+        elif int(question_type)==2:
             question_written=request.POST.get("question_written")
             max_marks_written=float(request.POST.get("max_marks_written"))
             WrittenQuestion.objects.create(quiz=quiz, question=question_written, maximum_marks=max_marks_written)
