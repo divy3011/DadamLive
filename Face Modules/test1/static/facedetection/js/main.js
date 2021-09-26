@@ -4,13 +4,13 @@ let predictedAges = [];
 
 /****Loading the model ****/
 // Promise.all([
-//   faceapi.nets.tinyFaceDetector.loadFromUri("https://testdivy.herokuapp.com/static/models"),
-//   faceapi.nets.faceRecognitionNet.loadFromUri("https://testdivy.herokuapp.com/static/models")
+//   faceapi.nets.tinyFaceDetector.loadFromUri("https://testdivy.herokuapp.com/static/facedetection/models"),
+//   faceapi.nets.faceRecognitionNet.loadFromUri("https://testdivy.herokuapp.com/static/facedetection/models")
 // ]).then(startVideo);
 
 Promise.all([
-  faceapi.nets.tinyFaceDetector.loadFromUri("http://127.0.0.1:8000/static/models"),
-  faceapi.nets.faceRecognitionNet.loadFromUri("http://127.0.0.1:8000/static/models")
+  faceapi.nets.tinyFaceDetector.loadFromUri("http://127.0.0.1:8000/static/facedetection/models"),
+  faceapi.nets.faceRecognitionNet.loadFromUri("http://127.0.0.1:8000/static/facedetection/models")
 ]).then(startVideo);
 
 function startVideo() {
@@ -24,9 +24,9 @@ function startVideo() {
 /****Fixing the video with based on size size  ****/
 function screenResize(isScreenSmall) {
   if (isScreenSmall.matches) {
-    video.style.width = "320px";
+    video.style.width = "640px";
   } else {
-    video.style.width = "500px";
+    video.style.width = "640px";
   }
 }
 
