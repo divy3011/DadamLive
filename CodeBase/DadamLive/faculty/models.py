@@ -49,8 +49,7 @@ class MCQ(models.Model):
 
     markingScheme=models.IntegerField(default=1, null=True)
     # 1 - Partial with negative consideration
-    # 2 - Partial without negative
-    # 3 - No partial
+    # 2 - No partial
 
     def __str__(self):
         return self.quiz.course.courseName

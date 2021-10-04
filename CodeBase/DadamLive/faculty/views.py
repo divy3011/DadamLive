@@ -298,11 +298,83 @@ def manage_quiz(request,quiz_id):
             question_written=request.POST.get("question_written")
             max_marks_written=float(request.POST.get("max_marks_written"))
             WrittenQuestion.objects.create(quiz=quiz, question=question_written, maximum_marks=max_marks_written)
+        elif int(question_type)==3:
+            form=FileForm(request.POST,request.FILES)
+            if form.is_valid():
+                file=form.cleaned_data['file']
+                if str(file).endswith('.csv'):
+                    # csv file
+                    data=pd.read_csv(file)
+                elif str(file).endswith('.xlsx'):
+                    # excel file
+                    data=pd.read_excel(file)
+                else:
+                    mcq=MCQ.objects.filter(quiz=quiz)
+                    written=WrittenQuestion.objects.filter(quiz=quiz)
+                    return render(request,"faculty/manage_quiz.html",context={"quiz": quiz, "mcq": mcq, "written": written, "message": "Not an excel or csv file"})
+                return manage_quiz_helper(request, data, quiz)
         return redirect('manage_quiz',quiz_id)
     else:
         mcq=MCQ.objects.filter(quiz=quiz)
         written=WrittenQuestion.objects.filter(quiz=quiz)
         return render(request,"faculty/manage_quiz.html",context={"quiz": quiz, "mcq": mcq, "written": written})
+
+def manage_quiz_helper(request, data, quiz):
+    mcq=MCQ.objects.filter(quiz=quiz)
+    written=WrittenQuestion.objects.filter(quiz=quiz)
+    if 'Question Type' not in data.columns and 'Question' not in data.columns and 'Maximum Marks' not in data.columns:
+        return render(request,"faculty/manage_quiz.html",context={"quiz": quiz, "mcq": mcq, "written": written, "message": "Either of Question Type, Question or Maximum Marks Column was not found in the file."})
+
+    field_with_unknown_values=[]
+    field_with_duplicate_data=[]
+    for i in range(len(data["Question"])):
+        typeOfQ=data["Question Type"][i]
+        question_written=data["Question"][i]
+        max_marks_written=data["Maximum Marks"][i]
+        if typeOfQ=="Subjective":
+            try:
+                WrittenQuestion.objects.get(quiz=quiz, question=question_written, maximum_marks=max_marks_written)
+                field_with_duplicate_data.append(i+1)
+            except:
+                WrittenQuestion.objects.create(quiz=quiz, question=question_written, maximum_marks=max_marks_written)
+        elif typeOfQ=="Objective":
+            try:
+                MCQ.objects.get(quiz=quiz, question=question_written, maximum_marks=max_marks_written)
+                field_with_duplicate_data.append(i+1)
+            except:
+                try:
+                    scheme=data["Marking Scheme"][i]
+                    mcq=MCQ.objects.create(quiz=quiz, question=question_written, maximum_marks=max_marks_written, markingScheme=scheme)
+                    index=0
+                    for j in range(1,7):
+                        if "Option"+str(j) not in data.columns:
+                            break
+                        option=data["Option"+str(j)][i]
+                        if str(option)!="nan":
+                            mcq.options.append(option)
+                    if "Correct Options" not in data.columns:
+                        field_with_unknown_values.append(i+1)
+                        mcq.delete()
+                    correct_answers=str(data["Correct Options"][i]).split(",")
+                    for correct_option in correct_answers:
+                        mcq.correct_answers.append(int(correct_option)-1)
+                    mcq.save()
+                except:
+                    field_with_unknown_values.append(i+1)
+                    mcq.delete()
+    mcq=MCQ.objects.filter(quiz=quiz)
+    written=WrittenQuestion.objects.filter(quiz=quiz)
+    if len(field_with_unknown_values)==0 and len(field_with_duplicate_data)==0:
+        return render(request,"faculty/manage_quiz.html",context={"quiz": quiz, "mcq": mcq, "written": written, "message": "All questions have been added successfully."})    
+    elif len(field_with_unknown_values)==0:  
+        error="Rows with duplicate data are : "+str(field_with_duplicate_data)+" . You can cross-verify, questions have been added from rest of the rows."
+    elif len(field_with_duplicate_data)==0:  
+        error="Rows with empty or not found values are : "+str(field_with_unknown_values)+" . You can cross-verify, questions have been added from rest of the rows."
+    else:
+        error1="Rows with duplicate data are : "+str(field_with_duplicate_data)+" ."
+        error2="Rows with empty or not found values are : "+str(field_with_unknown_values)+" .\nYou can cross-verify, questions have been added from rest of the rows."
+        error=error1+"\n"+error2
+    return render(request,"faculty/manage_quiz.html",context={"quiz": quiz, "mcq": mcq, "written": written, "message": error})
 
 def change_quiz_status(request,quiz_id):
     faculty=basicChecking(request)

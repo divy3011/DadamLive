@@ -12,9 +12,30 @@
 {% endblock %}
 
 {% block main_body %}    
-
 <div class="row">
-    <div class="col-lg-4 col-md-6 col-sm-6">
+    <div class="col-lg-3 col-md-6 col-sm-6">
+      <div class="card card-stats">
+        <div class="card-header card-header-warning card-header-icon">
+          <div class="card-icon">
+            <i class="material-icons">content_copy</i>
+          </div>
+          <p class="card-category">Upload Questions</p>
+          <h5 class="card-title">
+            <small>Both Type</small>
+          </h5>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+              {% if quiz.quizHeld %}
+              Quiz has been held
+              {% else %}
+                <a data-toggle="modal" data-target="#modal0" href="#">Upload File for questions</a>
+              {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3 col-md-6 col-sm-6">
       <div class="card card-stats">
         <div class="card-header card-header-warning card-header-icon">
           <div class="card-icon">
@@ -36,7 +57,7 @@
         </div>
       </div>
     </div>
-    <div class="col-lg-4 col-md-6 col-sm-6">
+    <div class="col-lg-3 col-md-6 col-sm-6">
       <div class="card card-stats">
         <div class="card-header card-header-success card-header-icon">
           <div class="card-icon">
@@ -56,7 +77,7 @@
         </div>
       </div>
     </div>
-    <div class="col-lg-4 col-md-6 col-sm-6">
+    <div class="col-lg-3 col-md-6 col-sm-6">
       <div class="card card-stats">
         <div class="card-header card-header-info card-header-icon">
           <div class="card-icon">
@@ -76,6 +97,9 @@
       </div>
     </div>
   </div>
+
+  <p>{{message}}</p>
+
   <div class="row">
     <div class="col-lg-12 col-md-12">
       <div class="card">
@@ -125,12 +149,9 @@
                           <td>{{each.correct_answers}}</td>
                           <td>
                             {% ifequal each.markingScheme 1 %}
-                            Partial Marking - Negative Consideration
+                            Partial Marking
                             {% endifequal %}
                             {% ifequal each.markingScheme 2 %}
-                            Partial Marking - Positive Consideration
-                            {% endifequal %}
-                            {% ifequal each.markingScheme 3 %}
                             No Partial Marking
                             {% endifequal %}
                           </td>
@@ -179,6 +200,40 @@
     </div>
   </div>
 
+  <!-- Modal 0 -->
+  <div class="modal fade" id="modal0" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Upload Questions</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <h4 style="padding-bottom: 12px"><b>Please follow the instructions to add upload questions in a genunine manner.</b></h4>
+            <p style="padding-bottom: 10px">1. Only CSV and EXCEL files are allowed. <a href="{% static 'Sample/upload_questions.xlsx' %}">Sample Excel File</a></p>
+            <p style="padding-bottom: 10px">2. There could be multiple columns, there order does not matter.</p>
+            <p style="padding-bottom: 10px">3. You can upload both type of questions like Subjective or Objective.</p>
+            <p style="padding-bottom: 10px">4. Compulsory Columns are : Question Type(Value can be Subjective or Objective), Question, Maximum Marks(Integer).</p>
+            <p style="padding-bottom: 10px">5. For objective questions, options need to be given, so maximum 6 options can be given and column name must be Option1, Option2, ... Option6, one with Correct Option(out of 1-6) and the Marking Scheme(1 for partial and 2 for no partial).</p>
+            <p style="padding-bottom: 10px">6. Note: If maximum options in any objective question are 3 for example then there no need to mention Option4-Option6. If there are multiple options correct then separate then with comma(,)</p>
+
+            <form action="{% url 'manage_quiz' quiz_id=quiz.id %}" class="form-inline" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-2">
+                    <input type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="" name="file" required>
+                </div>
+                <input type="hidden" name="question_type" value="3" required>
+                <input type="submit" class="btn btn-primary mb-2" value="Upload Questions">
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Modal 1 -->
   <div class="modal fade" id="modal1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -266,7 +321,6 @@
                 <select class="form-control" name="marking_scheme">
                   <option value="1">Partial Marking Scheme - Also consider wrong marked answers (Recommended)</option>
                   <option value="2">Also correct answers must be marked</option>
-                  <option value="3">Partial Marking Scheme - Do not consider wrong marked answers</option>
                 </select>
               </div>
 
