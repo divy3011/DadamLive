@@ -50,12 +50,13 @@ def SENDMAIL(subject, message, email):
 
 def basicChecking(request):
     if request.user.is_authenticated==False:
-        return redirect('home')
+        return False
     try:
         info=UserInformation.objects.get(user=request.user)
         if info.userType.userTypeCode==settings.CODE_FACULTY:
             faculty=Faculty.objects.get(user=request.user)
             return faculty
+        return False
     except:
         return False
 

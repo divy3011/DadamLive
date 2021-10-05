@@ -21,6 +21,7 @@ from django.contrib.staticfiles import finders
 from functools import lru_cache
 import pandas as pd
 from staff.views import dashboardStaff
+from student.views import dashboardStudent
 
 class Email_thread(Thread):
     def __init__(self,subject,message,email):
@@ -94,6 +95,9 @@ def login_redirecter(request):
         if info.userType.userTypeCode==settings.CODE_FACULTY:
             #Faculty User
             return redirect(dashboardFaculty)
+        if info.userType.userTypeCode==settings.CODE_STUDENT:
+            #Student User
+            return redirect(dashboardStudent)
     except:
         return HttpResponse("<h1>Unable to fetch account details</h1>")
 

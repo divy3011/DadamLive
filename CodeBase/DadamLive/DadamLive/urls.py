@@ -23,6 +23,7 @@ urlpatterns = [
     path('',include('home.urls')),
     path('dashboard/staff/',include('staff.urls')),
     path('dashboard/faculty/',include('faculty.urls')),
+    path('dashboard/student/',include('student.urls')),
     # path('dashboard/',include('dashboard.urls')),
     
 ]

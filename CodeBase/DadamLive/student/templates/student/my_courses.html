@@ -1,0 +1,47 @@
+{% extends 'student/base.html' %} {% load static %}
+
+{% block title %}{{request.user.email}} | Student in DadamLive{% endblock %}
+
+{% block heading %}Dashboard{% endblock %}
+
+{% block css %}{% endblock %}
+
+{% block extra_js %}{% endblock %}
+
+{% block main_body %}   
+      
+      <div class="row">
+        {% for e in enrolments %}
+        <div class="col-md-4">
+          <div class="card card-chart">
+            <img src="{% static 'images/demo.jpg' %}">
+            <div class="card-body">
+              <h4 class="card-title">{{e.course..courseName}}</h4>
+              <p class="card-category">Enroled {{e.enrolled_on}}</p>
+            </div>
+            <div class="card-footer">
+              <div class="stats">
+                <a href="{% url 'view_course_student' course_id=e.course.id %}">Click to view more...</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+{% endblock %}
+
+
+{% block left_panel %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'dashboardFaculty' %}">
+      <i class="material-icons">dashboard</i>
+      <p>Dashboard</p>
+    </a>
+  </li>
+  <li class="nav-item active">
+    <a class="nav-link" href="{% url 'start_new_course' %}">
+      <i class="material-icons">content_paste</i>
+      <p>New Course</p>
+    </a>
+  </li>
+{% endblock %}
