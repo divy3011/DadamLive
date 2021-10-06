@@ -82,6 +82,7 @@ function syncMCQQuestion(question_id, max_options){
         if(answer[answer.length - 1]==",")
             answer=answer.substr(0, answer.length - 1)
         serializedData={"quiz_id": quiz_id, "question_id": question_id, "answer": answer}
+        while(internetConnected()==false){}
         $.ajax({
             type: 'GET',
             url: "save/question/1",
@@ -100,6 +101,7 @@ function syncWrittenQuestion(question_id){
     document.getElementById(question_id).addEventListener("keydown", function(event) {
         quiz_id=document.getElementById("quiz_id").innerHTML;
         serializedData={"quiz_id": quiz_id, "question_id": question_id, "answer": document.getElementById(question_id).value}
+        while(internetConnected()==false){}
         $.ajax({
             type: 'GET',
             url: "save/question/2",
@@ -112,4 +114,8 @@ function syncWrittenQuestion(question_id){
             }
         });
     });
+}
+
+function internetConnected(){
+    return true;
 }
