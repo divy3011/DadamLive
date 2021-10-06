@@ -195,21 +195,23 @@ def save_question(request, q_type):
     except:
         if submission==False:
             submission=Submission.objects.create(quiz=quiz, user=request.user)
-
-    if int(q_type)==1:
-        pass
-    elif int(q_type)==2:
-        part=""
-        answer=request.GET["answer"]
-        question_id=request.GET["question_id"]
-        # PartOfSubmission.objects.get(submission=submission, question_type=int(q_type), question_id=int(question_id))
-        try:
-            part=PartOfSubmission.objects.get(submission=submission, question_type=int(q_type), question_id=int(question_id[7:]))
-        except:
-            part=PartOfSubmission.objects.create(submission=submission, question_type=int(q_type), question_id=int(question_id[7:]))
-        part.answer=answer
-        part.save()
-    else:
+    
+    if int(q_type)!=1 and int(q_type)!=2:
         return JsonResponse({"message": "Not a valid question."}, status=400)
+
+    part=""
+    answer=request.GET["answer"]
+    question_id=request.GET["question_id"]
+    if int(q_type)==2:
+        question_id=int(question_id[7:])
+    else:
+        question_id=int(question_id[3:])
+    try:
+        part=PartOfSubmission.objects.get(submission=submission, question_type=int(q_type), question_id=question_id)
+    except:
+        part=PartOfSubmission.objects.create(submission=submission, question_type=int(q_type), question_id=question_id)
+    part.answer=answer
+    part.save()
+    
     return JsonResponse({"success": "State Saved"}, status=200)
 

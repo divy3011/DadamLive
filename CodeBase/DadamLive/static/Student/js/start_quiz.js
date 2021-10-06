@@ -13,7 +13,7 @@ function getQuestions(){
         url: "get/questions/"+String(quiz_id),
         data: serializedData,
         success: function (response) {
-            console.log(response);
+            // console.log(response);
             mcq=JSON.parse(response["mcq"]);
             written=JSON.parse(response["written"]);
             quiz=JSON.parse(response["quiz"]);
@@ -34,13 +34,31 @@ function getQuestions(){
             for(i=0;i<Object.keys(mcq).length;i++){
                 options=mcq[i].fields.options.split(",")
                 question='<div style="margin-bottom: 40px"><div>Question. '+mcq[i].fields.question+' ('+mcq[i].fields.maximum_marks+')</div>'
-                manager=""
-                for(j=0;j<options.length;j++){
-                    manager+='<div><input type="checkbox" id="MCQ'+i+"Option"+j+'">'+options[j]+'</div>'
+                manager="";
+                prev_answers=false;
+                for(j=0;j<Object.keys(partOfSubmission).length;j++){
+                    if(partOfSubmission[j].fields.question_id==mcq[i].pk && partOfSubmission[j].fields.question_type==1){
+                        prev_answers=partOfSubmission[j].fields.answer.split(",")
+                        break;
+                    }
                 }
-                all_options='<div>'+manager+'</div></div>'
-                // Add listner to this question to sync the answer.
+                for(j=0;j<options.length;j++){
+                    flag=0;
+                    if(prev_answers!=false){
+                        for(k=0;k<prev_answers.length;k++){
+                            if((1+String(prev_answers[k]))==(1+String(j))){
+                                flag=1;
+                                manager+='<div><input type="checkbox" id="MCQ'+mcq[i].pk+"Option"+j+'" checked>'+options[j]+'</div>';
+                                break;
+                            }
+                        }
+                    }
+                    if(flag==0) 
+                        manager+='<div><input type="checkbox" id="MCQ'+mcq[i].pk+"Option"+j+'">'+options[j]+'</div>'
+                }
+                all_options='<div id="MCQ'+mcq[i].pk+'">'+manager+'</div></div>'
                 $("#questions").append(question+all_options)
+                syncMCQQuestion("MCQ"+mcq[i].pk, options.length)
             }
             // addQuesionsToHtml();
         },
@@ -51,10 +69,36 @@ function getQuestions(){
     });
 }
 
+function syncMCQQuestion(question_id, max_options){
+    document.getElementById(question_id).addEventListener("click", function(event) {
+        quiz_id=document.getElementById("quiz_id").innerHTML;
+        answer="";
+        for(i=0;i<max_options;i++){
+            option_id="#"+question_id+"Option"+i
+            if ($(option_id).is(':checked')) {
+                answer+=i+",";
+            }
+        }
+        if(answer[answer.length - 1]==",")
+            answer=answer.substr(0, answer.length - 1)
+        serializedData={"quiz_id": quiz_id, "question_id": question_id, "answer": answer}
+        $.ajax({
+            type: 'GET',
+            url: "save/question/1",
+            data: serializedData,
+            success: function (response) {
+                
+            },
+            error: function (response) {
+                alert(response["responseJSON"]["message"])
+            }
+        });
+    });
+}
+
 function syncWrittenQuestion(question_id){
     document.getElementById(question_id).addEventListener("keydown", function(event) {
         quiz_id=document.getElementById("quiz_id").innerHTML;
-        user_id=document.getElementById("user_id").innerHTML;
         serializedData={"quiz_id": quiz_id, "question_id": question_id, "answer": document.getElementById(question_id).value}
         $.ajax({
             type: 'GET',
