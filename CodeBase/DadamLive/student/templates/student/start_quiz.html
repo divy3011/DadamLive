@@ -8,8 +8,9 @@
     <title>Quiz {{quiz.quiz_name}}</title>
 </head>
 <body>
+    <div id="questions"></div>
     <p id="quiz_id" style="display: none;">{{quiz.id}}</p>
-
+    <p id="user_id" style="display: none;">{{request.user.id}}</p>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{% static 'Student/js/start_quiz.js' %}"></script>
 </body>

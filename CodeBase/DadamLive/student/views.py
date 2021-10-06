@@ -93,18 +93,7 @@ def view_course_student(request, course_id):
     quizes=Quiz.objects.filter(course=course, hidden=False)
     return render(request,"student/view_course_student.html",context={"student": student, "course": course, "announcements": announcements, "quizes": quizes})
 
-
-def start_quiz(request, quiz_id):
-    student=basicChecking(request)
-    if student==False:
-        return redirect('home')
-    quiz=""
-    try:
-        quiz=Quiz.objects.get(id=int(quiz_id))
-        Enrolment.objects.get(course=quiz.course, user=request.user)
-    except:
-        return JsonResponse({"message": "Quiz was not found on this server or you have not been invited by the instructor."}, status=400)
-    
+def quiz_identification(quiz):
     if quiz.hidden:
         return JsonResponse({"message": "Quiz has been moved to hidden section and is no longer available to you."}, status=400)
 
@@ -119,6 +108,23 @@ def start_quiz(request, quiz_id):
 
     if quiz.end_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()>quiz.end_date.time():
         return JsonResponse({"message": "Quiz is no longer available."}, status=400)
+
+    return True
+
+def start_quiz(request, quiz_id):
+    student=basicChecking(request)
+    if student==False:
+        return redirect('home')
+    quiz=""
+    try:
+        quiz=Quiz.objects.get(id=int(quiz_id))
+        Enrolment.objects.get(course=quiz.course, user=request.user)
+    except:
+        return JsonResponse({"message": "Quiz was not found on this server or you have not been invited by the instructor."}, status=400)
+    
+    identity=quiz_identification(quiz)
+    if identity!=True:
+        return identity
 
     submission=False
     try:
@@ -144,20 +150,9 @@ def get_questions(request, quiz_id):
     except:
         return JsonResponse({"message": "Quiz was not found on this server or you have not been invited by the instructor."}, status=400)
     
-    if quiz.hidden:
-        return JsonResponse({"message": "Quiz has been moved to hidden section and is no longer available to you."}, status=400)
-
-    if quiz.end_date.date()<datetime.datetime.now().date():
-        return JsonResponse({"message": "Quiz is no longer avaiable."}, status=400)
-    
-    if quiz.start_date.date()>datetime.datetime.now().date():
-        return JsonResponse({"message": "Quiz has not been started yet."}, status=400)
-
-    if quiz.start_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()<quiz.start_date.time():
-        return JsonResponse({"message": "Quiz has not been started yet."}, status=400)
-
-    if quiz.end_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()>quiz.end_date.time():
-        return JsonResponse({"message": "Quiz is no longer available."}, status=400)
+    identity=quiz_identification(quiz)
+    if identity!=True:
+        return identity
 
     submission=False
     try:
@@ -173,3 +168,46 @@ def get_questions(request, quiz_id):
         mcq=MCQ.objects.filter(quiz=quiz)
         written=WrittenQuestion.objects.filter(quiz=quiz)
         return JsonResponse({"quiz": serializers.serialize('json', [quiz]), "mcq": serializers.serialize('json', mcq), "written": serializers.serialize('json', written)}, status=200)
+
+def save_question(request, q_type):
+    student=basicChecking(request)
+    if student==False:
+        return redirect('home')
+    quiz=""
+    quiz_id=int(request.GET["quiz_id"])
+    try:
+        quiz=Quiz.objects.get(id=int(quiz_id))
+        Enrolment.objects.get(course=quiz.course, user=request.user)
+    except:
+        return JsonResponse({"message": "Quiz was not found on this server or you have not been invited by the instructor."}, status=400)
+    
+    identity=quiz_identification(quiz)
+    if identity!=True:
+        return identity
+
+    submission=False
+    try:
+        submission=Submission.objects.get(quiz=quiz, user=request.user)
+        if submission.sumitted:
+            return JsonResponse({"message": "You already have submitted the quiz 1 time."}, status=400)
+    except:
+        if submission==False:
+            submission=Submission.objects.create(quiz=quiz, user=request.user)
+
+    if int(q_type)==1:
+        pass
+    elif int(q_type)==2:
+        part=""
+        answer=request.GET["answer"]
+        question_id=request.GET["question_id"]
+        # PartOfSubmission.objects.get(submission=submission, question_type=int(q_type), question_id=int(question_id))
+        try:
+            part=PartOfSubmission.objects.get(submission=submission, question_type=int(q_type), question_id=int(question_id[7:]))
+        except:
+            part=PartOfSubmission.objects.create(submission=submission, question_type=int(q_type), question_id=int(question_id[7:]))
+        part.answer=answer
+        part.save()
+    else:
+        return JsonResponse({"message": "Not a valid question."}, status=400)
+    return JsonResponse({"success": "State Saved"}, status=200)
+

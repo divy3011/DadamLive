@@ -7,6 +7,7 @@ urlpatterns = [
     path('courses/view/<str:course_id>',views.view_course_student,name="view_course_student"),
     path('quiz/start/<str:quiz_id>',views.start_quiz,name="start_quiz"),
     path('quiz/start/get/questions/<str:quiz_id>',views.get_questions,name="get_questions"),
+    path('quiz/start/save/question/<str:q_type>',views.save_question,name="save_question"),
     
 
 ]

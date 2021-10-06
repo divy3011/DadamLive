@@ -274,7 +274,7 @@
           </button>
         </div>
         <div class="modal-body">
-            <h4 style="padding-bottom: 12px"><b>Quiz Announcements can only be deleted before it has been held.</b></h4>
+            <h4 style="padding-bottom: 12px"><b>Quiz can only be deleted before it has been held.</b></h4>
 
             <form action="{% url 'announce_quiz' course_id=course.id %}" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}

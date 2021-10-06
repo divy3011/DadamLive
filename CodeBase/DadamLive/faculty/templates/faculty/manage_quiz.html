@@ -240,7 +240,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Add Students and TA's</h5>
+          <h5 class="modal-title">Add a mcq Question to quiz</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -248,7 +248,7 @@
         <div class="modal-body">
           <h5 style="padding-bottom: 12px"><b>1. Students will be given a question and some options and have to select the option</b></h5>
           <h5 style="padding-bottom: 12px"><b>2. Questions will not be visible to students unless quiz is hided</b></h5>
-          <h5 style="padding-bottom: 12px"><b>3. Editing feature for question is not available at this moment</b></h5>
+          <h5 style="padding-bottom: 12px"><b>3. Editing feature for question is not available at this moment and ignore comma in the options</b></h5>
           <h5 style="padding-bottom: 12px"><b>4. Only activated options will be considered<b></h5>
 
           <form action="{% url 'manage_quiz' quiz_id=quiz.id %}" method="POST" enctype="multipart/form-data">

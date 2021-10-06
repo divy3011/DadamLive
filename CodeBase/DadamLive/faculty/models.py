@@ -69,18 +69,21 @@ class Submission(models.Model):
     quiz=models.ForeignKey(Quiz, on_delete=models.CASCADE, null=True, blank=True)
     user=models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 
-    answers_marked=ListTextField(base_field=models.CharField(default="", max_length=10000), size=100)
-    question_id=ListTextField(base_field=models.CharField(default="", max_length=100), size=100)
-
-    question_type=ListTextField(base_field=models.CharField(default="", max_length=10), size=100)
-    #1 - MCQ
-    #2 - Written Question
-
     score=models.CharField(null=True, max_length=20)
     submitted=models.BooleanField(default=False)
 
     def __str__(self):
         return self.quiz.course.courseName
+
+class PartOfSubmission(models.Model):
+    submission=models.ForeignKey(Submission, on_delete=models.CASCADE, null=True, blank=True)
+    question_id=models.IntegerField(null=True, default=0)
+    answer=models.CharField(null=True, max_length=1000000)
+
+    question_type=models.IntegerField(null=True, default=2)
+    #1 - MCQ
+    #2 - Written Question
+
 
 class Announcement(models.Model):
     course=models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
