@@ -53,25 +53,27 @@
               <table class="table">
                 <tbody>
                   {% for each in quizes %}
-                  <tr>
-                    <td>
-                      {{each.start_date}} - {{each.end_date}}
-                    </td>
-                    <td>{{each.quiz_name}}   </td>
-                    {% if each.quizHeld %}
-                    <td class="td-actions text-right">
-                      <a href="#" type="button" rel="tooltip" title="View Quiz" class="btn btn-primary btn-link btn-sm">
-                        <i class="material-icons">visibility</i>
-                      </a>
-                    </td>
-                    {% else %}
-                    <td class="td-actions text-right">
-                      <a href="#" type="button" rel="tooltip" title="Give Quiz" class="btn btn-primary btn-link btn-sm">
-                        <i class="material-icons">play_arrow</i>
-                      </a>
-                    </td>
+                    {% if each.hidden %}{% else %}
+                      <tr>
+                        <td>
+                          {{each.start_date}} - {{each.end_date}}
+                        </td>
+                        <td>{{each.quiz_name}}   </td>
+                        {% if each.quizHeld %}
+                        <td class="td-actions text-right">
+                          <a href="#" type="button" rel="tooltip" title="View Quiz" class="btn btn-primary btn-link btn-sm">
+                            <i class="material-icons">visibility</i>
+                          </a>
+                        </td>
+                        {% else %}
+                        <td class="td-actions text-right">
+                          <a href="{% url 'start_quiz' quiz_id=each.id %}" type="button" rel="tooltip" title="Give Quiz" class="btn btn-primary btn-link btn-sm">
+                            <i class="material-icons">play_arrow</i>
+                          </a>
+                        </td>
+                        {% endif %}
+                    </tr>
                     {% endif %}
-                  </tr>
                   {% endfor %}
                 </tbody>
               </table>

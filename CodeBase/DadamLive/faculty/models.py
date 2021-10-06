@@ -77,6 +77,7 @@ class Submission(models.Model):
     #2 - Written Question
 
     score=models.CharField(null=True, max_length=20)
+    submitted=models.BooleanField(default=False)
 
     def __str__(self):
         return self.quiz.course.courseName

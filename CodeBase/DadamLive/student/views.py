@@ -21,6 +21,9 @@ import pandas as pd
 from staff.forms import FileForm
 from .models import *
 from faculty.models import *
+import pytz
+
+utc=pytz.UTC
 
 # Create your views here.
 class Email_thread(Thread):
@@ -87,5 +90,44 @@ def view_course_student(request, course_id):
     except:
         return JsonResponse({"message": "Course was not found on this server or you have not been invited by the instructor."}, status=400)
     announcements=Announcement.objects.filter(course=course)
-    quizes=Quiz.objects.filter(course=course)
+    quizes=Quiz.objects.filter(course=course, hidden=False)
     return render(request,"student/view_course_student.html",context={"student": student, "course": course, "announcements": announcements, "quizes": quizes})
+
+def start_quiz(request, quiz_id):
+    student=basicChecking(request)
+    if student==False:
+        return redirect('home')
+    quiz=""
+    try:
+        quiz=Quiz.objects.get(id=int(quiz_id))
+        Enrolment.objects.get(course=quiz.course, user=request.user)
+    except:
+        return JsonResponse({"message": "Quiz was not found on this server or you have not been invited by the instructor."}, status=400)
+    
+    if quiz.hidden:
+        return JsonResponse({"message": "Quiz has been moved to hidden section and is no longer available to you."}, status=400)
+
+    if quiz.end_date.date()<datetime.datetime.now().date():
+        return JsonResponse({"message": "Quiz is no longer avaiable."}, status=400)
+    
+    if quiz.start_date.date()>datetime.datetime.now().date():
+        return JsonResponse({"message": "Quiz has not been started yet."}, status=400)
+
+    if quiz.start_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()<quiz.start_date.time():
+        return JsonResponse({"message": "Quiz has not been started yet."}, status=400)
+
+    if quiz.end_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()>quiz.end_date.time():
+        return JsonResponse({"message": "Quiz is no longer available."}, status=400)
+
+    submission=False
+    try:
+        submission=Submission.objects.get(quiz=quiz, user=request.user)
+        if submission.sumitted:
+            return JsonResponse({"message": "You already have submitted the quiz 1 time."}, status=400)
+    except:
+        pass
+
+    if request.method=="POST":
+        pass
+    else:
+        return render(request,"student/start_quiz.html",context={})
