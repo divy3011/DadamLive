@@ -17,9 +17,17 @@ function getQuestions(){
             mcq=JSON.parse(response["mcq"]);
             written=JSON.parse(response["written"]);
             quiz=JSON.parse(response["quiz"]);
+            partOfSubmission=JSON.parse(response["partOfSubmission"]);
             for(i=0;i<Object.keys(written).length;i++){
+                answer="";
+                for(j=0;j<Object.keys(partOfSubmission).length;j++){
+                    if(partOfSubmission[j].fields.question_id==written[i].pk && partOfSubmission[j].fields.question_type==2){
+                        answer=partOfSubmission[j].fields.answer;
+                        break;
+                    }
+                }
                 question='<div style="margin-bottom: 40px"><div>Question. '+written[i].fields.question+' ('+written[i].fields.maximum_marks+')</div>'
-                text_box='<div><textarea id="Written'+written[i].pk+'"></textarea></div></div>'
+                text_box='<div><textarea id="Written'+written[i].pk+'">'+answer+'</textarea></div></div>'
                 $("#questions").append(question+text_box)
                 syncWrittenQuestion("Written"+written[i].pk)
             }

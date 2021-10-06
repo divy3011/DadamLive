@@ -160,14 +160,16 @@ def get_questions(request, quiz_id):
         if submission.sumitted:
             return JsonResponse({"message": "You already have submitted the quiz 1 time."}, status=400)
     except:
-        pass
+        if submission==False:
+            submission=Submission.objects.create(quiz=quiz, user=request.user)
 
     if request.method=="POST":
         pass
     else:
         mcq=MCQ.objects.filter(quiz=quiz)
         written=WrittenQuestion.objects.filter(quiz=quiz)
-        return JsonResponse({"quiz": serializers.serialize('json', [quiz]), "mcq": serializers.serialize('json', mcq), "written": serializers.serialize('json', written)}, status=200)
+        partOfSubmission=PartOfSubmission.objects.filter(submission=submission)
+        return JsonResponse({"quiz": serializers.serialize('json', [quiz]), "mcq": serializers.serialize('json', mcq), "written": serializers.serialize('json', written), "partOfSubmission": serializers.serialize('json', partOfSubmission)}, status=200)
 
 def save_question(request, q_type):
     student=basicChecking(request)
