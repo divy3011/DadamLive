@@ -1,7 +1,5 @@
 window.onload = function() {
     getQuestions();
-    // setFullScreen();
-    // setTimer();
     setWindowsTimeOut();
 };
 
@@ -18,6 +16,10 @@ function getQuestions(){
             mcq=JSON.parse(response["mcq"]);
             written=JSON.parse(response["written"]);
             quiz=JSON.parse(response["quiz"]);
+
+            //Setting the timer
+            setTimer(quiz);
+
             partOfSubmission=JSON.parse(response["partOfSubmission"]);
             for(i=0;i<Object.keys(written).length;i++){
                 answer="";
@@ -147,4 +149,68 @@ function logIllegalActivity(typeAct){
         success: function (response) {},
         error: function (response) {}
     });
+}
+
+function setTimer(quiz){
+    last_date=quiz[0].fields.end_date
+    date=last_date.substr(0,10)
+    time=last_date.substr(11,8)
+    date=date.split("-")
+    time=getMonth(date[1])+" "+date[2]+", "+date[0] + " "+time
+    var countDownDate = new Date(time).getTime();
+    var x = setInterval(function() {
+        var now = new Date().getTime();
+        var distance = countDownDate - now;
+        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        document.getElementById("myTimer").innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+        if (distance < 0) {
+            clearInterval(x);
+            document.getElementById("myTimer").innerHTML = "Test Ended";
+            location.reload();
+        }
+    }, 1000);
+}
+
+function getMonth(id){
+    id=parseInt(id)
+    if(id==1){
+        return "Jan"
+    }
+    if(id==2){
+        return "Feb"
+    }
+    if(id==3){
+        return "Mar"
+    }
+    if(id==4){
+        return "Apr"
+    }
+    if(id==5){
+        return "May"
+    }
+    if(id==6){
+        return "Jun"
+    }
+    if(id==7){
+        return "Jul"
+    }
+    if(id==8){
+        return "Aug"
+    }
+    if(id==9){
+        return "Sep"
+    }
+    if(id==10){
+        return "Oct"
+    }
+    if(id==11){
+        return "Nov"
+    }
+    if(id==12){
+        return "Dec"
+    }
+    return "Unavailable"
 }

@@ -252,4 +252,3 @@ def mark_activity(request, quiz_id):
     activity.save()
 
     return JsonResponse({"message": "Activity Marked"}, status=200)
-    
