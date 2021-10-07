@@ -2,6 +2,7 @@ window.onload = function() {
     getQuestions();
     // setFullScreen();
     // setTimer();
+    setWindowsTimeOut();
 };
 
 function getQuestions(){
@@ -118,4 +119,32 @@ function syncWrittenQuestion(question_id){
 
 function internetConnected(){
     return true;
+}
+
+numberOfTimesWindowsTimedOut=0;
+
+function setWindowsTimeOut(){
+    setTimeout(function() {
+        window.blur();
+        $(window).blur(function() {
+            if(numberOfTimesWindowsTimedOut<3){
+                numberOfTimesWindowsTimedOut++;
+                alert('It was noticed that you changed the tab, changed web address or opened any another application. Ignore doing that otherwise you will be logged out immediately out of the test.');
+            }
+            logIllegalActivity(1)
+        });
+    
+    }, 5000);  
+}
+
+function logIllegalActivity(typeAct){
+    quiz_id=document.getElementById("quiz_id").innerHTML;
+    var serializedData = 'type='+ typeAct
+    $.ajax({
+        type: 'GET',
+        url: "mark/activity/"+String(quiz_id),
+        data: serializedData,
+        success: function (response) {},
+        error: function (response) {}
+    });
 }

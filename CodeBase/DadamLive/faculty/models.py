@@ -75,6 +75,12 @@ class Submission(models.Model):
     def __str__(self):
         return self.quiz.course.courseName
 
+class IllegalAttempt(models.Model):
+    submission=models.ForeignKey(Submission, on_delete=models.CASCADE, null=True, blank=True)
+
+    browserSwitched=models.IntegerField(null=True, default=0)
+    # Activity Number 1
+
 class PartOfSubmission(models.Model):
     submission=models.ForeignKey(Submission, on_delete=models.CASCADE, null=True, blank=True)
     question_id=models.IntegerField(null=True, default=0)
