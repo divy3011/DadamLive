@@ -72,6 +72,8 @@ class Submission(models.Model):
     score=models.CharField(null=True, max_length=20)
     submitted=models.BooleanField(default=False)
 
+    ip_address=models.CharField(null=True, max_length=50)
+
     def __str__(self):
         return self.quiz.course.courseName
 

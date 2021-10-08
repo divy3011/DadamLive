@@ -1,6 +1,7 @@
 window.onload = function() {
     getQuestions();
     setWindowsTimeOut();
+    sendIP();
 };
 
 function getQuestions(){
@@ -213,4 +214,20 @@ function getMonth(id){
         return "Dec"
     }
     return "Unavailable"
+}
+
+function sendIP(){
+    $.getJSON('https://api.db-ip.com/v2/free/self', function(data) {
+        // location_details=JSON.stringify(data, null, 2);
+        ip=data["ipAddress"]
+        var serializedData = 'ipAddress='+ ip;
+        quiz_id=document.getElementById("quiz_id").innerHTML;
+        $.ajax({
+            type: 'GET',
+            url: "mark/ip/address/"+String(quiz_id),
+            data: serializedData,
+            success: function (response) {},
+            error: function (response) {}
+        });
+    });
 }

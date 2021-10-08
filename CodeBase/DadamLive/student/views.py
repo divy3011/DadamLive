@@ -252,3 +252,32 @@ def mark_activity(request, quiz_id):
     activity.save()
 
     return JsonResponse({"message": "Activity Marked"}, status=200)
+
+def mark_ip(request, quiz_id):
+    student=basicChecking(request)
+    if student==False:
+        return redirect('home')
+    quiz=""
+    try:
+        quiz=Quiz.objects.get(id=int(quiz_id))
+        Enrolment.objects.get(course=quiz.course, user=request.user)
+    except:
+        return JsonResponse({"message": "Quiz was not found on this server or you have not been invited by the instructor."}, status=400)
+    
+    identity=quiz_identification(quiz)
+    if identity!=True:
+        return identity
+
+    submission=False
+    try:
+        submission=Submission.objects.get(quiz=quiz, user=request.user)
+        if submission.sumitted:
+            return JsonResponse({"message": "Quiz submitted that means you can't cheat."}, status=400)
+    except:
+        if submission==False:
+            submission=Submission.objects.create(quiz=quiz, user=request.user)
+    ipAddress=request.GET.get("ipAddress")
+    submission.ip_address=ipAddress
+    submission.save()
+
+    return JsonResponse({"message": "IP Saved"}, status=200)
