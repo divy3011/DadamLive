@@ -2,6 +2,7 @@ window.onload = function() {
     getQuestions();
     setWindowsTimeOut();
     sendIP();
+    faceDetection();
 };
 
 function getQuestions(){
@@ -230,4 +231,23 @@ function sendIP(){
             error: function (response) {}
         });
     });
+}
+
+async function faceDetection(){
+    
+    let video = document.querySelector("#video");
+    let canvas = document.querySelector("#canvas");
+
+    let stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    video.srcObject = stream;
+
+    let delayTime=10000
+    
+    setInterval(function(){
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+        let image_data_url = canvas.toDataURL('image/jpeg');
+
+        // data url of the image
+        console.log(image_data_url);
+    },delayTime);
 }
