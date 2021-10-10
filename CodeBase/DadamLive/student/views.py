@@ -22,6 +22,12 @@ from staff.forms import FileForm
 from .models import *
 from faculty.models import *
 import pytz
+import dlib
+import cv2
+import base64
+from io import BytesIO
+from PIL import Image
+import numpy as np
 
 utc=pytz.UTC
 
@@ -281,3 +287,38 @@ def mark_ip(request, quiz_id):
     submission.save()
 
     return JsonResponse({"message": "IP Saved"}, status=200)
+
+def image_detector(request,quiz_id):
+    student=basicChecking(request)
+    if student==False:
+        return redirect('home')
+    quiz=""
+    try:
+        quiz=Quiz.objects.get(id=int(quiz_id))
+        Enrolment.objects.get(course=quiz.course, user=request.user)
+    except:
+        return JsonResponse({"message": "Quiz was not found on this server or you have not been invited by the instructor."}, status=400)
+    
+    identity=quiz_identification(quiz)
+    if identity!=True:
+        return identity
+
+    submission=False
+    try:
+        submission=Submission.objects.get(quiz=quiz, user=request.user)
+        if submission.sumitted:
+            return JsonResponse({"message": "Quiz submitted that means you can't cheat."}, status=400)
+    except:
+        if submission==False:
+            submission=Submission.objects.create(quiz=quiz, user=request.user)
+    image=request.POST.get("image")
+    detector = dlib.get_frontal_face_detector()
+    image = base64.b64decode(image)
+    image = Image.open(BytesIO(image))
+    image  = np.array(image)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    faces = detector(gray)
+    print(gray)
+    print(faces)
+    print(len(faces))
+    return JsonResponse({"message": "Image Detection Done"}, status=200)

@@ -10,6 +10,6 @@ urlpatterns = [
     path('quiz/start/save/question/<str:q_type>',views.save_question,name="save_question"),
     path('quiz/start/mark/activity/<str:quiz_id>',views.mark_activity,name="mark_activity"),
     path('quiz/start/mark/ip/address/<str:quiz_id>',views.mark_ip,name="mark_ip"),
-    
+    path('quiz/start/image/detector/<str:quiz_id>',views.image_detector,name="image_detector"),
 
 ]
