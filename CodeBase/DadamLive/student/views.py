@@ -135,7 +135,7 @@ def start_quiz(request, quiz_id):
     submission=False
     try:
         submission=Submission.objects.get(quiz=quiz, user=request.user)
-        if submission.sumitted:
+        if submission.submitted:
             return JsonResponse({"message": "You already have submitted the quiz 1 time."}, status=400)
     except:
         pass
@@ -163,7 +163,7 @@ def get_questions(request, quiz_id):
     submission=False
     try:
         submission=Submission.objects.get(quiz=quiz, user=request.user)
-        if submission.sumitted:
+        if submission.submitted:
             return JsonResponse({"message": "You already have submitted the quiz 1 time."}, status=400)
     except:
         if submission==False:
@@ -196,7 +196,7 @@ def save_question(request, q_type):
     submission=False
     try:
         submission=Submission.objects.get(quiz=quiz, user=request.user)
-        if submission.sumitted:
+        if submission.submitted:
             return JsonResponse({"message": "You already have submitted the quiz 1 time."}, status=400)
     except:
         if submission==False:
@@ -241,7 +241,7 @@ def mark_activity(request, quiz_id):
     submission=False
     try:
         submission=Submission.objects.get(quiz=quiz, user=request.user)
-        if submission.sumitted:
+        if submission.submitted:
             return JsonResponse({"message": "Quiz submitted that means you can't cheat."}, status=400)
     except:
         if submission==False:
@@ -277,12 +277,39 @@ def mark_ip(request, quiz_id):
     submission=False
     try:
         submission=Submission.objects.get(quiz=quiz, user=request.user)
-        if submission.sumitted:
+        if submission.submitted:
             return JsonResponse({"message": "Quiz submitted that means you can't cheat."}, status=400)
     except:
         if submission==False:
             submission=Submission.objects.create(quiz=quiz, user=request.user)
     ipAddress=request.GET.get("ipAddress")
+    try:
+        s=Submission.objects.filter(ip_address=ipAddress, quiz=quiz)
+
+        if len(s)!=0:
+            flag=1
+            if len(s)==1:
+                if s[0].user==request.user:
+                    flag=0
+            if flag==1:
+                for each in s:
+                    i=""
+                    try:
+                        i=IllegalAttempt.objects.get(submission=each)
+                    except:
+                        i=IllegalAttempt.objects.create(submission=each)
+                    i.usingSomeoneElseIP=True
+                    i.save()
+                i=""
+                try:
+                    i=IllegalAttempt.objects.get(submission=submission)
+                except:
+                    i=IllegalAttempt.objects.create(submission=submission)
+                i.usingSomeoneElseIP=True
+                i.save()
+    except:
+        pass
+
     submission.ip_address=ipAddress
     submission.save()
 
@@ -306,7 +333,7 @@ def image_detector(request,quiz_id):
     submission=False
     try:
         submission=Submission.objects.get(quiz=quiz, user=request.user)
-        if submission.sumitted:
+        if submission.submitted:
             return JsonResponse({"message": "Quiz submitted that means you can't cheat."}, status=400)
     except:
         if submission==False:
@@ -318,7 +345,18 @@ def image_detector(request,quiz_id):
     image  = np.array(image)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     faces = detector(gray)
-    print(gray)
-    print(faces)
-    print(len(faces))
+
+    activity=""
+    try:
+        activity=IllegalAttempt.objects.get(submission=submission)
+    except:
+        activity=IllegalAttempt.objects.create(submission=submission)
+    
+    if len(faces)>1:
+        activity.numberOfTimesMultiplePersonsDetected=activity.numberOfTimesMultiplePersonsDetected+1
+        activity.save()
+    elif len(faces)==0:
+        activity.noPersonDetected=activity.noPersonDetected+1
+        activity.save()
+
     return JsonResponse({"message": "Image Detection Done"}, status=200)
