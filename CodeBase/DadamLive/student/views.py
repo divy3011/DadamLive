@@ -28,6 +28,7 @@ import base64
 from io import BytesIO
 from PIL import Image
 import numpy as np
+from background_task import background
 
 utc=pytz.UTC
 
@@ -360,3 +361,42 @@ def image_detector(request,quiz_id):
         activity.save()
 
     return JsonResponse({"message": "Image Detection Done"}, status=200)
+
+def end_test(request, quiz_id):
+    student=basicChecking(request)
+    if student==False:
+        return redirect('home')
+    quiz=""
+    try:
+        quiz=Quiz.objects.get(id=int(quiz_id))
+        Enrolment.objects.get(course=quiz.course, user=request.user)
+    except:
+        return JsonResponse({"message": "Quiz was not found on this server or you have not been invited by the instructor."}, status=400)
+
+    submission=False
+    try:
+        submission=Submission.objects.get(quiz=quiz, user=request.user)
+        if submission.submitted:
+            return JsonResponse({"message": "Quiz submitted that means you can't cheat."}, status=400)
+    except:
+        if submission==False:
+            submission=Submission.objects.create(quiz=quiz, user=request.user)
+    
+    if submission.submitted==False:
+        submission.submitted=True
+        submission.save()
+        subject = 'Quiz Submission'
+        message = f'Your submission was received for the quiz'+quiz.quiz_name
+        Email_thread(subject,message,request.user.email).start()
+        checkForQuizStatus(quiz)
+        return JsonResponse({"message": "Submission Saved"}, status=200)
+
+    return JsonResponse({"message": "Already Submitted"}, status=200)
+
+def checkForQuizStatus(quiz):
+    if quiz.end_date.date()<datetime.datetime.now().date():
+        quiz.quizHeld=True
+
+    if quiz.end_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()>quiz.end_date.time():
+        quiz.quizHeld=True
+    quiz.save()

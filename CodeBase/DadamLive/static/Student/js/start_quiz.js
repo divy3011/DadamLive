@@ -128,17 +128,30 @@ function internetConnected(){
 numberOfTimesWindowsTimedOut=0;
 
 function setWindowsTimeOut(){
-    setTimeout(function() {
-        window.blur();
-        $(window).blur(function() {
+    document.addEventListener("visibilitychange", event => {
+        if (document.visibilityState == "visible"){
+            
+        } 
+        else{
+            console.log("tab is inactive")
             if(numberOfTimesWindowsTimedOut<3){
                 numberOfTimesWindowsTimedOut++;
                 alert('It was noticed that you changed the tab, changed web address or opened any another application. Ignore doing that otherwise you will be logged out immediately out of the test.');
             }
             logIllegalActivity(1)
-        });
+        }
+    });
+    // setTimeout(function() {
+    //     window.blur();
+    //     $(window).blur(function() {
+    //         if(numberOfTimesWindowsTimedOut<3){
+    //             numberOfTimesWindowsTimedOut++;
+    //             alert('It was noticed that you changed the tab, changed web address or opened any another application. Ignore doing that otherwise you will be logged out immediately out of the test.');
+    //         }
+    //         logIllegalActivity(1)
+    //     });
     
-    }, 5000);  
+    // }, 5000);  
 }
 
 function logIllegalActivity(typeAct){
@@ -171,7 +184,8 @@ function setTimer(quiz){
         if (distance < 0) {
             clearInterval(x);
             document.getElementById("myTimer").innerHTML = "Test Ended";
-            location.reload();
+            alert("Saving the submission. Do not close this page.")
+            sendEndSignal();
         }
     }, 1000);
 }
@@ -277,7 +291,19 @@ async function faceDetection(){
 }
 
 function sendEndSignal(){
-    alert("Hello")
+    quiz_id=document.getElementById("quiz_id").innerHTML;
+    while(internetConnected()==false){}
+    $.ajax({
+        type: 'GET',
+        url: "end/test/"+String(quiz_id),
+        success: function (response) {
+            alert("Your submission has been saved successfully.")
+            location.reload();
+        },
+        error: function (response) {
+            alert(response["responseJSON"]["message"])
+        }
+    });
 }
 
 function end_quiz(e){

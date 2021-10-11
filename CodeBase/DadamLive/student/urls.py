@@ -11,5 +11,6 @@ urlpatterns = [
     path('quiz/start/mark/activity/<str:quiz_id>',views.mark_activity,name="mark_activity"),
     path('quiz/start/mark/ip/address/<str:quiz_id>',views.mark_ip,name="mark_ip"),
     path('quiz/start/image/detector/<str:quiz_id>',views.image_detector,name="image_detector"),
+    path('quiz/start/end/test/<str:quiz_id>',views.end_test,name="end_test"),
 
 ]
