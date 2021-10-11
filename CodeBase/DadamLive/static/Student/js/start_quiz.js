@@ -234,12 +234,21 @@ function sendIP(){
 }
 
 async function faceDetection(){
-    
-    let video = document.querySelector("#video");
-    let canvas = document.querySelector("#canvas");
+    count=0;
+    try{
+        let video = document.querySelector("#video");
+        let canvas = document.querySelector("#canvas");
 
-    let stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-    video.srcObject = stream;
+        let stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        video.srcObject = stream;
+    }
+    catch{
+        if(count<3){
+            count++;
+            alert("No camera was found. You can give the test but this malpractie will be saved.")
+        }
+        return ;
+    }
 
     let delayTime=10000
     
@@ -265,6 +274,18 @@ async function faceDetection(){
             }
         });
     },delayTime);
+}
+
+function sendEndSignal(){
+    alert("Hello")
+}
+
+function end_quiz(e){
+    if(!confirm("Do you want to end the quiz? You will not able to start it again.")){
+        e.preventDefault();
+        return false;
+    }
+    sendEndSignal();
 }
 
 function sha256(ascii) {
