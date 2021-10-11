@@ -4,12 +4,16 @@
 
 {% block heading %}{{quiz.quiz_name}}{% endblock %}
 
-{% block css %}{% endblock %}
+{% block css %}
+<link rel="stylesheet" href="http://cdn.datatables.net/1.10.2/css/jquery.dataTables.min.css"></style>
+{% endblock %}
 
 {% block extra_js %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script type="text/javascript" src="{% static 'Faculty/NewCourse/start_new_course.js' %} "></script>
 <script type="text/javascript" src="{% static 'Faculty/NewCourse/manage_quiz.js' %} "></script>
+<script type="text/javascript" src="http://cdn.datatables.net/1.10.2/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 {% endblock %}
 
 {% block main_body %}    
@@ -394,6 +398,23 @@
         </div>
         <div class="modal-body">
             <div id="analysis_message"></div>
+            <h4 style="padding-bottom: 12px"><b>Browser Switching tells how many student changed his tab or closed chrome.</b></h4>
+            <h4 style="padding-bottom: 12px"><b>Multiple Face Detected, No Face Detected - If value is x then it means for x*10 seconds, multiple or no face was detected.</b></h4>
+            <h4 style="padding-bottom: 12px"><b>Web Source Detection tells that how much maximum plagiarism was seen from web sources in handwritten questions.</b></h4>
+            <table id="myTable">  
+              <thead>  
+                <tr>  
+                  <th>Student Name</th>  
+                  <th>Email</th> 
+                  <th>Browser Switching</th>
+                  <th>Unique IP Address</th>
+                  <th>Multiple Face Detected</th>
+                  <th>No Face Detected</th>
+                  <th>Web Source Used</th>
+                </tr>  
+              </thead>  
+              <tbody></tbody>  
+            </table>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

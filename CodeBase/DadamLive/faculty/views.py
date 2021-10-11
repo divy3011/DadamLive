@@ -457,5 +457,9 @@ def quiz_analysis(request):
                 part_of_submissions.append(part)
         except:
             pass
-    
-    return JsonResponse({"submission": serializers.serialize('json', submissions), "illegal_attempts": serializers.serialize('json', illegal_attempts), "part_of_submissions": serializers.serialize('json', part_of_submissions)}, status=200)
+    submissions=serializers.serialize('json', submissions)
+    illegal_attempts=serializers.serialize('json', illegal_attempts)
+    part_of_submissions=serializers.serialize('json', part_of_submissions)
+    users=serializers.serialize('json', User.objects.all())
+    written=serializers.serialize('json', WrittenQuestion.objects.filter(quiz=quiz))
+    return JsonResponse({"users": users, "written": written, "submissions": submissions, "illegal_attempts": illegal_attempts, "part_of_submissions": part_of_submissions}, status=200)
