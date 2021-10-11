@@ -9,6 +9,7 @@
 {% block extra_js %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script type="text/javascript" src="{% static 'Faculty/NewCourse/start_new_course.js' %} "></script>
+<script type="text/javascript" src="{% static 'Faculty/NewCourse/manage_quiz.js' %} "></script>
 {% endblock %}
 
 {% block main_body %}    
@@ -122,7 +123,13 @@
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="#assign" data-toggle="tab">
-                    <i class="material-icons">turned_in</i> Assign Marks
+                    <i class="material-icons">turned_in</i> View Submissions
+                    <div class="ripple-container"></div>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="modal" data-target="#modal3" href="#" onclick="get_analysis()">
+                    <i class="material-icons">turned_in</i> View Detailed Analysis
                     <div class="ripple-container"></div>
                   </a>
                 </li>
@@ -130,6 +137,7 @@
             </div>
           </div>
         </div>
+        <p style="display: none;" id="quiz_id">{{quiz.id}}</p>
         <div class="card-body">
           <div class="tab-content">
             <div class="tab-pane active" id="mcqs">
@@ -181,13 +189,17 @@
             </div>
             <div class="tab-pane" id="assign">
               <table class="table">
+                <thead class="text-warning">
+                  <th>Student Name</th>
+                  <th>Student Email</th>
+                  <th>Score</th>
+                </thead>
                 <tbody>
-                  {% for each in announcements %}
+                  {% for each in submissions %}
                   <tr>
-                    <td>
-                      Created on {{each.created_on}}
-                    </td>
-                    <td>{{each.message}}   </td>
+                    <td>{{each.user.first_name}}</td>
+                    <td>{{each.user.email}}   </td>
+                    <td>{% if each.score %}{{each.score}}{% else %} - {% endif %}</td>
                   </tr>
                   {% endfor %}
                 </tbody>
@@ -362,6 +374,26 @@
                   </div>
                 <input type="submit" class="btn btn-primary mb-2" value="Add Question">
             </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3 -->
+  <div class="modal fade" id="modal3" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">View Detailed Analysis</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div id="analysis_message"></div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

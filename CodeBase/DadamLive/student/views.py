@@ -395,8 +395,11 @@ def end_test(request, quiz_id):
 
 def checkForQuizStatus(quiz):
     if quiz.end_date.date()<datetime.datetime.now().date():
-        quiz.quizHeld=True
+        if quiz.quizHeld==False:
+            quiz.quizHeld=True
+            quiz.save()
 
     if quiz.end_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()>quiz.end_date.time():
-        quiz.quizHeld=True
-    quiz.save()
+        if quiz.quizHeld==False:
+            quiz.quizHeld=True
+            quiz.save()

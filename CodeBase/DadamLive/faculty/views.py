@@ -312,13 +312,19 @@ def manage_quiz(request,quiz_id):
                 else:
                     mcq=MCQ.objects.filter(quiz=quiz)
                     written=WrittenQuestion.objects.filter(quiz=quiz)
-                    return render(request,"faculty/manage_quiz.html",context={"quiz": quiz, "mcq": mcq, "written": written, "message": "Not an excel or csv file"})
+                    submissions=False
+                    if quiz.quizHeld:
+                        submissions=Submission.objects.filter(quiz=quiz)
+                    return render(request,"faculty/manage_quiz.html",context={"quiz": quiz, "mcq": mcq, "written": written, "message": "Not an excel or csv file", "submissions": submissions})
                 return manage_quiz_helper(request, data, quiz)
         return redirect('manage_quiz',quiz_id)
     else:
         mcq=MCQ.objects.filter(quiz=quiz)
         written=WrittenQuestion.objects.filter(quiz=quiz)
-        return render(request,"faculty/manage_quiz.html",context={"quiz": quiz, "mcq": mcq, "written": written})
+        submissions=False
+        if quiz.quizHeld:
+            submissions=Submission.objects.filter(quiz=quiz)
+        return render(request,"faculty/manage_quiz.html",context={"quiz": quiz, "mcq": mcq, "written": written, "submissions": submissions})
 
 def manage_quiz_helper(request, data, quiz):
     mcq=MCQ.objects.filter(quiz=quiz)
@@ -393,6 +399,63 @@ def change_quiz_status(request,quiz_id):
     if quiz.hidden:
         quiz.hidden=False
     else:
+        if quizOngoing(quiz)==False:
+            return JsonResponse({"message": "This option is available during quiz"}, status=400)
         quiz.hidden=True
     quiz.save()
     return redirect('manage_quiz',quiz_id)
+
+def quizOngoing(quiz):
+    if quiz.end_date.date()<datetime.datetime.now().date():
+        return True
+    
+    if quiz.start_date.date()>datetime.datetime.now().date():
+        return True
+
+    if quiz.start_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()<quiz.start_date.time():
+        return True
+
+    if quiz.end_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()>quiz.end_date.time():
+        return True
+    
+    return False
+
+def quiz_analysis(request):
+    faculty=basicChecking(request)
+    if faculty==False:
+        return redirect('home')
+    if request.method!="POST":
+        return JsonResponse({"message": "Unable to process this request."}, status=400)
+    quiz=""
+    try:
+        quiz=Quiz.objects.get(id=int(request.POST.get("quiz_id")))
+        course=quiz.course
+        if course.instructor!=request.user:
+            return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    except:
+        return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    
+    if quiz.quizHeld==False:
+        return JsonResponse({"message": "Analysis can not be done until quiz gets over."}, status=400)
+    
+    submissions=Submission.objects.filter(quiz=quiz)
+    illegal_attempts=[]
+    for each in submissions:
+        try:
+            attempt=IllegalAttempt.objects.get(submission=each)
+            illegal_attempts.append(attempt)
+        except:
+            pass
+    part_of_submissions=0
+    attempt=0
+    for each in submissions:
+        try:
+            part=PartOfSubmission.objects.filter(submission=each)
+            if attempt==0:
+                part_of_submissions=part
+            else:
+                part_of_submissions.append(part)
+        except:
+            pass
+    
+    return JsonResponse({"submission": serializers.serialize('json', submissions), "illegal_attempts": serializers.serialize('json', illegal_attempts), "part_of_submissions": serializers.serialize('json', part_of_submissions)}, status=200)
