@@ -30,6 +30,7 @@ class Quiz(models.Model):
     created_on=models.DateTimeField(default=datetime.datetime.now())
     quizHeld=models.BooleanField(default=False)
     hidden=models.BooleanField(default=True)
+    mcqMarksGenerated=models.BooleanField(default=False)
 
     def __str__(self):
         return self.course.courseName
@@ -51,6 +52,8 @@ class MCQ(models.Model):
     # 1 - Partial with negative consideration
     # 2 - No partial
 
+    negativeMarks=models.IntegerField(default=0, null=True)
+
     def __str__(self):
         return self.quiz.course.courseName
 
@@ -69,7 +72,7 @@ class Submission(models.Model):
     quiz=models.ForeignKey(Quiz, on_delete=models.CASCADE, null=True, blank=True)
     user=models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 
-    score=models.CharField(null=True, max_length=20)
+    score=models.FloatField(default=0)
     submitted=models.BooleanField(default=False)
 
     ip_address=models.CharField(null=True, max_length=50)
@@ -100,6 +103,7 @@ class PartOfSubmission(models.Model):
     submission=models.ForeignKey(Submission, on_delete=models.CASCADE, null=True, blank=True)
     question_id=models.IntegerField(null=True, default=0)
     answer=models.CharField(null=True, max_length=1000000)
+    mark=models.FloatField(default=0.0)
 
     question_type=models.IntegerField(null=True, default=2)
     #1 - MCQ

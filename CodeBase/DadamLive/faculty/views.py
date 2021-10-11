@@ -463,3 +463,62 @@ def quiz_analysis(request):
     users=serializers.serialize('json', User.objects.all())
     written=serializers.serialize('json', WrittenQuestion.objects.filter(quiz=quiz))
     return JsonResponse({"users": users, "written": written, "submissions": submissions, "illegal_attempts": illegal_attempts, "part_of_submissions": part_of_submissions}, status=200)
+
+def generate_score(request, quiz_id):
+    faculty=basicChecking(request)
+    if faculty==False:
+        return redirect('home')
+    quiz=""
+    try:
+        quiz=Quiz.objects.get(id=int(quiz_id))
+        course=quiz.course
+        if course.instructor!=request.user:
+            return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    except:
+        return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    
+    if quiz.quizHeld==False:
+        return JsonResponse({"message": "Score can not be calculated until quiz gets over."}, status=400)
+
+    submissions=Submission.objects.filter(quiz=quiz)
+    mcq=MCQ.objects.filter(quiz=quiz)
+    for s in submissions:
+        s.score=0
+        s.save()
+        for m in mcq:
+            try:
+                p=PartOfSubmission.objects.get(submission=s, question_id=int(m.id))
+                marked=str(p.answer).split(",")
+                answer=m.correct_answers
+                marks=calculate_marks(answer, marked, m)
+                p.mark=marks
+                p.save()
+                s.score+=marks
+                s.save()
+            except:
+                pass
+    return redirect('manage_quiz', quiz_id)
+
+def calculate_marks(answer, marked, mcq):
+    print(answer, marked)
+    if marked[0]=='':
+        return 0.0
+    answer.sort()
+    marked.sort()
+    if mcq.markingScheme==2:
+        if len(answer)!=len(marked):
+            return mcq.negativeMarks
+        for i in range(answer):
+            if int(answer[i])!=int(marked[i]):
+                return mcq.negativeMarks
+        return mcq.maximum_marks
+    total_options_correct=0
+    if mcq.markingScheme==1:
+        for each in marked:
+            if int(each) in answer:
+                total_options_correct+=1
+            else:
+                total_options_correct-=1
+    if total_options_correct>0:
+        return (mcq.maximum_marks*total_options_correct)/len(answer)
+    return 0

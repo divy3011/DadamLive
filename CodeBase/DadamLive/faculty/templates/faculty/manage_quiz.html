@@ -46,15 +46,25 @@
           <div class="card-icon">
             <i class="material-icons">flaky</i>
           </div>
-          <p class="card-category">MCQ</p>
+          <p class="card-category">
+            {% if quiz.quizHeld %}
+            Calculate Score
+            {% else %}
+            MCQ
+            {% endif %}
+          </p>
           <h5 class="card-title">
+            {% if quiz.quizHeld %}
+            <small>for MCQ</small>
+            {% else %}
             <small>Medium Level</small>
+            {% endif %}
           </h5>
         </div>
         <div class="card-footer">
           <div class="stats">
               {% if quiz.quizHeld %}
-              Quiz has been held
+              <a href="{% url 'generate_score' quiz_id=quiz.id %}" onclick="return confirm('It will take a moment to calculate the marks so please wait until it do.')">Generate Score for MCQ's</a>
               {% else %}
                 <a data-toggle="modal" data-target="#modal1" href="#">Add MCQ Question to quiz</a>
               {% endif %}
@@ -203,7 +213,7 @@
                   <tr>
                     <td>{{each.user.first_name}}</td>
                     <td>{{each.user.email}}   </td>
-                    <td>{% if each.score %}{{each.score}}{% else %} - {% endif %}</td>
+                    <td>{{each.score}}</td>
                   </tr>
                   {% endfor %}
                 </tbody>
