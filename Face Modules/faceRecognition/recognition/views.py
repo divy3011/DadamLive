@@ -27,10 +27,7 @@ def image_detector(request):
     file_path = staticfiles_storage.path('recognition/haarcascade_frontalface_default.xml')
     face_detector = cv2.CascadeClassifier(file_path)
     img_raw = deepcopy(image)
-    print(face_detector)
-    print(image)
     faces = face_detector.detectMultiScale(img_raw, 1.3, 5)
-    print(faces)
     for face in faces:
         count+=1
         face_x, face_y, face_w, face_h = face

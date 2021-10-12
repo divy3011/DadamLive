@@ -28,10 +28,14 @@ async function faceextraction(){
             type: 'POST',
             url: "image/detector/",
             data: serializedData,
+			dataType: 'json',
             success: function (response) {
-                if(response["responseJSON"]["message"].localeCompare("collected 100 faces")){
-                    return;
-                }
+				var obj = JSON.parse(JSON.stringify(response))
+				if(obj.message==="collected 100 faces"){
+					video=undefined;
+					t();
+					return;
+				}
             },
             error: function (response) {
                 alert(response["responseJSON"]["message"])
@@ -39,7 +43,7 @@ async function faceextraction(){
         });
     },delayTime);
 }
-
+function t(){}
 function sha256(ascii) {
 	function rightRotate(value, amount) {
 		return (value>>>amount) | (value<<(32 - amount));
