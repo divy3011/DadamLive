@@ -47,7 +47,7 @@ function get_analysis(){
                     ip,
                     attempt.fields.numberOfTimesMultiplePersonsDetected,
                     attempt.fields.noPersonDetected,
-                    "-"
+                    submissions[i].fields.averagePlagiarism+"%"
                 ] ).draw( false );
             }
         },

@@ -19,6 +19,7 @@ from functools import lru_cache
 import pandas as pd
 from staff.forms import FileForm
 from .models import *
+import requests
 
 # Create your views here.
 class Email_thread(Thread):
@@ -522,3 +523,60 @@ def calculate_marks(answer, marked, mcq):
     if total_options_correct>0:
         return (mcq.maximum_marks*total_options_correct)/len(answer)
     return 0
+
+def detect_web_sources(request,quiz_id):
+    faculty=basicChecking(request)
+    if faculty==False:
+        return redirect('home')
+    quiz=""
+    try:
+        quiz=Quiz.objects.get(id=int(quiz_id))
+        course=quiz.course
+        if course.instructor!=request.user:
+            return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    except:
+        return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    
+    if quiz.quizHeld==False:
+        return JsonResponse({"message": "Web Source can not be detected until quiz gets over."}, status=400)
+    if quiz.webDetectionDone:
+        return JsonResponse({"message": "Web Source Detection has been done already."}, status=400)
+
+    submissions=Submission.objects.filter(quiz=quiz)
+    written=WrittenQuestion.objects.filter(quiz=quiz)
+    for s in submissions:
+        averagePlagiarism=0
+        n=0
+        for w in written:
+            try:
+                p=PartOfSubmission.objects.get(submission=s, question_id=int(w.id))
+                marked=p.answer
+
+                # If length of answer is less than 20 then we are not checking for plag
+                if len(marked)<20:
+                    pass
+
+                detect=sendPlagRequest(marked)
+                p.plagPercent=float(detect[0])
+                p.sources=str(detect[1])
+                p.save()
+                averagePlagiarism=averagePlagiarism*n
+                averagePlagiarism+=float(detect[0])
+                n+=1
+                averagePlagiarism=averagePlagiarism/n
+            except:
+                pass
+        s.averagePlagiarism=averagePlagiarism
+        s.save()
+    # quiz.webDetectionDone=True
+    quiz.save()
+    return redirect('manage_quiz', quiz_id)
+
+def sendPlagRequest(data):
+    data = {'key': settings.API_KEY_WEB_SOURCE, 'data': str(data)}
+    r=requests.post(url = settings.WEB_SOURCE_API, data=data)
+    r=r.json()
+    sources=[]
+    for each in r["sources"]:
+        sources.append(each["link"])
+    return [r["plagPercent"], str(sources)]

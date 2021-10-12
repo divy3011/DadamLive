@@ -78,13 +78,29 @@
           <div class="card-icon">
             <i class="material-icons">create</i>
           </div>
-          <p class="card-category">Written</p>
-          <h5 class="card-title"><small>Hard Level</small></h5>
+          <p class="card-category">
+            {% if quiz.quizHeld %}
+            Web Sources
+            {% else %}
+            Written
+            {% endif %}
+          </p>
+          <h5 class="card-title"><small>
+            {% if quiz.quizHeld %}
+            Written
+            {% else %}
+            Hard Level
+            {% endif %}
+          </small></h5>
         </div>
         <div class="card-footer">
           <div class="stats">
             {% if quiz.quizHeld %}
-            Quiz has been held
+              {% if quiz.webDetectionDone %}
+                Web Detection Done
+              {% else %}
+                <a href="{% url 'detect_web_sources' quiz_id=quiz.id %}" onclick="return confirm('It will take few minutes for web detection. Do not close the webpage.')">Detect Web Sources</a>
+              {% endif %}
             {% else %}
             <a data-toggle="modal" data-target="#modal2" href="#">Add short/long question to quiz</a>
             {% endif %}
@@ -410,7 +426,7 @@
             <div id="analysis_message"></div>
             <h4 style="padding-bottom: 12px"><b>Browser Switching tells how many student changed his tab or closed chrome.</b></h4>
             <h4 style="padding-bottom: 12px"><b>Multiple Face Detected, No Face Detected - If value is x then it means for x*10 seconds, multiple or no face was detected.</b></h4>
-            <h4 style="padding-bottom: 12px"><b>Web Source Detection tells that how much maximum plagiarism was seen from web sources in handwritten questions.</b></h4>
+            <h4 style="padding-bottom: 12px"><b>Web Source Detection tells that how much maximum plagiarism was seen from web sources in handwritten questions. It is the average of plagiarism detected in all the questions.</b></h4>
             <table id="myTable">  
               <thead>  
                 <tr>  

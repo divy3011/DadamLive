@@ -31,6 +31,7 @@ class Quiz(models.Model):
     quizHeld=models.BooleanField(default=False)
     hidden=models.BooleanField(default=True)
     mcqMarksGenerated=models.BooleanField(default=False)
+    webDetectionDone=models.BooleanField(default=False)
 
     def __str__(self):
         return self.course.courseName
@@ -77,6 +78,9 @@ class Submission(models.Model):
 
     ip_address=models.CharField(null=True, max_length=50)
 
+    averagePlagiarism=models.FloatField(default=0)
+    # Considering written questions only not the mcq ones
+
     def __str__(self):
         return self.quiz.course.courseName
 
@@ -108,6 +112,9 @@ class PartOfSubmission(models.Model):
     question_type=models.IntegerField(null=True, default=2)
     #1 - MCQ
     #2 - Written Question
+
+    plagPercent=models.FloatField(default=0)
+    sources=models.CharField(null=True, blank=True, max_length=10000)
 
 
 class Announcement(models.Model):
