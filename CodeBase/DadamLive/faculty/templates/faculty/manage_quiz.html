@@ -235,6 +235,7 @@
                   <th>Score</th>
                 </thead>
                 <tbody>
+                  {% ifnotequal submissions 0 %}
                   {% for each in submissions %}
                   <tr>
                     <td>{{each.user.first_name}}</td>
@@ -242,6 +243,7 @@
                     <td>{{each.score}}</td>
                   </tr>
                   {% endfor %}
+                  {% endifnotequal %}
                 </tbody>
               </table>
             </div>
@@ -460,6 +462,7 @@
   </div>
 
   <!-- Modal 4 -->
+  {% ifnotequal submissions 0 %}
   <div class="modal fade" id="modal4" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
       <div class="modal-content">
@@ -497,6 +500,7 @@
       </div>
     </div>
   </div>
+  {% endifnotequal %}
 
  
 

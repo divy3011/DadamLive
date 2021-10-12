@@ -153,5 +153,8 @@ CODE_FACULTY=823
 CODE_STAFF=-872
 CODE_TA=679
 
-API_KEY_WEB_SOURCE="91d370e31c38cf011ff3d5dc6eb3ae8c"
+# Fresh Key - Do not uncomment it
+# API_KEY_WEB_SOURCE="c48675738d97a80dd3cc07122cb487bb"
+
+API_KEY_WEB_SOURCE="c48675738d97a80dd3cc"
 WEB_SOURCE_API="https://www.prepostseo.com/apis/checkPlag"

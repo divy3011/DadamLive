@@ -76,7 +76,11 @@ def dashboardStudent(request):
     student=basicChecking(request)
     if student==False:
         return redirect('home')
-    return render(request,"student/dashboard.html",context={"student": student})
+    enrolments=Enrolment.objects.filter(user=request.user)
+    total_enrolments=enrolments.count()
+    submissions=Submission.objects.filter(user=request.user)
+    total_quizes_given=submissions.count()
+    return render(request,"student/dashboard.html",context={"student": student, "total_enrolments": total_enrolments, "total_quizes_given": total_quizes_given, "submissions": submissions})
 
 def my_courses(request):
     student=basicChecking(request)

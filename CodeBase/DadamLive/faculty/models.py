@@ -32,6 +32,7 @@ class Quiz(models.Model):
     hidden=models.BooleanField(default=True)
     mcqMarksGenerated=models.BooleanField(default=False)
     webDetectionDone=models.BooleanField(default=False)
+    maximum_marks=models.FloatField(default=0)
 
     def __str__(self):
         return self.course.courseName

@@ -295,11 +295,16 @@ def manage_quiz(request,quiz_id):
                         mcq.correct_answers.append(index)
                     index=index+1
             mcq.save()
+            quiz.maximum_marks+=max_marks_written
+            quiz.save()
 
         elif int(question_type)==2:
             question_written=request.POST.get("question_written")
             max_marks_written=float(request.POST.get("max_marks_written"))
             WrittenQuestion.objects.create(quiz=quiz, question=question_written, maximum_marks=max_marks_written)
+            quiz.maximum_marks+=max_marks_written
+            quiz.save()
+
         elif int(question_type)==3:
             form=FileForm(request.POST,request.FILES)
             if form.is_valid():
@@ -322,7 +327,7 @@ def manage_quiz(request,quiz_id):
     else:
         mcq=MCQ.objects.filter(quiz=quiz)
         written=WrittenQuestion.objects.filter(quiz=quiz)
-        submissions=False
+        submissions=0
         if quiz.quizHeld:
             submissions=Submission.objects.filter(quiz=quiz)
         return render(request,"faculty/manage_quiz.html",context={"quiz": quiz, "mcq": mcq, "written": written, "submissions": submissions})
@@ -345,6 +350,8 @@ def manage_quiz_helper(request, data, quiz):
                 field_with_duplicate_data.append(i+1)
             except:
                 WrittenQuestion.objects.create(quiz=quiz, question=question_written, maximum_marks=max_marks_written)
+                quiz.maximum_marks+=max_marks_written
+                quiz.save()
         elif typeOfQ=="Objective":
             try:
                 MCQ.objects.get(quiz=quiz, question=question_written, maximum_marks=max_marks_written)
@@ -353,6 +360,8 @@ def manage_quiz_helper(request, data, quiz):
                 try:
                     scheme=data["Marking Scheme"][i]
                     mcq=MCQ.objects.create(quiz=quiz, question=question_written, maximum_marks=max_marks_written, markingScheme=scheme)
+                    quiz.maximum_marks+=max_marks_written
+                    quiz.save()
                     index=0
                     for j in range(1,7):
                         if "Option"+str(j) not in data.columns:
