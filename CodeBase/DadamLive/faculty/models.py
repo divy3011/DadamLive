@@ -106,6 +106,9 @@ class IllegalAttempt(models.Model):
     usingSomeoneElseIP=models.BooleanField(default=False)
     #Activity Number 4
 
+    numberOfTimesAudioDetected=models.IntegerField(null=True, default=0)
+    #Activity Number 5
+
 class PartOfSubmission(models.Model):
     submission=models.ForeignKey(Submission, on_delete=models.CASCADE, null=True, blank=True)
     question_id=models.IntegerField(null=True, default=0)

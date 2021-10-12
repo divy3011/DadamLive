@@ -49,6 +49,7 @@ function get_analysis(){
                     ip,
                     attempt.fields.numberOfTimesMultiplePersonsDetected,
                     attempt.fields.noPersonDetected,
+                    attempt.fields.numberOfTimesAudioDetected,
                     submissions[i].fields.averagePlagiarism+"%"
                 ] ).draw( false );
             }

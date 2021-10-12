@@ -2,11 +2,11 @@ window.onload = function() {
     getQuestions();
     setWindowsTimeOut();
     sendIP();
-    faceDetection();
+    AudioVideoDetection();
 };
 
 function getQuestions(){
-    alert("We are loading questions. Please note that you do not switch any tab or close the full screen mode. After some illegal attempts you will be logged out automatically. In this version of application, do not refresh the page until there is some error, answers will not be synced until you press the submit button.")
+    alert("We are loading questions. Please note that you do not switch any tab or close the full screen mode. After some illegal attempts you will be logged out automatically. In this version of application, do not refresh the page until there is some error, answers will not be synced until you press the submit button. If you hear your own audio then mute out the sound section for this tab.")
     quiz_id=document.getElementById("quiz_id").innerHTML;
     var serializedData = 'quiz_id='+ quiz_id
     $.ajax({
@@ -133,7 +133,6 @@ function setWindowsTimeOut(){
             
         } 
         else{
-            console.log("tab is inactive")
             if(numberOfTimesWindowsTimedOut<3){
                 numberOfTimesWindowsTimedOut++;
                 alert('It was noticed that you changed the tab, changed web address or opened any another application. Ignore doing that otherwise you will be logged out immediately out of the test.');
@@ -141,17 +140,6 @@ function setWindowsTimeOut(){
             logIllegalActivity(1)
         }
     });
-    // setTimeout(function() {
-    //     window.blur();
-    //     $(window).blur(function() {
-    //         if(numberOfTimesWindowsTimedOut<3){
-    //             numberOfTimesWindowsTimedOut++;
-    //             alert('It was noticed that you changed the tab, changed web address or opened any another application. Ignore doing that otherwise you will be logged out immediately out of the test.');
-    //         }
-    //         logIllegalActivity(1)
-    //     });
-    
-    // }, 5000);  
 }
 
 function logIllegalActivity(typeAct){
@@ -247,13 +235,14 @@ function sendIP(){
     });
 }
 
-async function faceDetection(){
+async function AudioVideoDetection(){
     count=0;
     try{
         let video = document.querySelector("#video");
         let canvas = document.querySelector("#canvas");
 
-        let stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        let stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        audioDetection(stream);
         video.srcObject = stream;
     }
     catch{
@@ -269,9 +258,6 @@ async function faceDetection(){
     setInterval(function(){
         canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
         let image_data_url = canvas.toDataURL().replace(/^data:image\/png;base64,/, "");
-        
-        // data url of the image
-        console.log(image_data_url);
 
         quiz_id=document.getElementById("quiz_id").innerHTML;
         serializedData={"quiz_id": quiz_id, "image": image_data_url, "csrfmiddlewaretoken": sha256("ABIPHRVBBBEBIBUBFUBEUweirypg@)8374")}
@@ -288,6 +274,62 @@ async function faceDetection(){
             }
         });
     },delayTime);
+}
+
+function audioDetection(stream){
+
+    // These levels must be in increasing order.
+    level1=100;
+    level2=150;
+    level3=200;
+    
+    // When audioCounter reaches maxCounter an illegal attempt will be saved
+    maxCounter=150;
+
+    audioCounter=0;
+    try{
+        audioContext = new AudioContext();
+        analyser = audioContext.createAnalyser();
+        microphone = audioContext.createMediaStreamSource(stream);
+        javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+
+        analyser.smoothingTimeConstant = 0.8;
+        analyser.fftSize = 1024;
+
+        microphone.connect(analyser);
+        analyser.connect(javascriptNode);
+        javascriptNode.connect(audioContext.destination);
+        javascriptNode.onaudioprocess = function() {
+            var array = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(array);
+            var values = 0;
+
+            var length = array.length;
+            for (var i = 0; i < length; i++) {
+                values += (array[i]);
+            }
+
+            var average = values / length;
+
+            soundIntensity=Math.round(average);
+            if(soundIntensity>level3){
+                audioCounter+=3;
+            }
+            else if(soundIntensity>level2){
+                audioCounter+=2;
+            }
+            else if(soundIntensity>level1){
+                audioCounter+=1;
+            }
+            if(audioCounter>=maxCounter){
+                audioCounter=0;
+                logIllegalActivity(5);
+            }
+        }
+    }
+    catch{
+        alert("No microphone was found. You can give the test but this malpractie will be saved.")
+    }
 }
 
 function sendEndSignal(){

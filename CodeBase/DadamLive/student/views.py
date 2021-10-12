@@ -260,6 +260,8 @@ def mark_activity(request, quiz_id):
     
     if typeAct==1:
         activity.browserSwitched=activity.browserSwitched+1
+    if typeAct==5:
+        activity.numberOfTimesAudioDetected=activity.numberOfTimesAudioDetected+1
     activity.save()
 
     return JsonResponse({"message": "Activity Marked"}, status=200)
