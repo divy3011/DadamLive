@@ -1,4 +1,4 @@
-$("#login_form").submit(function (e) {
+$("#form").submit(function (e) {
     e.preventDefault();
     if(validate()==false) {
         return false;
@@ -10,7 +10,7 @@ $("#login_form").submit(function (e) {
         url: "",
         data: serializedData,
         success: function (response) {
-            $("#login_form").trigger('reset');
+            $("#form").trigger('reset');
             alert("Login Successful. Redirecting to Dashboard...")
             location.reload();
         },

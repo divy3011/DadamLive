@@ -24,7 +24,7 @@ body {
     font-family: 'Roboto',
         sans-serif;
     /* create a linear gradient*/
-    background-image: url("image.png");
+    background-image: url("./image.png");
     background-position: center;
     background-size: cover;
     display: flex;
@@ -71,7 +71,7 @@ span {
 }
 
 .input_container,
-#input_submit {
+#login_button {
     height: 50px;
     /* make the borders more round */
     border-radius: 30px;
@@ -97,7 +97,7 @@ span {
     outline: none;
 }
 
-#input_submit {
+#login_button {
     /* submit button has a different color and different padding */
     background-color: var(--submit_bg);
     padding-left: 0;
@@ -106,7 +106,7 @@ span {
     text-transform: uppercase;
 }
 
-#input_submit:hover {
+#login_button:hover {
     background-color: var(--submit_hover);
     /* simple color transition on hover */
     transition: background-color,
