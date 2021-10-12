@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz {{quiz.id}}, Submission {{submission.id}}</title>
+</head>
+<body>
+    <h1>Quiz {{quiz.quiz_name}}, Submission {{submission.id}}</h1>
+    <h2>Student Details : {{submission.user.first_name}} {{submission.user.last_name}}, {{submission.user.username}}, {{submission.user.email}}</h2>
+    <br>
+    <a href="#" onclick="return marks_given_for_all_q('{{submission.id}}')">Click here if marks are assigned for all the questions</a>
+    <p>------------------------------------------------------------------------</p>
+    <p><b>Average Plagiarism Percentage</b>: {{submission.averagePlagiarism}} %</p>
+    <p><b>Number of times browser switched</b>: {{attempt.browserSwitched}}</p>
+    <p><b>Number of times multiple persons detected</b>: {{attempt.numberOfTimesMultiplePersonsDetected}}</p>
+    <p><b>Number of times no person was detected</b>: {{attempt.noPersonDetected}}</p>
+    <p>
+        {% if attempt.usingSomeoneElseIP %}This student IP Address matched with another student who gave the same quiz.
+        {% else %}A unique IP Address was used to give the quiz.
+        {% endif %}
+    </p>
+    <p>------------------------------------------------------------------------</p>
+    {% for each in parts %}
+        {% ifequal each.question_type 2 %}
+        <!-- Written -->
+            {% for w in written %}
+                {% ifequal w.id each.question_id %}
+                    <h3><b>Question</b>. {{w.question}} (<b>{{w.maximum_marks}} Marks</b>)</h3>
+                    <p><b>Answer</b>: {{each.answer}}</p>
+                    <p><b>Plagiarism Detected in the answer</b>: {{each.plagPercent}}%</p>
+                    {% if each.sources %}
+                    <p><b>Sources of Plagiarism</b>: {{each.sources}}</p>
+                    {% endif %}
+                    <p id="current{{each.id}}">Current Marks: {{each.mark}}</p>
+                    <form onsubmit="return submitForm('{{each.id}}')">
+                        <input type="number" step="0.1" name="marks" id="{{each.id}}" required>
+                        <input type="submit" value="Upload Marks"">
+                    </form>
+                    <p>------------------------------------------------------------------------</p>
+                {% endifequal %}
+            {% endfor %}
+        {% else %}
+        <!--MCQ -->
+            {% for m in mcq %}
+                {% ifequal m.id each.question_id %}
+                    <h3><b>Question</b>. {{m.question}} ({{m.maximum_marks}} Marks)</h3>
+                    <p><b>Options</b>: {{m.options}}</p>
+                    <p><b>Correct Answers</b>: {{m.correct_answers}}</p>
+                    <p><b>Marked Answers</b>: {{each.answer}}</p>
+                    <p><b>Marks</b>: {{each.mark}}</p>
+                    <p>------------------------------------------------------------------------</p>
+                {% endifequal %}
+            {% endfor %}
+        {% endifequal %}
+    {% endfor %}
+    <script src="{% static 'jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'Faculty/NewCourse/view_submission.js' %} "></script>
+</body>
+</html>

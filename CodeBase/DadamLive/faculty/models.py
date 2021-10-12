@@ -81,6 +81,8 @@ class Submission(models.Model):
     averagePlagiarism=models.FloatField(default=0)
     # Considering written questions only not the mcq ones
 
+    marks_assigned=models.BooleanField(default=False)
+
     def __str__(self):
         return self.quiz.course.courseName
 

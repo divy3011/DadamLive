@@ -501,7 +501,6 @@ def generate_score(request, quiz_id):
     return redirect('manage_quiz', quiz_id)
 
 def calculate_marks(answer, marked, mcq):
-    print(answer, marked)
     if marked[0]=='':
         return 0.0
     answer.sort()
@@ -509,7 +508,7 @@ def calculate_marks(answer, marked, mcq):
     if mcq.markingScheme==2:
         if len(answer)!=len(marked):
             return mcq.negativeMarks
-        for i in range(answer):
+        for i in range(len(answer)):
             if int(answer[i])!=int(marked[i]):
                 return mcq.negativeMarks
         return mcq.maximum_marks
@@ -568,7 +567,7 @@ def detect_web_sources(request,quiz_id):
                 pass
         s.averagePlagiarism=averagePlagiarism
         s.save()
-    # quiz.webDetectionDone=True
+    quiz.webDetectionDone=True
     quiz.save()
     return redirect('manage_quiz', quiz_id)
 
@@ -580,3 +579,76 @@ def sendPlagRequest(data):
     for each in r["sources"]:
         sources.append(each["link"])
     return [r["plagPercent"], str(sources)]
+
+def view_submission(request, submission_id):
+    faculty=basicChecking(request)
+    if faculty==False:
+        return redirect('home')
+    submission=""
+    quiz=""
+    try:
+        submission=Submission.objects.get(id=int(submission_id))
+        quiz=submission.quiz
+        if submission.quiz.course.instructor!=request.user:
+            return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    except:
+        return JsonResponse({"message": "Submission was not found on this server"}, status=400)
+    
+    if quiz.quizHeld==False:
+        return JsonResponse({"message": "Submission can not be viewed until quiz gets over."}, status=400)
+    parts=PartOfSubmission.objects.filter(submission=submission)
+    written=WrittenQuestion.objects.filter(quiz=quiz)
+    mcq=MCQ.objects.filter(quiz=quiz)
+    attempt=False
+    try:
+        attempt=IllegalAttempt.objects.get(submission=submission)
+    except:
+        attempt=IllegalAttempt.objects.create(submission=submission)
+    return render(request, "faculty/view_submission.html", context={"parts": parts, "submission": submission, "quiz": quiz, "written": written, "mcq": mcq, "attempt": attempt})
+
+def upload_marks(request):
+    faculty=basicChecking(request)
+    if faculty==False:
+        return redirect('home')
+    part=""
+    quiz=""
+    try:
+        part=PartOfSubmission.objects.get(id=int(request.GET.get("part_id")))
+        quiz=part.submission.quiz
+        if part.submission.quiz.course.instructor!=request.user:
+            return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    except:
+        return JsonResponse({"message": "This question was not found on this server"}, status=400)
+    
+    if quiz.quizHeld==False:
+        return JsonResponse({"message": "Marks can not be assigned until quiz gets over."}, status=400)
+    marks=float(request.GET.get("marks"))
+    if marks>WrittenQuestion.objects.get(id=int(part.question_id)).maximum_marks:
+        return JsonResponse({"message": "You can't assign more than maximum marks for the question"}, status=400)
+    submission=part.submission
+    submission.score=submission.score-part.mark+marks
+    submission.save()
+    part.mark=marks
+    part.save()
+    return JsonResponse({"message": "Marks assigned for the question"}, status=200)
+
+def marks_given_for_all_q(request):
+    faculty=basicChecking(request)
+    if faculty==False:
+        return redirect('home')
+    submission=""
+    quiz=""
+    try:
+        submission=Submission.objects.get(id=int(request.GET.get("submission_id")))
+        quiz=submission.quiz
+        if submission.quiz.course.instructor!=request.user:
+            return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    except:
+        return JsonResponse({"message": "Submission was not found on this server"}, status=400)
+    
+    if quiz.quizHeld==False:
+        return JsonResponse({"message": "Submission can not be viewed until quiz gets over."}, status=400)
+    
+    submission.marks_assigned=True
+    submission.save()
+    return redirect(view_submission, request.GET.get("submission_id"))

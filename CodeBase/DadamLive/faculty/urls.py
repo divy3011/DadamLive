@@ -13,5 +13,8 @@ urlpatterns = [
     path('course/manage/quiz/analysis/',views.quiz_analysis,name="quiz_analysis"),
     path('generate/score/<str:quiz_id>',views.generate_score,name="generate_score"),
     path('detect/web/sources/<str:quiz_id>',views.detect_web_sources,name="detect_web_sources"),
+    path('view/submission/<str:submission_id>',views.view_submission,name="view_submission"),
+    path('view/submission/upload/marks/',views.upload_marks,name="upload_marks"),
+    path('view/submission/final/',views.marks_given_for_all_q,name="marks_given_for_all_q"),
 
 ]

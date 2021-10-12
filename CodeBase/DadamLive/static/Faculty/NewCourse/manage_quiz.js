@@ -1,6 +1,8 @@
 $(document).ready(function(){
     $('#myTable').dataTable();
+    $('#myTable1').dataTable();
 });
+
 
 analysisDone=false;
 function get_analysis(){
