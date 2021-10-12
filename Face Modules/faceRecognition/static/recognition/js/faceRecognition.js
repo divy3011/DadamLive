@@ -1,4 +1,18 @@
+wanna_send_request=true
 async function faceextraction(){
+	$.ajax({
+		type: 'GET',
+		url: "check/",
+		dataType: 'json',
+		success: function (response) {
+			alert("You are done with face collection. Now go for face recognition.")
+			location.reload();
+			return ;
+		},
+		error: function (response) {
+			
+		}
+	});
     count=0;
     try{
         let video = document.querySelector("#video");
@@ -16,31 +30,38 @@ async function faceextraction(){
     }
 
     let delayTime=100
-    
+    c=0;
     setInterval(function(){
-        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-        let image_data_url = canvas.toDataURL().replace(/^data:image\/png;base64,/, "");
-        
-        // data url of the image
-        console.log(image_data_url);
-        serializedData={"image": image_data_url, "csrfmiddlewaretoken": sha256("ABIPHRVBBBEBIBUBFUBEUweirypg@)8374")}
-        $.ajax({
-            type: 'POST',
-            url: "image/detector/",
-            data: serializedData,
-			dataType: 'json',
-            success: function (response) {
-				var obj = JSON.parse(JSON.stringify(response))
-				if(obj.message==="collected 100 faces"){
-					video=undefined;
-					t();
-					return;
+		if(wanna_send_request){
+			canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+			let image_data_url = canvas.toDataURL().replace(/^data:image\/png;base64,/, "");
+			
+			// data url of the image
+			console.log(c);
+			c+=1;
+			serializedData={"image": image_data_url, "csrfmiddlewaretoken": sha256("ABIPHRVBBBEBIBUBFUBEUweirypg@)8374")}
+			$.ajax({
+				type: 'POST',
+				url: "image/detector/",
+				data: serializedData,
+				dataType: 'json',
+				success: function (response) {
+					// var obj = JSON.parse(JSON.stringify(response))
+					// // alert(obj.message)
+					// if(obj.message==="collected 100 faces"){
+					// 	video = undefined;
+					// 	return;
+					// }
+				},
+				error: function (response) {
+					alert(response["responseJSON"]["message"])
+					wanna_send_request=false;
 				}
-            },
-            error: function (response) {
-                alert(response["responseJSON"]["message"])
-            }
-        });
+			});
+		}
+		else{
+			location.reload();
+		}
     },delayTime);
 }
 function t(){}

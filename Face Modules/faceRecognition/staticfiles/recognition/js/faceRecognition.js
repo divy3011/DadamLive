@@ -15,9 +15,9 @@ async function faceextraction(){
         return;
     }
 
-    // let delayTime=100000
+    let delayTime=10
     
-    {
+    setInterval(function(){
         canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
         let image_data_url = canvas.toDataURL().replace(/^data:image\/png;base64,/, "");
         
@@ -28,18 +28,22 @@ async function faceextraction(){
             type: 'POST',
             url: "image/detector/",
             data: serializedData,
+			dataType: 'json',
             success: function (response) {
-                if(response["responseJSON"]["message"].localeCompare("collected 100 faces")){
-                    return;
-                }
+				var obj = JSON.parse(JSON.stringify(response))
+				// alert(obj.message)
+				if(obj.message==="collected 100 faces"){
+					video = undefined;
+					return;
+				}
             },
             error: function (response) {
                 alert(response["responseJSON"]["message"])
             }
         });
-    }
+    },delayTime);
 }
-
+function t(){}
 function sha256(ascii) {
 	function rightRotate(value, amount) {
 		return (value>>>amount) | (value<<(32 - amount));
