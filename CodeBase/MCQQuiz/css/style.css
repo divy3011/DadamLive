@@ -31,7 +31,7 @@ label.radio input:checked+span {
     color: #fff
 }
 label.radio:hover span{
-    background-color: #9c27b0;
+    background-color: #e191f0;
     color: white
 }
 .ans {
