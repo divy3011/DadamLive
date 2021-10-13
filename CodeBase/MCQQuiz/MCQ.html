@@ -6,60 +6,8 @@
         <title>Snippet - BBBootstrap</title>
         <link href='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css' rel='stylesheet'>
         <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' rel='stylesheet'>
-        <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
-        <style>
-            body {
-                background-color: #eee
-            }
-            
-            .text-danger{
-                color: #9c27b0!important;
-            }
-
-            label.radio {
-                cursor: pointer
-            }
-
-            label.radio input {
-                position: absolute;
-                top: 0;
-                left: 0;
-                visibility: hidden;
-                pointer-events: none
-            }
-
-            label.radio span {
-                padding: 4px 0px;
-                border: 1px solid #9c27b0;
-                display: inline-block;
-                color: #9c27b0;
-                width: 100px;
-                text-align: center;
-                border-radius: 3px;
-                margin-top: 7px;
-                text-transform: uppercase
-            }
-
-            label.radio input:checked+span {
-                border-color: #9c27b0;
-                background-color: #9c27b0;
-                color: #fff
-            }
-
-            .ans {
-                margin-left: 36px !important
-            }
-
-            .btn:focus {
-                outline: 0 !important;
-                box-shadow: none !important
-            }
-
-            .btn:active {
-                outline: 0 !important;
-                box-shadow: none !important
-            
-        }</style>
+        <script type='text/javascript' src='./js/jquery.js'></script>
+        <link href='./css/style.css' rel='stylesheet'>
     </head>
     <body oncontextmenu='return false' class='snippet-body'>
         <div class="container mt-5">
@@ -77,19 +25,19 @@
                                 <h5 class="mt-1 ml-2">Which of the following country has largest population?</h5>
                             </div>
                             <div class="ans ml-2">
-                                <label class="radio"> <input type="radio" name="brazil" value="brazil"> <span>Brazil</span>
+                                <label class="radio"> <input type="checkbox" name="brazil" value="brazil"> <span>Brazil</span>
                                 </label>
                             </div>
                             <div class="ans ml-2">
-                                <label class="radio"> <input type="radio" name="Germany" value="Germany"> <span>Germany</span>
+                                <label class="radio"> <input type="checkbox" name="Germany" value="Germany"> <span>Germany</span>
                                 </label>
                             </div>
                             <div class="ans ml-2">
-                                <label class="radio"> <input type="radio" name="Indonesia" value="Indonesia"> <span>Indonesia</span>
+                                <label class="radio"> <input type="checkbox" name="Indonesia" value="Indonesia"> <span>Indonesia</span>
                                 </label>
                             </div>
                             <div class="ans ml-2">
-                                <label class="radio"> <input type="radio" name="Russia" value="Russia"> <span>Russia</span>
+                                <label class="radio"> <input type="checkbox" name="Russia" value="Russia"> <span>Russia</span>
                                 </label>
                             </div>
                         </div>
