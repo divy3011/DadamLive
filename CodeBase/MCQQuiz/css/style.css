@@ -45,3 +45,14 @@ label.radio:hover span{
     outline: 0 !important;
     box-shadow: none !important
 }
+ul li {
+    list-style: none;
+}
+ul li a {
+    text-decoration-color: none ;
+    text-decoration: none ;
+}
+.question {
+    color: black;
+    cursor: default;
+}
