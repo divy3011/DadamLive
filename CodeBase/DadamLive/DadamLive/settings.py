@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'ta',
     'faculty',
     'student',
-    'background_task',
 ]
 
 MIDDLEWARE = [
