@@ -20,7 +20,7 @@ function main() {
     var flag="false";
     async function check(){
         startSharing();
-        {
+        while(flag==="flag"){
             try{
                 console.log(video.srcObject);
                 if(video.srcObject.getVideoTracks()[0].getSettings().displaySurface!=="monitor"){
