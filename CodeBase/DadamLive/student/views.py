@@ -29,7 +29,9 @@ from io import BytesIO
 from PIL import Image
 import numpy as np
 from background_task import background
-
+import os
+from django.contrib.staticfiles.storage import staticfiles_storage
+from copy import deepcopy
 utc=pytz.UTC
 
 # Create your views here.
@@ -62,20 +64,24 @@ def SENDMAIL(subject, message, email):
 
 def basicChecking(request):
     if request.user.is_authenticated==False:
-        return False
+        return [False, redirect('home')]
     try:
         info=UserInformation.objects.get(user=request.user)
         if info.userType.userTypeCode==settings.CODE_STUDENT:
             student=Student.objects.get(user=request.user)
-            return student
-        return False
+            if student.faceAdded:
+                return [True, student]
+            else:
+                return [False, render(request, "student/faceCollection.html",context={})]
+        return [False, redirect('home')]
     except:
-        return False
+        return [False, redirect('home')]
 
 def dashboardStudent(request):
     student=basicChecking(request)
-    if student==False:
-        return redirect('home')
+    if student[0]==False:
+        return student[1]
+    student=student[1]
     enrolments=Enrolment.objects.filter(user=request.user)
     total_enrolments=enrolments.count()
     submissions=Submission.objects.filter(user=request.user)
@@ -84,16 +90,18 @@ def dashboardStudent(request):
 
 def my_courses(request):
     student=basicChecking(request)
-    if student==False:
-        return redirect('home')
+    if student[0]==False:
+        return student[1]
+    student=student[1]
     usertype=UserType.objects.get(userTypeCode=settings.CODE_STUDENT)
     enrolments=Enrolment.objects.filter(user=request.user, userType=usertype)
     return render(request,"student/my_courses.html",context={"student": student, "enrolments": enrolments})
     
 def view_course_student(request, course_id):
     student=basicChecking(request)
-    if student==False:
-        return redirect('home')
+    if student[0]==False:
+        return student[1]
+    student=student[1]
     course=""
     try:
         course=Course.objects.get(id=int(course_id))
@@ -124,8 +132,9 @@ def quiz_identification(quiz):
 
 def start_quiz(request, quiz_id):
     student=basicChecking(request)
-    if student==False:
-        return redirect('home')
+    if student[0]==False:
+        return student[1]
+    student=student[1]
     quiz=""
     try:
         quiz=Quiz.objects.get(id=int(quiz_id))
@@ -152,8 +161,9 @@ def start_quiz(request, quiz_id):
 
 def get_questions(request, quiz_id):
     student=basicChecking(request)
-    if student==False:
-        return redirect('home')
+    if student[0]==False:
+        return student[1]
+    student=student[1]
     quiz=""
     try:
         quiz=Quiz.objects.get(id=int(quiz_id))
@@ -184,8 +194,9 @@ def get_questions(request, quiz_id):
 
 def save_question(request, q_type):
     student=basicChecking(request)
-    if student==False:
-        return redirect('home')
+    if student[0]==False:
+        return student[1]
+    student=student[1]
     quiz=""
     quiz_id=int(request.GET["quiz_id"])
     try:
@@ -229,8 +240,9 @@ def save_question(request, q_type):
 
 def mark_activity(request, quiz_id):
     student=basicChecking(request)
-    if student==False:
-        return redirect('home')
+    if student[0]==False:
+        return student[1]
+    student=student[1]
     quiz=""
     typeAct=int(request.GET["type"])
     try:
@@ -268,8 +280,9 @@ def mark_activity(request, quiz_id):
 
 def mark_ip(request, quiz_id):
     student=basicChecking(request)
-    if student==False:
-        return redirect('home')
+    if student[0]==False:
+        return student[1]
+    student=student[1]
     quiz=""
     try:
         quiz=Quiz.objects.get(id=int(quiz_id))
@@ -324,8 +337,9 @@ def mark_ip(request, quiz_id):
 
 def image_detector(request,quiz_id):
     student=basicChecking(request)
-    if student==False:
-        return redirect('home')
+    if student[0]==False:
+        return student[1]
+    student=student[1]
     quiz=""
     try:
         quiz=Quiz.objects.get(id=int(quiz_id))
@@ -370,8 +384,9 @@ def image_detector(request,quiz_id):
 
 def end_test(request, quiz_id):
     student=basicChecking(request)
-    if student==False:
-        return redirect('home')
+    if student[0]==False:
+        return student[1]
+    student=student[1]
     quiz=""
     try:
         quiz=Quiz.objects.get(id=int(quiz_id))
@@ -409,3 +424,60 @@ def checkForQuizStatus(quiz):
         if quiz.quizHeld==False:
             quiz.quizHeld=True
             quiz.save()
+
+def image_clipping(request):
+    if request.user.is_authenticated==False:
+        return JsonResponse({"message": "Please login to go for video clipping"}, status=400)
+    student=1
+    try:
+        info=UserInformation.objects.get(user=request.user)
+        if info.userType.userTypeCode==settings.CODE_STUDENT:
+            student=Student.objects.get(user=request.user)
+    except:
+        return JsonResponse({"message": "For video clipping you must login through a student account."}, status=400)
+
+    if(student.faceCount>=100):
+        # Run a background server to train the model.
+        if student.faceAdded==False:
+            Train(student.id).start()
+        student.faceAdded=True
+        student.save()
+        return JsonResponse({"message": "Your face clipping is done successfully."}, status=400)
+
+    username=request.user.username
+    if(os.path.exists('static/Student/js/recognition/training_dataset/{}/'.format(username))==False):
+        os.makedirs('static/Student/js/recognition/training_dataset/{}/'.format(username))
+    directory='static/Student/js/recognition/training_dataset/{}/'.format(username)
+    image=request.POST.get("image")
+    image = base64.b64decode(image)
+    image = Image.open(BytesIO(image))
+    image  = np.array(image)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    file_path = staticfiles_storage.path('Student/js/recognition/haarcascade_frontalface_default.xml')
+    face_detector = cv2.CascadeClassifier(file_path)
+    img_raw = deepcopy(image)
+    faces = face_detector.detectMultiScale(img_raw, 1.3, 5)
+    for face in faces:
+        student.faceCount=student.faceCount+1
+        student.save()
+        face_x, face_y, face_w, face_h = face
+        imagei = image[int(face_y):int(face_y+face_h), int(face_x):int(face_x+face_w)]
+        img_gray = cv2.cvtColor(imagei, cv2.COLOR_BGR2GRAY)
+        cv2.imwrite(directory+'/'+str(student.faceCount)+'.jpg'	, img_gray)
+    
+    return JsonResponse({"message": "collected 1 more face"}, status=200)
+
+class Train(Thread):
+    def __init__(self, student_id):
+        self.student_id=student_id
+        Thread.__init__(self)
+
+    def run(self):
+        number=random.randint(1,10)
+        train_model(self.student_id, schedule=number + int(settings.TIME_TO_TRAIN_MODEL*60))
+
+@background(schedule=60)
+def train_model(student_id):
+    student=Student.objects.get(id=int(student_id))
+    
+    return False

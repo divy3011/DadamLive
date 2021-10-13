@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'ta',
     'faculty',
     'student',
+    'background_task',
 ]
 
 MIDDLEWARE = [
@@ -113,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -158,3 +159,5 @@ CODE_TA=679
 
 API_KEY_WEB_SOURCE="c48675738d97a80dd3cc"
 WEB_SOURCE_API="https://www.prepostseo.com/apis/checkPlag"
+
+TIME_TO_TRAIN_MODEL=5
