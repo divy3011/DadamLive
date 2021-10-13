@@ -28,6 +28,7 @@ class Student(models.Model):
     image=models.ImageField(upload_to='post_images/', default="us_ma.png")
     faceAdded=models.BooleanField(default=False)
     faceCount=models.IntegerField(default=0)
+    addedOnce=models.BooleanField(default=False)
 
     def __str__(self):
         if self.user:

@@ -161,3 +161,8 @@ API_KEY_WEB_SOURCE="c48675738d97a80dd3cc"
 WEB_SOURCE_API="https://www.prepostseo.com/apis/checkPlag"
 
 TIME_TO_TRAIN_MODEL=5
+
+WEB_URL="http://127.0.0.1:8000/"
+# WEB_URL="https://dadamlive.herokuapp.com/"
+
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
