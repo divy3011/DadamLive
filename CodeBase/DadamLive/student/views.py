@@ -23,6 +23,7 @@ from io import BytesIO
 from PIL import Image
 import numpy as np
 from copy import deepcopy
+from sklearn.feature_extraction.text import TfidfVectorizer
 utc=pytz.UTC
 
 # Create your views here.

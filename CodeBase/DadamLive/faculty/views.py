@@ -20,6 +20,7 @@ import pandas as pd
 from staff.forms import FileForm
 from .models import *
 import requests
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 # Create your views here.
 class Email_thread(Thread):
@@ -577,6 +578,63 @@ def detect_web_sources(request,quiz_id):
         s.averagePlagiarism=averagePlagiarism
         s.save()
     quiz.webDetectionDone=True
+    quiz.save()
+    return redirect('manage_quiz', quiz_id)
+
+def match_student_answers(request, quiz_id):
+    faculty=basicChecking(request)
+    if faculty==False:
+        return redirect('home')
+    quiz=""
+    try:
+        quiz=Quiz.objects.get(id=int(quiz_id))
+        course=quiz.course
+        if course.instructor!=request.user:
+            return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    except:
+        return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    
+    if quiz.quizHeld==False:
+        return JsonResponse({"message": "Student Answers can not be matched until quiz gets over."}, status=400)
+    if quiz.studentAnswersMatched:
+        return JsonResponse({"message": "Web Source Detection has been done already."}, status=400)
+
+    submissions=Submission.objects.filter(quiz=quiz)
+    written=WrittenQuestion.objects.filter(quiz=quiz)
+    try:
+        for w in written:
+            all_parts=[]
+            all_answers=[]
+            for s in submissions:
+                try:
+                    p=PartOfSubmission.objects.get(submission=s, question_id=int(w.id))
+                    all_parts.append(p)
+                    all_answers.append(p.answer)
+                except:
+                    pass
+            vect=TfidfVectorizer(min_df=1, stop_words="english")                                                                                                                                                                                                   
+            tfidf=vect.fit_transform(all_answers)                                                                                                                                                                                                                       
+            similarityMatrix=(tfidf*tfidf.T).toarray()
+            for i in range(len(similarityMatrix)):
+                matrix1=[]
+                matrix2=[]
+                for j in range(len(similarityMatrix[0])):
+                    if i==j:
+                        continue
+                    matrix1.append(all_parts[j].submission.user.id)
+                    matrix2.append(int(100*similarityMatrix[i][j]))
+                p=PartOfSubmission.objects.get(id=all_parts[i].id)
+                p.student_id=matrix1
+                p.percentage_match=matrix2
+                if len(matrix2)>1:
+                    p.maxPlagFromOtherStud=max(matrix2)
+                elif len(matrix2)==1:
+                    p.maxPlagFromOtherStud=matrix2[0]
+                p.save()
+    except:
+        return JsonResponse({"message": "Unable to do that because there not enough submissions"}, status=400)
+
+    quiz.studentAnswersMatched=True
     quiz.save()
     return redirect('manage_quiz', quiz_id)
 

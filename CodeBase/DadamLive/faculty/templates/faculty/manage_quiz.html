@@ -90,7 +90,7 @@
           </div>
           <p class="card-category">
             {% if quiz.quizHeld %}
-            Web Sources
+            Plagiarism
             {% else %}
             Written
             {% endif %}
@@ -116,6 +116,17 @@
             {% endif %}
           </div>
         </div>
+        {% if quiz.quizHeld %}
+          <div class="card-footer">
+            <div class="stats">
+              {% if quiz.studentAnswersMatched %}
+                  Students Answers Matched
+              {% else %}
+                  <a href="{% url 'match_student_answers' quiz_id=quiz.id %}" onclick="return confirm('It will take few minutes to match the answers of all students. Do not close the webpage.')">Match Student's Answers</a>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
       </div>
     </div>
     <div class="col-lg-3 col-md-6 col-sm-6">
