@@ -122,7 +122,7 @@ class PartOfSubmission(models.Model):
 
     plagPercent=models.FloatField(default=0)
     sources=models.CharField(null=True, blank=True, max_length=10000)
-    student_id=ListTextField(base_field=models.IntegerField(default=0), size=1000, null=True)
+    sub_id=ListTextField(base_field=models.IntegerField(default=0), size=1000, null=True)
     percentage_match=ListTextField(base_field=models.IntegerField(default=0), size=1000, null=True)
     maxPlagFromOtherStud=models.FloatField(default=0)
 

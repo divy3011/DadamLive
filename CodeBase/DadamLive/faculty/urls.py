@@ -17,5 +17,6 @@ urlpatterns = [
     path('view/submission/upload/marks/',views.upload_marks,name="upload_marks"),
     path('view/submission/final/',views.marks_given_for_all_q,name="marks_given_for_all_q"),
     path('match/student/answers/<str:quiz_id>',views.match_student_answers,name="match_student_answers"),
-
+    path('view/submission/get/submission/',views.get_submission,name="get_submission"),
+    
 ]

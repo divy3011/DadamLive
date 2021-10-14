@@ -621,10 +621,10 @@ def match_student_answers(request, quiz_id):
                 for j in range(len(similarityMatrix[0])):
                     if i==j:
                         continue
-                    matrix1.append(all_parts[j].submission.user.id)
+                    matrix1.append(all_parts[j].id)
                     matrix2.append(int(100*similarityMatrix[i][j]))
                 p=PartOfSubmission.objects.get(id=all_parts[i].id)
-                p.student_id=matrix1
+                p.sub_id=matrix1
                 p.percentage_match=matrix2
                 if len(matrix2)>1:
                     p.maxPlagFromOtherStud=max(matrix2)
@@ -698,6 +698,36 @@ def upload_marks(request):
     part.mark=marks
     part.save()
     return JsonResponse({"message": "Marks assigned for the question"}, status=200)
+
+def get_submission(request):
+    faculty=basicChecking(request)
+    if faculty==False:
+        return redirect('home')
+    part=""
+    quiz=""
+    try:
+        part=PartOfSubmission.objects.get(id=int(request.GET.get("part_id")))
+        quiz=part.submission.quiz
+        if part.submission.quiz.course.instructor!=request.user:
+            return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    except:
+        return JsonResponse({"message": "This question was not found on this server"}, status=400)
+    
+    if quiz.quizHeld==False:
+        return JsonResponse({"message": "Answer can not be viewed until quiz gets over."}, status=400)
+
+    other_subs=[]
+    for each in part.sub_id:
+        try:
+            p=PartOfSubmission.objects.get(id=int(each))
+            other_subs.append(p)
+        except:
+            pass
+
+    my_sub=serializers.serialize('json', [part])
+    other_subs=serializers.serialize('json', other_subs)
+
+    return JsonResponse({"message": "200", "my_sub": my_sub, "other_subs": other_subs})
 
 def marks_given_for_all_q(request):
     faculty=basicChecking(request)
