@@ -6,7 +6,10 @@
 
 {% block css %}{% endblock %}
 
-{% block extra_js %}{% endblock %}
+{% block extra_js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript" src="{% static 'Faculty/NewCourse/dashboard.js' %} "></script>
+{% endblock %}
 
 {% block main_body %}    
       <div class="row">
@@ -14,9 +17,9 @@
         <div class="col-md-4">
           <div class="card card-chart">
             {% if course.image %}
-            <img src="{{course.image.url}}">
+            <img src="{{course.image.url}}" data-toggle="modal" data-target="#modal" onclick="setID('{{course.id}}')">
             {% else %}
-            <img src="{% static 'images/demo.jpg' %}">
+            <img src="{% static 'images/demo.jpg' %}" data-toggle="modal" data-target="#modal" onclick="setID('{{course.id}}')">
             {% endif %}
             <a href="{% url 'view_course' course_id=course.id %}">
               <div class="card-body">
@@ -32,6 +35,31 @@
           </div>
         </div>
         {% endfor %}
+      </div>
+
+
+      <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="title">Upload Image</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" enctype="multipart/form-data" action="{% url 'upload_course_image' %}">{% csrf_token %}
+                  <input type="hidden" name="course_id" id="course_id" class="form-control" required>
+                  <h4>Upload an image for the course</h4>
+                  <input type="file" name="image"  required><br><br>
+                  <button type="submit" class="btn btn-primary">Upload</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
       </div>
 {% endblock %}
 

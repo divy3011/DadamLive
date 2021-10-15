@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'ta',
     'faculty',
     'student',
+    'django_cleanup'
 ]
 
 MIDDLEWARE = [

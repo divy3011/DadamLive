@@ -79,7 +79,24 @@ def dashboardStudent(request):
     total_enrolments=enrolments.count()
     submissions=Submission.objects.filter(user=request.user)
     total_quizes_given=submissions.count()
-    return render(request,"student/dashboard.html",context={"student": student, "total_enrolments": total_enrolments, "total_quizes_given": total_quizes_given, "submissions": submissions})
+    points=0
+    no_face=0
+    audio=0
+    for each in submissions:
+        points+=each.score
+        att=IllegalAttempt.objects.get(submission=each)
+        no_face+=att.noPersonDetected
+        audio+=att.numberOfTimesAudioDetected
+    
+    advise="Going Good"
+
+    if audio>10:
+        advise="Reduce noise"
+    
+    if no_face>30:
+        advise="Use Lit room"
+
+    return render(request,"student/dashboard.html",context={"advise": advise, "points": points, "student": student, "total_enrolments": total_enrolments, "total_quizes_given": total_quizes_given, "submissions": submissions})
 
 def my_courses(request):
     student=basicChecking(request)

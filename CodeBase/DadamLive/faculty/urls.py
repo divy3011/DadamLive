@@ -18,5 +18,6 @@ urlpatterns = [
     path('view/submission/final/',views.marks_given_for_all_q,name="marks_given_for_all_q"),
     path('match/student/answers/<str:quiz_id>',views.match_student_answers,name="match_student_answers"),
     path('view/submission/get/submission/',views.get_submission,name="get_submission"),
+    path('course/upload/image/',views.upload_course_image,name="upload_course_image"),
     
 ]

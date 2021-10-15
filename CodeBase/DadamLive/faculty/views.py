@@ -21,6 +21,7 @@ from staff.forms import FileForm
 from .models import *
 import requests
 from sklearn.feature_extraction.text import TfidfVectorizer
+from .forms import *
 
 # Create your views here.
 class Email_thread(Thread):
@@ -749,3 +750,27 @@ def marks_given_for_all_q(request):
     submission.marks_assigned=True
     submission.save()
     return redirect(view_submission, request.GET.get("submission_id"))
+
+def upload_course_image(request):
+    faculty=basicChecking(request)
+    if faculty==False:
+        return redirect('home')
+    if request.method!="POST":
+        return JsonResponse({"message": "Not a post request"}, status=400)
+    course=False
+    try:
+        course=Course.objects.get(id=int(request.POST.get("course_id")))
+        if course.instructor!=request.user:
+            return JsonResponse({"message": "Course not found"}, status=400)
+    except:
+        return JsonResponse({"message": "Course not found"}, status=400)
+    form = CoursePhotoForm(request.POST,request.FILES)
+    if form.is_valid():
+        try:
+            image=request.POST.get("image")
+            if image!="":
+                course.image=form.cleaned_data.get("image")
+                course.save()
+            return redirect('dashboardFaculty')
+        except:
+            return redirect('dashboardFaculty')
