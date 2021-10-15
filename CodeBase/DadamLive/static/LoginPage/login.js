@@ -11,7 +11,7 @@ $("#form").submit(function (e) {
         data: serializedData,
         success: function (response) {
             $("#form").trigger('reset');
-            alert("Login Successful. Redirecting to Dashboard...")
+            // alert("Login Successful. Redirecting to Dashboard...")
             location.reload();
         },
         error: function (response) {

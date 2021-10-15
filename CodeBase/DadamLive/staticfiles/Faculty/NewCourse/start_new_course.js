@@ -16,10 +16,6 @@ $("#course_form").submit(function (e) {
         },
         error: function (response) {
             alert(response["responseJSON"]["error"])
-            // console.log(response)
-            // document.getElementById("error").innerHTML=response["responseJSON"]["error"];
-            // $('#error').fadeIn();
-            // $('#error').delay(2000).fadeOut(1500);
             document.getElementById("course_button").disabled = false;
         }
     })
