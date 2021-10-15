@@ -128,18 +128,17 @@ function internetConnected(){
 numberOfTimesWindowsTimedOut=0;
 
 function setWindowsTimeOut(){
-    document.addEventListener("visibilitychange", event => {
-        if (document.visibilityState == "visible"){
-            
-        } 
-        else{
+    var x=setTimeout(function() {
+        window.blur();
+        $(window).blur(function() {
             if(numberOfTimesWindowsTimedOut<3){
                 numberOfTimesWindowsTimedOut++;
                 alert('It was noticed that you changed the tab, changed web address or opened any another application. Ignore doing that otherwise you will be logged out immediately out of the test.');
             }
             logIllegalActivity(1)
-        }
-    });
+        });
+        clearInterval(x)
+    }, 5000);
 }
 
 function logIllegalActivity(typeAct){

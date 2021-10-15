@@ -87,9 +87,6 @@ class Submission(models.Model):
     # Duplicate entry, to be removed
     marks_assigned=models.BooleanField(default=False)
 
-    def __str__(self):
-        return self.quiz.course.courseName
-
 class IllegalAttempt(models.Model):
     submission=models.ForeignKey(Submission, on_delete=models.CASCADE, null=True, blank=True)
 
