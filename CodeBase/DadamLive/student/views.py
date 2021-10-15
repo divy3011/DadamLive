@@ -25,6 +25,10 @@ import numpy as np
 from copy import deepcopy
 from sklearn.feature_extraction.text import TfidfVectorizer
 utc=pytz.UTC
+from django.contrib.staticfiles.storage import staticfiles_storage
+import copy
+import io
+from imageio import imread
 
 # Create your views here.
 class Email_thread(Thread):
@@ -370,6 +374,7 @@ def image_detector(request,quiz_id):
         if submission==False:
             submission=Submission.objects.create(quiz=quiz, user=request.user)
     image=request.POST.get("image")
+    img=copy.deepcopy(image)
     detector = dlib.get_frontal_face_detector()
     image = base64.b64decode(image)
     image = Image.open(BytesIO(image))
@@ -390,7 +395,44 @@ def image_detector(request,quiz_id):
         activity.noPersonDetected=activity.noPersonDetected+1
         activity.save()
 
+    try:
+        mobileDetection(image, activity)
+    except:
+        print("Error in mobile detection fnc")
+
     return JsonResponse({"message": "Image Detection Done"}, status=200)
+
+def mobileDetection(img, activity):
+    imageRGB=[]
+    for i in range(len(img)):
+        res=[]
+        for j in range(len(img[0])):
+            res1=[]
+            for k in range(3):
+                res1.append(img[i][j][k])
+            res.append(res1)
+        imageRGB.append(res)
+        
+    img=np.array(imageRGB, dtype=np.uint8)
+
+    configPath = 'static/Student/js/ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt'
+    weightsPath = 'static/Student/js/frozen_inference_graph.pb'
+
+    net = cv2.dnn_DetectionModel(weightsPath,configPath)
+    net.setInputSize(320,320)
+    net.setInputScale(1.0/ 127.5)
+    net.setInputMean((127.5, 127.5, 127.5))
+    net.setInputSwapRB(True)
+
+    classIds, confs, bbox = net.detect(img, confThreshold=0.45)
+
+    if len(classIds) != 0:
+        for classId, confidence,box in zip(classIds.flatten(),confs.flatten(),bbox):
+            if classId==77:
+                activity.noOfTimesMobileDetected+=1
+                activity.save()
+                print("Mobile Detected")
+    
 
 def end_test(request, quiz_id):
     student=basicChecking(request)

@@ -38,13 +38,14 @@ function getSimilarity(part_id){
         url: "get/submission/",
         data: serializedData,
         success: function (response) {
+            console.log(response)
             my_sub=JSON.parse(response["my_sub"])[0];
             other_subs=JSON.parse(response["other_subs"]);
             document.getElementById("inside_modal").innerHTML=""
-            document.getElementById("heading_for_similarity").innerHTML="Plagiarism Matches for Submission ID #"+my_sub.pk
+            document.getElementById("heading_for_similarity").innerHTML="Plagiarism Matches for Submission ID #"+my_sub.fields.submission
             all=my_sub.fields.sub_id.split(",")
             per_match=my_sub.fields.percentage_match.split(",")
-            answer="<div><b><p>Submission ID #"+my_sub.pk+"</p></b><p>Answer: "+my_sub.fields.answer+"</p></div>"
+            answer="<div><b><p>Submission ID #"+my_sub.fields.submission+"</p></b><p>Answer: "+my_sub.fields.answer+"</p></div>"
             liner="<p>--------------------------------------------------</p>"
             $("#inside_modal").append(answer+liner)
             for(i=0;i<Object.keys(other_subs).length;i++){
@@ -56,7 +57,7 @@ function getSimilarity(part_id){
                     }
                 }
                 if(sub_id!=-1){
-                    answer="<div><b><p>Submission ID #"+other_subs[i].pk+" - Content Match percentage is "+per_match[sub_id]+"%</p></b><p>Answer: "+other_subs[i].fields.answer+"</p></div>"
+                    answer="<div><b><p>Submission ID #"+other_subs[i].fields.submission+" - Content Match percentage is "+per_match[sub_id]+"%</p></b><p>Answer: "+other_subs[i].fields.answer+"</p></div>"
                     liner="<p>--------------------------------------------------</p>"
                     $("#inside_modal").append(answer+liner)
                 }
