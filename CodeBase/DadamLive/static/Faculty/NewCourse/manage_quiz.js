@@ -50,7 +50,8 @@ function get_analysis(){
                     attempt.fields.numberOfTimesMultiplePersonsDetected,
                     attempt.fields.noPersonDetected,
                     attempt.fields.numberOfTimesAudioDetected,
-                    submissions[i].fields.averagePlagiarism+"%"
+                    submissions[i].fields.averagePlagiarism+"%",
+                    attempt.fields.noOfTimesMobileDetected
                 ] ).draw( false );
             }
         },

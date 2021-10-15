@@ -13,18 +13,24 @@
       <div class="row">
         {% for e in enrolments %}
         <div class="col-md-4">
-          <div class="card card-chart">
-            <img src="{% static 'images/demo.jpg' %}">
-            <div class="card-body">
-              <h4 class="card-title">{{e.course.courseName}}</h4>
-              <p class="card-category">Enroled {{e.enrolled_on}}</p>
-            </div>
-            <div class="card-footer">
-              <div class="stats">
-                <a href="{% url 'view_course_student' course_id=e.course.id %}">Click to view more...</a>
+          <a href="{% url 'view_course_student' course_id=e.course.id %}">
+            <div class="card card-chart">
+              {% if course.image %}
+              <img src="{{course.image.url}}">
+              {% else %}
+              <img src="{% static 'images/demo.jpg' %}">
+              {% endif %}
+              <div class="card-body">
+                <h4 class="card-title">{{e.course.courseName}}</h4>
+                <p class="card-category">Enroled {{e.enrolled_on}}</p>
               </div>
+              <div class="card-footer">
+                <div class="stats">
+                  Click to view more...
+                </div>
+              </div>s
             </div>
-          </div>
+          </a>
         </div>
         {% endfor %}
       </div>

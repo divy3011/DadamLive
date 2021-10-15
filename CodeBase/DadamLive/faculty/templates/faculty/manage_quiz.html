@@ -172,6 +172,7 @@
                     <div class="ripple-container"></div>
                   </a>
                 </li>
+                {% if quiz.quizHeld %}
                 <li class="nav-item">
                   <a class="nav-link" href="#assign" data-toggle="tab">
                     <i class="material-icons">turned_in</i> View Submissions
@@ -184,6 +185,7 @@
                     <div class="ripple-container"></div>
                   </a>
                 </li>
+                {% endif %}
               </ul>
             </div>
           </div>
@@ -238,6 +240,7 @@
                     </tbody>
                 </table>              
             </div>
+            {% if quiz.quizHeld %}
             <div class="tab-pane" id="assign">
               <table class="table">
                 <thead class="text-warning">
@@ -258,6 +261,7 @@
                 </tbody>
               </table>
             </div>
+            {% endif %}
             </div>
           </div>
         </div>
@@ -435,6 +439,7 @@
     </div>
   </div>
 
+  {% if quiz.quizHeld %}
   <!-- Modal 3 -->
   <div class="modal fade" id="modal3" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -449,7 +454,7 @@
             <div id="analysis_message"></div>
             <h4 style="padding-bottom: 12px"><b>Browser Switching tells how many student changed his tab or closed chrome.</b></h4>
             <h4 style="padding-bottom: 12px"><b>Multiple Face Detected, No Face Detected - If value is x then it means for x*10 seconds, multiple or no face was detected.</b></h4>
-            <h4 style="padding-bottom: 12px"><b>Audio Detection - Its a kind of prediction that we noticed how many times the audio from student's microphone goes certain level. If we found this happening multiple times then it log is marked.</b></h4>
+            <h4 style="padding-bottom: 12px"><b>Audio Detection - Its a kind of prediction that we noticed how many times the audio from student's microphone goes certain level. If we found this happening multiple times then it log is marked. Same goes with mobile detection.</b></h4>
             <h4 style="padding-bottom: 12px"><b>Web Source Detection tells that how much maximum plagiarism was seen from web sources in handwritten questions. It is the average of plagiarism detected in all the questions.</b></h4>
             <table id="myTable">  
               <thead>  
@@ -462,6 +467,7 @@
                   <th>No Face Detected</th>
                   <th>Audio Detection</th>
                   <th>Web Source Used</th>
+                  <th>Mobile Detection</th>
                 </tr>  
               </thead>  
               <tbody></tbody>  
@@ -514,6 +520,7 @@
     </div>
   </div>
   {% endifnotequal %}
+  {% endif %}
 
  
 
