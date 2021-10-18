@@ -168,6 +168,20 @@ def start_quiz(request, quiz_id):
     except:
         pass
 
+    written=WrittenQuestion.objects.filter(quiz=quiz)
+    mcq=MCQ.objects.filter(quiz=quiz)
+    for each in written:
+        try:
+            PartOfSubmission.objects.get(submission=submission, question_type=2, question_id=each.id)
+        except:
+            PartOfSubmission.objects.create(submission=submission, question_type=2, question_id=each.id)
+    
+    for each in mcq:
+        try:
+            PartOfSubmission.objects.get(submission=submission, question_type=1, question_id=each.id)
+        except:
+            PartOfSubmission.objects.create(submission=submission, question_type=1, question_id=each.id)
+
     if request.method=="POST":
         pass
     else:

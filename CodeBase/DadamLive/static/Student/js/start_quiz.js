@@ -3,6 +3,7 @@ window.onload = function() {
     setWindowsTimeOut();
     sendIP();
     AudioVideoDetection();
+    enablePrevNext();
 };
 
 function getQuestions(){
@@ -22,8 +23,23 @@ function getQuestions(){
             //Setting the timer
             setTimer(quiz);
 
+            document.getElementById("total_q").innerHTML="Total Questions : "+(Object.keys(written).length+Object.keys(mcq).length)
+
             partOfSubmission=JSON.parse(response["partOfSubmission"]);
+
+            activated=false;
+
+            question_no=1;
             for(i=0;i<Object.keys(written).length;i++){
+                question='<li class="pagenumber" hidden="true">';
+                if(activated==false){
+                    activated=true;
+                    question='<li class="pagenumber active">';
+                }
+                question+='<div class="d-flex flex-row align-items-center question-title">';
+                question+='<h3 class="text-danger">Q'+question_no+'. </h3>'
+                question_no++;
+                question+='<h5 class="mt-1 ml-2 question">'+written[i].fields.question+' ('+written[i].fields.maximum_marks+')</h5></div>'
                 answer="";
                 for(j=0;j<Object.keys(partOfSubmission).length;j++){
                     if(partOfSubmission[j].fields.question_id==written[i].pk && partOfSubmission[j].fields.question_type==2){
@@ -31,14 +47,22 @@ function getQuestions(){
                         break;
                     }
                 }
-                question='<div style="margin-bottom: 40px"><div>Question. '+written[i].fields.question+' ('+written[i].fields.maximum_marks+')</div>'
-                text_box='<div><textarea id="Written'+written[i].pk+'">'+answer+'</textarea></div></div>'
+                text_box='<div class="ans ml-12"><textarea rows="12" id="Written'+written[i].pk+'">'+answer+'</textarea></div></div></li>'
                 $("#questions").append(question+text_box)
                 syncWrittenQuestion("Written"+written[i].pk)
             }
             for(i=0;i<Object.keys(mcq).length;i++){
+                question='<li class="pagenumber" hidden="true">';
+                if(activated==false){
+                    activated=true;
+                    question='<li class="pagenumber active">';
+                }
+                question+='<div class="d-flex flex-row align-items-center question-title">';
+                question+='<h3 class="text-danger">Q'+question_no+'. </h3>'
+                question_no++;
+                question+='<h5 class="mt-1 ml-2 question">'+mcq[i].fields.question+' ('+mcq[i].fields.maximum_marks+')</h5></div>'
+
                 options=mcq[i].fields.options.split(",")
-                question='<div style="margin-bottom: 40px"><div>Question. '+mcq[i].fields.question+' ('+mcq[i].fields.maximum_marks+')</div>'
                 manager="";
                 prev_answers=false;
                 for(j=0;j<Object.keys(partOfSubmission).length;j++){
@@ -49,21 +73,27 @@ function getQuestions(){
                 }
                 for(j=0;j<options.length;j++){
                     flag=0;
-                    if(prev_answers!=false){
+                    if(prev_answers.length>0){
                         for(k=0;k<prev_answers.length;k++){
                             if((1+String(prev_answers[k]))==(1+String(j))){
                                 flag=1;
-                                manager+='<div><input type="checkbox" id="MCQ'+mcq[i].pk+"Option"+j+'" checked>'+options[j]+'</div>';
+                                manager+='<div class="ans ml-2"><label class="radio">';
+                                manager+='<input type="checkbox" id="MCQ'+mcq[i].pk+"Option"+j+'" checked><span>'+options[j]+'</span></label></div>';
                                 break;
                             }
                         }
                     }
-                    if(flag==0) 
-                        manager+='<div><input type="checkbox" id="MCQ'+mcq[i].pk+"Option"+j+'">'+options[j]+'</div>'
+                    if(flag==0){
+                        manager+='<div class="ans ml-2"><label class="radio">';
+                        manager+='<input type="checkbox" id="MCQ'+mcq[i].pk+"Option"+j+'"><span>'+options[j]+'</span></label></div>';
+                    }
                 }
-                all_options='<div id="MCQ'+mcq[i].pk+'">'+manager+'</div></div>'
+                manager+="</li";
+                all_options='<div id="MCQ'+mcq[i].pk+'">'+manager+'</div>'
                 $("#questions").append(question+all_options)
-                syncMCQQuestion("MCQ"+mcq[i].pk, options.length)
+                for(j=0;j<options.length;j++){
+                    syncMCQQuestion("MCQ"+mcq[i].pk+"Option"+j, options.length);
+                }
             }
             // addQuesionsToHtml();
         },
@@ -74,8 +104,9 @@ function getQuestions(){
     });
 }
 
-function syncMCQQuestion(question_id, max_options){
-    document.getElementById(question_id).addEventListener("click", function(event) {
+function syncMCQQuestion(Option_id, max_options){
+    document.getElementById(Option_id).addEventListener("click", function(event) {
+        question_id=Option_id.substr(0,Option_id.indexOf("Option"))
         quiz_id=document.getElementById("quiz_id").innerHTML;
         answer="";
         for(i=0;i<max_options;i++){
@@ -151,6 +182,24 @@ function logIllegalActivity(typeAct){
         success: function (response) {},
         error: function (response) {}
     });
+}
+
+
+function enablePrevNext(){
+    $(document).ready(function(){
+        $('.next').click(function(){
+            $('.pagination').find('.pagenumber.active').next().attr("hidden", false);
+            $('.pagination').find('.pagenumber.active').next().addClass('active');
+            $('.pagination').find('.pagenumber.active').prev().attr("hidden", true);
+            $('.pagination').find('.pagenumber.active').prev().removeClass('active');
+        })
+        $('.prev').click(function(){
+            $('.pagination').find('.pagenumber.active').prev().attr("hidden", false);
+            $('.pagination').find('.pagenumber.active').prev().addClass('active');
+            $('.pagination').find('.pagenumber.active').next().attr("hidden", true);
+            $('.pagination').find('.pagenumber.active').next().removeClass('active');
+        })
+    })
 }
 
 function setTimer(quiz){

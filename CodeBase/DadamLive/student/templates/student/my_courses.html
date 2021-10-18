@@ -15,8 +15,8 @@
         <div class="col-md-4">
           <a href="{% url 'view_course_student' course_id=e.course.id %}">
             <div class="card card-chart">
-              {% if course.image %}
-              <img src="{{course.image.url}}">
+              {% if e.course.image %}
+              <img src="{{e.course.image.url}}">
               {% else %}
               <img src="{% static 'images/demo.jpg' %}">
               {% endif %}
@@ -25,10 +25,10 @@
                 <p class="card-category">Enroled {{e.enrolled_on}}</p>
               </div>
               <div class="card-footer">
-                <div class="stats">
+                <div class="stats" style="color: purple;">
                   Click to view more...
                 </div>
-              </div>s
+              </div>
             </div>
           </a>
         </div>
