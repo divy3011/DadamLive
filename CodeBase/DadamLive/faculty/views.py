@@ -412,8 +412,30 @@ def change_quiz_status(request,quiz_id):
         quiz.hidden=False
     else:
         if quizOngoing(quiz)==False:
-            return JsonResponse({"message": "This option is available during quiz"}, status=400)
+            return JsonResponse({"message": "This option is not available during quiz"}, status=400)
         quiz.hidden=True
+    quiz.save()
+    return redirect('manage_quiz',quiz_id)
+
+def change_prev_status(request,quiz_id):
+    faculty=basicChecking(request)
+    if faculty==False:
+        return redirect('home')
+    quiz=""
+    try:
+        quiz=Quiz.objects.get(id=int(quiz_id))
+        course=quiz.course
+        if course.instructor!=request.user:
+            return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    except:
+        return JsonResponse({"message": "Course was not found on this server"}, status=400)
+
+    if quizOngoing(quiz)==False:
+        return JsonResponse({"message": "This option is not available during quiz"}, status=400)
+    if quiz.disable_previous:
+        quiz.disable_previous=False
+    else:
+        quiz.disable_previous=True
     quiz.save()
     return redirect('manage_quiz',quiz_id)
 

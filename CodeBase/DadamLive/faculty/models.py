@@ -35,6 +35,7 @@ class Quiz(models.Model):
     webDetectionDone=models.BooleanField(default=False)
     studentAnswersMatched=models.BooleanField(default=False)
     maximum_marks=models.FloatField(default=0)
+    disable_previous=models.BooleanField(default=False)
 
     def __str__(self):
         return self.course.courseName
@@ -127,6 +128,7 @@ class PartOfSubmission(models.Model):
     sub_id=ListTextField(base_field=models.IntegerField(default=0), size=1000, null=True)
     percentage_match=ListTextField(base_field=models.IntegerField(default=0), size=1000, null=True)
     maxPlagFromOtherStud=models.FloatField(default=0)
+    answer_locked=models.BooleanField(default=False)
 
 
 class Announcement(models.Model):

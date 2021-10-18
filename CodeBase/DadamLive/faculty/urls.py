@@ -10,6 +10,7 @@ urlpatterns = [
     path('course/announce/quiz/<str:course_id>',views.announce_quiz,name="announce_quiz"),
     path('course/manage/quiz/<str:quiz_id>',views.manage_quiz,name="manage_quiz"),
     path('course/manage/quiz/change/status/<str:quiz_id>',views.change_quiz_status,name="change_quiz_status"),
+    path('course/manage/quiz/previous/status/<str:quiz_id>',views.change_prev_status,name="change_prev_status"),
     path('course/manage/quiz/analysis/',views.quiz_analysis,name="quiz_analysis"),
     path('generate/score/<str:quiz_id>',views.generate_score,name="generate_score"),
     path('detect/web/sources/<str:quiz_id>',views.detect_web_sources,name="detect_web_sources"),

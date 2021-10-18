@@ -148,6 +148,27 @@
         </div>
       </div>
     </div>
+    {% if quiz.quizHeld %}{% else %}
+      <div class="col-lg-3 col-md-6 col-sm-6">
+        <div class="card card-stats">
+          <div class="card-header card-header-primary card-header-icon">
+            <div class="card-icon">
+              <i class="material-icons">arrow_back</i>
+            </div>
+            <p class="card-category">Previous Option</p>
+            <h5 class="card-title">
+              <small>
+                  {% if quiz.disable_previous %}Disabled{% else %}Enabled{% endif %}
+              </small></h5>
+          </div>
+          <div class="card-footer">
+            <div class="stats">
+              <a href="{% url 'change_prev_status' quiz_id=quiz.id %}">{% if quiz.disable_previous %}Enable Previous{% else %}Disable Previous{% endif %}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
   </div>
 
   <p>{{message}}</p>
