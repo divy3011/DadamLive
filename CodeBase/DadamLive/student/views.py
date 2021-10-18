@@ -166,7 +166,7 @@ def start_quiz(request, quiz_id):
         if submission.submitted:
             return JsonResponse({"message": "You already have submitted the quiz 1 time."}, status=400)
     except:
-        pass
+        submission=Submission.objects.create(quiz=quiz, user=request.user)
 
     written=WrittenQuestion.objects.filter(quiz=quiz)
     mcq=MCQ.objects.filter(quiz=quiz)
@@ -258,12 +258,51 @@ def save_question(request, q_type):
         question_id=int(question_id[3:])
     try:
         part=PartOfSubmission.objects.get(submission=submission, question_type=int(q_type), question_id=question_id)
+        if part.answer_locked:
+            return JsonResponse({"message": "Answer was locked, now it can't be changed"}, status=400)
     except:
         part=PartOfSubmission.objects.create(submission=submission, question_type=int(q_type), question_id=question_id)
     part.answer=answer
     part.save()
     
     return JsonResponse({"success": "State Saved"}, status=200)
+
+def freeze_answer(request):
+    student=basicChecking(request)
+    if student[0]==False:
+        return student[1]
+    student=student[1]
+    quiz=""
+    quiz_id=int(request.GET["quiz_id"])
+    try:
+        quiz=Quiz.objects.get(id=int(quiz_id))
+        Enrolment.objects.get(course=quiz.course, user=request.user)
+    except:
+        return JsonResponse({"message": "Quiz was not found on this server or you have not been invited by the instructor."}, status=400)
+    
+    identity=quiz_identification(quiz)
+    if identity!=True:
+        return identity
+
+    submission=False
+    try:
+        submission=Submission.objects.get(quiz=quiz, user=request.user)
+        if submission.submitted:
+            return JsonResponse({"message": "You already have submitted the quiz 1 time."}, status=400)
+    except:
+        if submission==False:
+            submission=Submission.objects.create(quiz=quiz, user=request.user)
+    
+    part=False
+    try:
+        part=PartOfSubmission.objects.get(id=int(request.GET.get("part_id")))
+    except:
+        return JsonResponse({"message": "Part not found"}, status=400)
+
+    if part.answer_locked==False:
+        part.answer_locked=True
+        part.save()
+    return JsonResponse({"message": "Part locked"}, status=200)
 
 
 def mark_activity(request, quiz_id):

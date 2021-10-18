@@ -32,13 +32,15 @@
                         </ul>
                     </div>
                     <div class="d-flex flex-row justify-content-between align-items-center p-3 bg-white">
-                        <button class="btn btn-primary d-flex align-items-center btn-primary prev" type="button">
+                        {% if quiz.disable_previous %}{% else %}
+                        <button class="btn btn-primary d-flex align-items-center btn-primary prev" type="button" id="prev_button">
                             <i class="fa fa-angle-left mt-1 mr-1"></i>&nbsp;previous
                         </button>
+                        {% endif %}
                         <button class="btn btn-primary d-flex align-items-center btn-danger" type="button" onclick="end_quiz(event)">
                             End Quiz Now
                         </button>
-                        <button class="btn btn-primary border-success align-items-center btn-success next" type="button">
+                        <button class="btn btn-primary border-success align-items-center btn-success next" id="next_btn" type="button" onclick="freezeAnswer()">
                             Next<i class="fa fa-angle-right ml-2"></i>
                         </button>
                     </div>

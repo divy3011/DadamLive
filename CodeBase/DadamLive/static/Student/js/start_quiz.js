@@ -6,6 +6,33 @@ window.onload = function() {
     enablePrevNext();
 };
 
+question_ids_in_order=[];
+current_id=0
+prev_disabled=false;
+
+function freezeAnswer(){
+    if(prev_disabled){
+        quiz_id=document.getElementById("quiz_id").innerHTML;
+        part_id=question_ids_in_order[current_id++];
+        if(current_id==question_ids_in_order.length-1){
+            document.getElementById("next_btn").style.display="none";
+        }
+        serializedData={"quiz_id": quiz_id, "part_id": part_id};
+        while(internetConnected()==false){}
+        $.ajax({
+            type: 'GET',
+            url: "freeze/answer/",
+            data: serializedData,
+            success: function (response) {
+                
+            },
+            error: function (response) {
+                alert(response["responseJSON"]["message"])
+            }
+        });
+    }
+}
+
 function getQuestions(){
     alert("We are loading questions. Please note that you do not switch any tab or close the full screen mode. After some illegal attempts you will be logged out automatically. In this version of application, do not refresh the page until there is some error, answers will not be synced until you press the submit button. If you hear your own audio then mute out the sound section for this tab.")
     quiz_id=document.getElementById("quiz_id").innerHTML;
@@ -26,7 +53,11 @@ function getQuestions(){
             document.getElementById("total_q").innerHTML="Total Questions : "+(Object.keys(written).length+Object.keys(mcq).length)
 
             partOfSubmission=JSON.parse(response["partOfSubmission"]);
-
+            
+            prev_disabled=quiz[0].fields.disable_previous;
+            if(prev_disabled){
+                alert("There is no previous button. So, once you click on the next button you can not change the previous marked answer.")
+            }
             activated=false;
 
             question_no=1;
@@ -41,13 +72,18 @@ function getQuestions(){
                 question_no++;
                 question+='<h5 class="mt-1 ml-2 question">'+written[i].fields.question+' ('+written[i].fields.maximum_marks+')</h5></div>'
                 answer="";
+                statusbar="";
                 for(j=0;j<Object.keys(partOfSubmission).length;j++){
                     if(partOfSubmission[j].fields.question_id==written[i].pk && partOfSubmission[j].fields.question_type==2){
                         answer=partOfSubmission[j].fields.answer;
+                        question_ids_in_order.push(partOfSubmission[j].pk)
+                        if(partOfSubmission[j].fields.answer_locked){
+                            statusbar+="<div style='color: red'>Answer has been locked. No further changes can be done.</div>"
+                        }
                         break;
                     }
                 }
-                text_box='<div class="ans ml-12"><textarea rows="12" id="Written'+written[i].pk+'">'+answer+'</textarea></div></div></li>'
+                text_box='<div class="ans ml-12"><textarea rows="12" id="Written'+written[i].pk+'">'+answer+'</textarea></div></div>'+statusbar+'</li>'
                 $("#questions").append(question+text_box)
                 syncWrittenQuestion("Written"+written[i].pk)
             }
@@ -67,7 +103,13 @@ function getQuestions(){
                 prev_answers=false;
                 for(j=0;j<Object.keys(partOfSubmission).length;j++){
                     if(partOfSubmission[j].fields.question_id==mcq[i].pk && partOfSubmission[j].fields.question_type==1){
-                        prev_answers=partOfSubmission[j].fields.answer.split(",")
+                        if(partOfSubmission[j].fields.answer!=null){
+                            prev_answers=partOfSubmission[j].fields.answer.split(",")
+                        }
+                        question_ids_in_order.push(partOfSubmission[j].pk)
+                        if(partOfSubmission[j].fields.answer_locked){
+                            statusbar="<div style='color: red'>Answer has been locked. No further changes can be done.</div>"
+                        }
                         break;
                     }
                 }
@@ -88,14 +130,13 @@ function getQuestions(){
                         manager+='<input type="checkbox" id="MCQ'+mcq[i].pk+"Option"+j+'"><span>'+options[j]+'</span></label></div>';
                     }
                 }
-                manager+="</li";
+                manager+=statusbar+"</li";
                 all_options='<div id="MCQ'+mcq[i].pk+'">'+manager+'</div>'
                 $("#questions").append(question+all_options)
                 for(j=0;j<options.length;j++){
                     syncMCQQuestion("MCQ"+mcq[i].pk+"Option"+j, options.length);
                 }
             }
-            // addQuesionsToHtml();
         },
         error: function (response) {
             alert(response["responseJSON"]["message"])
