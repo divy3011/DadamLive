@@ -61,7 +61,13 @@ function getQuestions(){
             activated=false;
 
             question_no=1;
-            for(i=0;i<Object.keys(written).length;i++){
+
+            questions=[]
+            for(i=0;i<Object.keys(written).length;i++)  questions.push(i)
+
+            for(t=0;t<Object.keys(written).length;t++){
+                i=questions[Math.floor(Math.random() * questions.length)];
+                questions.splice(questions.indexOf(i));
                 question='<li class="pagenumber" hidden="true">';
                 if(activated==false){
                     activated=true;
@@ -143,6 +149,7 @@ function getQuestions(){
             location.reload();
         }
     });
+    // console.log(question_ids_in_order)
 }
 
 function syncMCQQuestion(Option_id, max_options){
