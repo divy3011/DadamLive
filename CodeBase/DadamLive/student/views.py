@@ -431,7 +431,8 @@ def image_detector(request,quiz_id):
         if submission==False:
             submission=Submission.objects.create(quiz=quiz, user=request.user)
     image=request.POST.get("image")
-    img=copy.deepcopy(image)
+    img=request.POST.get("image1")
+    img1=copy.deepcopy(img)
     detector = dlib.get_frontal_face_detector()
     image = base64.b64decode(image)
     image = Image.open(BytesIO(image))
@@ -446,14 +447,18 @@ def image_detector(request,quiz_id):
         activity=IllegalAttempt.objects.create(submission=submission)
     
     if len(faces)>1:
+        format, imgstr=img.split(';base64,') 
+        ext=format.split('/')[-1] 
+        img=ContentFile(base64.b64decode(imgstr), name='temp.' + ext) 
+        ImagesForActivity.objects.create(submission=submission,image=img,typeAct=2)
+
         activity.numberOfTimesMultiplePersonsDetected=activity.numberOfTimesMultiplePersonsDetected+1
         activity.save()
     elif len(faces)==0:
         activity.noPersonDetected=activity.noPersonDetected+1
         activity.save()
-
     try:
-        mobileDetection(image, activity)
+        mobileDetection(image, activity, img1, submission)
     except:
         print("Error in mobile detection fnc")
 
@@ -488,20 +493,11 @@ def tab_change_image_save(request, quiz_id):
     ext=format.split('/')[-1] 
     image=ContentFile(base64.b64decode(imgstr), name='temp.' + ext) 
 
-    TabChangeImages.objects.create(submission=submission,image=image)
+    ImagesForActivity.objects.create(submission=submission,image=image,typeAct=1)
 
     return JsonResponse({"message": "Image Saved"}, status=200)
 
-def some_function(array):
-    frame_jpg = cv2.imencode('.jpg', array)
-    file = ContentFile(frame_jpg)
-
-    # Get the required model instance
-
-    instance.photo.save('myphoto.jpg', file, save=True)
-
-
-def mobileDetection(img, activity):
+def mobileDetection(img, activity, image, submission):
     imageRGB=[]
     for i in range(len(img)):
         res=[]
@@ -530,6 +526,11 @@ def mobileDetection(img, activity):
             if classId==77:
                 activity.noOfTimesMobileDetected+=1
                 activity.save()
+                format, imgstr=image.split(';base64,') 
+                ext=format.split('/')[-1] 
+                image=ContentFile(base64.b64decode(imgstr), name='temp.' + ext) 
+
+                ImagesForActivity.objects.create(submission=submission,image=image,typeAct=6)
                 print("Mobile Detected")
     
 

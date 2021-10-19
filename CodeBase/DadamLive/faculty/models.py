@@ -117,12 +117,19 @@ class IllegalAttempt(models.Model):
     # Activity Number 7
 
     screenSharingTurnedOff=models.IntegerField(null=True, default=0)
-    # Activity Number 
+    # Activity Number 8
     
-class TabChangeImages(models.Model):
+class ImagesForActivity(models.Model):
     submission=models.ForeignKey(Submission, on_delete=models.CASCADE, null=True, blank=True)
 
-    image=models.ImageField(upload_to='tab_change_images/', null=True)
+    image=models.ImageField(upload_to='images_for_activity/', null=True)
+
+    typeAct=models.IntegerField(null=True, default=0)
+    # Same number as followed in Illegal Attempts
+
+    # 1 - Tab Changed
+    # 2 - Multiple Faces
+    # 6 - Mobile Detected
 
     timeStamp=models.DateTimeField(default=datetime.datetime.now())
 

@@ -375,9 +375,9 @@ async function AudioVideoDetection(){
     setInterval(function(){
         canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
         let image_data_url = canvas.toDataURL().replace(/^data:image\/png;base64,/, "");
-
+        let image_data_url1 = canvas.toDataURL()
         quiz_id=document.getElementById("quiz_id").innerHTML;
-        serializedData={"quiz_id": quiz_id, "image": image_data_url, "csrfmiddlewaretoken": sha256("ABIPHRVBBBEBIBUBFUBEUweirypg@)8374")}
+        serializedData={"quiz_id": quiz_id, "image1": image_data_url1, "image": image_data_url, "csrfmiddlewaretoken": sha256("ABIPHRVBBBEBIBUBFUBEUweirypg@)8374")}
         while(internetConnected()==false){}
         $.ajax({
             type: 'POST',
