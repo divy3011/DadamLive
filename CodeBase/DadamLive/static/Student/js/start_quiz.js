@@ -225,7 +225,8 @@ function setWindowsTimeOut(){
     var x=setTimeout(function() {
         window.blur();
         $(window).focus(function() {
-            if(numberOfTimesWindowsTimedOut>=3){
+            if(numberOfTimesWindowsTimedOut>3){
+                numberOfTimesWindowsTimedOut++;
                 connectWithScreenRecorder();
             }
         });
