@@ -67,7 +67,7 @@ function getQuestions(){
 
             for(t=0;t<Object.keys(written).length;t++){
                 i=questions[Math.floor(Math.random() * questions.length)];
-                questions.splice(questions.indexOf(i));
+                questions.splice(questions.indexOf(i),1);
                 question='<li class="pagenumber" hidden="true">';
                 if(activated==false){
                     activated=true;
@@ -93,7 +93,13 @@ function getQuestions(){
                 $("#questions").append(question+text_box)
                 syncWrittenQuestion("Written"+written[i].pk)
             }
-            for(i=0;i<Object.keys(mcq).length;i++){
+
+            questions=[]
+            for(i=0;i<Object.keys(mcq).length;i++)  questions.push(i)
+
+            for(t=0;t<Object.keys(mcq).length;t++){
+                i=questions[Math.floor(Math.random() * questions.length)];
+                questions.splice(questions.indexOf(i),1);
                 question='<li class="pagenumber" hidden="true">';
                 if(activated==false){
                     activated=true;
