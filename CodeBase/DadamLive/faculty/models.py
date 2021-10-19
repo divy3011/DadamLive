@@ -117,7 +117,15 @@ class IllegalAttempt(models.Model):
     # Activity Number 7
 
     screenSharingTurnedOff=models.IntegerField(null=True, default=0)
-    # Activity Number 8
+    # Activity Number 
+    
+class TabChangeImages(models.Model):
+    submission=models.ForeignKey(Submission, on_delete=models.CASCADE, null=True, blank=True)
+
+    image=models.ImageField(upload_to='tab_change_images/', null=True)
+
+    timeStamp=models.DateTimeField(default=datetime.datetime.now())
+
 
 class PartOfSubmission(models.Model):
     submission=models.ForeignKey(Submission, on_delete=models.CASCADE, null=True, blank=True)

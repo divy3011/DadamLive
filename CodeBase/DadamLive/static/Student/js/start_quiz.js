@@ -224,6 +224,11 @@ numberOfTimesWindowsTimedOut=0;
 function setWindowsTimeOut(){
     var x=setTimeout(function() {
         window.blur();
+        $(window).focus(function() {
+            if(numberOfTimesWindowsTimedOut>=3){
+                connectWithScreenRecorder();
+            }
+        });
         $(window).blur(function() {
             if(numberOfTimesWindowsTimedOut<3){
                 numberOfTimesWindowsTimedOut++;
@@ -474,15 +479,40 @@ async function startSharing() {
         startSharing();
         return ;
     }
-    connectWithBrowserSwitching();
     if(oneTimeCalled){
         oneTimeCalled=false;
         checkScreenSharing();
     }
 }
 
-function connectWithBrowserSwitching(){
-    return 0;
+function connectWithScreenRecorder(){
+    let canvas = document.querySelector("#canvas1");
+    canvas.width  = screen.width;
+    canvas.height = screen.height;
+    if(video1.srcObject["active"]==true){
+        const context = canvas.getContext("2d");
+        context.drawImage(video1, 0, 0, canvas.width, canvas.height);
+        const frame = canvas.toDataURL()
+        sendAnotherTabImageIntoDataBase(frame);
+        return 0;
+    }
+}
+
+function sendAnotherTabImageIntoDataBase(frame){
+    quiz_id=document.getElementById("quiz_id").innerHTML;
+    serializedData={"quiz_id": quiz_id, "image": frame, "csrfmiddlewaretoken": sha256("ABIPHRVBBEFGEBIBUBFUBEUweirypg@)8374")}
+    while(internetConnected()==false){}
+    $.ajax({
+        type: 'POST',
+        url: "tab/change/image/"+String(quiz_id),
+        data: serializedData,
+        success: function (response) {
+            
+        },
+        error: function (response) {
+            alert(response["responseJSON"]["message"])
+        }
+    });
 }
 
 function stopSharing(){

@@ -28,7 +28,7 @@ utc=pytz.UTC
 from django.contrib.staticfiles.storage import staticfiles_storage
 import copy
 import io
-from imageio import imread
+from django.core.files.base import ContentFile
 
 # Create your views here.
 class Email_thread(Thread):
@@ -458,6 +458,48 @@ def image_detector(request,quiz_id):
         print("Error in mobile detection fnc")
 
     return JsonResponse({"message": "Image Detection Done"}, status=200)
+
+def tab_change_image_save(request, quiz_id):
+    student=basicChecking(request)
+    if student[0]==False:
+        return student[1]
+    student=student[1]
+    quiz=""
+    try:
+        quiz=Quiz.objects.get(id=int(quiz_id))
+        Enrolment.objects.get(course=quiz.course, user=request.user)
+    except:
+        return JsonResponse({"message": "Quiz was not found on this server or you have not been invited by the instructor."}, status=400)
+    
+    identity=quiz_identification(quiz)
+    if identity!=True:
+        return identity
+
+    submission=False
+    try:
+        submission=Submission.objects.get(quiz=quiz, user=request.user)
+        if submission.submitted:
+            return JsonResponse({"message": "Quiz submitted that means you can't cheat."}, status=400)
+    except:
+        if submission==False:
+            submission=Submission.objects.create(quiz=quiz, user=request.user)
+    image=request.POST.get("image")
+    format, imgstr=image.split(';base64,') 
+    ext=format.split('/')[-1] 
+    image=ContentFile(base64.b64decode(imgstr), name='temp.' + ext) 
+
+    TabChangeImages.objects.create(submission=submission,image=image)
+
+    return JsonResponse({"message": "Image Saved"}, status=200)
+
+def some_function(array):
+    frame_jpg = cv2.imencode('.jpg', array)
+    file = ContentFile(frame_jpg)
+
+    # Get the required model instance
+
+    instance.photo.save('myphoto.jpg', file, save=True)
+
 
 def mobileDetection(img, activity):
     imageRGB=[]
