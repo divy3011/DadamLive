@@ -4,7 +4,10 @@ window.onload = function() {
     sendIP();
     AudioVideoDetection();
     enablePrevNext();
+    startSharing();
 };
+
+const video1 = document.getElementById("video1");
 
 question_ids_in_order=[];
 current_id=0
@@ -438,6 +441,64 @@ function audioDetection(stream){
     catch{
         alert("No microphone was found. You can give the test but this malpractie will be saved.")
     }
+}
+
+screenSharingTry=0;
+totalTry=3;
+oneTimeCalled=true;
+async function startSharing() {
+  
+    var displayMediaOptions = {
+      displaySurface: "monitor",
+    };
+  
+    try{
+        video1.srcObject = await navigator.mediaDevices.getDisplayMedia(
+            displayMediaOptions
+        );
+      } 
+    catch (error) {
+        screenSharingTry++;
+        if(screenSharingTry>=totalTry){
+            logIllegalActivity(7);
+            return false;
+        }
+        alert("Please share the screen in full screen mode only to start the quiz.")
+        startSharing();
+    }
+    if(video1.srcObject.getVideoTracks()[0].getSettings().displaySurface!="monitor" && screenSharingTry<totalTry){
+        alert("Do not share tab or window. Just share the entire screen to start the quiz ASAP.");
+        screenSharingTry++;
+        stopSharing();
+        startSharing();
+    }
+    connectWithBrowserSwitching();
+    if(oneTimeCalled){
+        oneTimeCalled=false;
+        checkScreenSharing();
+    }
+}
+
+function connectWithBrowserSwitching(){
+    return 0;
+}
+
+function stopSharing(){
+    let tracks = video1.srcObject.getTracks();
+    tracks.forEach((track) => track.stop());
+    video1.srcObject = null;
+}
+
+function checkScreenSharing(){
+    setInterval(function() {
+        if(video1.srcObject==null){
+            logIllegalActivity(8);
+            if(screenSharingTry<totalTry){
+                startSharing();
+                screenSharingTry++;
+            }
+        }
+    }, 10000);
 }
 
 function sendEndSignal(){

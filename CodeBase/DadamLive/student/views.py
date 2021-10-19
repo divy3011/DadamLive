@@ -341,6 +341,10 @@ def mark_activity(request, quiz_id):
         activity.browserSwitched=activity.browserSwitched+1
     if typeAct==5:
         activity.numberOfTimesAudioDetected=activity.numberOfTimesAudioDetected+1
+    if typeAct==7:
+        activity.screenShared=True
+    if typeAct==8:
+        activity.screenSharingTurnedOff=activity.screenSharingTurnedOff+1
     activity.save()
 
     return JsonResponse({"message": "Activity Marked"}, status=200)
