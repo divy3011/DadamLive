@@ -1,3 +1,4 @@
+from re import sub
 from django.http.response import JsonResponse
 from django.core import serializers
 from django.shortcuts import render,HttpResponse,redirect
@@ -751,6 +752,27 @@ def get_submission(request):
     other_subs=serializers.serialize('json', other_subs)
 
     return JsonResponse({"message": "200", "my_sub": my_sub, "other_subs": other_subs})
+
+def images_for_illegal_att(request, submission_id):
+    faculty=basicChecking(request)
+    if faculty==False:
+        return redirect('home')
+    submission=""
+    quiz=""
+    try:
+        submission=Submission.objects.get(id=int(submission_id))
+        quiz=submission.quiz
+        if submission.quiz.course.instructor!=request.user:
+            return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    except:
+        return JsonResponse({"message": "This course was not found on this server"}, status=400)
+    
+    if quiz.quizHeld==False:
+        return JsonResponse({"message": "Images can not be viewed until quiz gets over."}, status=400)
+
+    images=ImagesForActivity.objects.filter(submission=submission)
+
+    return render(request, "faculty/view_images.html", {"quiz": quiz, "submission": submission, "images": images})
 
 def marks_given_for_all_q(request):
     faculty=basicChecking(request)

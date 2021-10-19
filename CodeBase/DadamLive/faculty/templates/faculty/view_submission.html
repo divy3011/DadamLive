@@ -14,6 +14,9 @@
     <h2>Student Details : {{submission.user.first_name}} {{submission.user.last_name}}, {{submission.user.username}}, {{submission.user.email}}</h2>
     <br>
     <a href="#" onclick="return marks_given_for_all_q('{{submission.id}}')">Click here if marks are assigned for all the questions</a>
+    <br>
+    <p>------------------------------------------------------------------------</p>
+    <a href="{% url 'images_for_illegal_att' submission_id=submission.id %}">Click here to see the image captured during test for illegal attempts made by this student.</a>
     <p>------------------------------------------------------------------------</p>
     <p><b>Average Plagiarism Percentage</b>: {{submission.averagePlagiarism}} %</p>
     <p><b>Number of times browser switched</b>: {{attempt.browserSwitched}}</p>
