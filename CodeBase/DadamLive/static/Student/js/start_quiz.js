@@ -62,12 +62,12 @@ function getQuestions(){
 
             question_no=1;
 
-            questions=[]
-            for(i=0;i<Object.keys(written).length;i++)  questions.push(i)
+            shuffled_questions=[]
+            for(i=0;i<Object.keys(written).length;i++)  shuffled_questions.push(i)
 
             for(t=0;t<Object.keys(written).length;t++){
-                i=questions[Math.floor(Math.random() * questions.length)];
-                questions.splice(questions.indexOf(i),1);
+                i=shuffled_questions[Math.floor(Math.random() * shuffled_questions.length)];
+                shuffled_questions.splice(shuffled_questions.indexOf(i),1);
                 question='<li class="pagenumber" hidden="true">';
                 if(activated==false){
                     activated=true;
@@ -94,12 +94,12 @@ function getQuestions(){
                 syncWrittenQuestion("Written"+written[i].pk)
             }
 
-            questions=[]
-            for(i=0;i<Object.keys(mcq).length;i++)  questions.push(i)
+            shuffled_questions=[]
+            for(i=0;i<Object.keys(mcq).length;i++)  shuffled_questions.push(i)
 
             for(t=0;t<Object.keys(mcq).length;t++){
-                i=questions[Math.floor(Math.random() * questions.length)];
-                questions.splice(questions.indexOf(i),1);
+                i=shuffled_questions[Math.floor(Math.random() * shuffled_questions.length)];
+                shuffled_questions.splice(shuffled_questions.indexOf(i),1);
                 question='<li class="pagenumber" hidden="true">';
                 if(activated==false){
                     activated=true;
@@ -125,7 +125,13 @@ function getQuestions(){
                         break;
                     }
                 }
-                for(j=0;j<options.length;j++){
+
+                shuffled_options=[]
+                for(p=0;p<options.length;p++)  shuffled_options.push(p)
+
+                for(j1=0;j1<options.length;j1++){
+                    j=shuffled_options[Math.floor(Math.random() * shuffled_options.length)];
+                    shuffled_options.splice(shuffled_options.indexOf(j),1);
                     flag=0;
                     if(prev_answers.length>0){
                         for(k=0;k<prev_answers.length;k++){
