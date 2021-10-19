@@ -437,7 +437,21 @@ def image_detector(request,quiz_id):
     image = base64.b64decode(image)
     image = Image.open(BytesIO(image))
     image  = np.array(image)
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+
+    imageRGB=[]
+    for i in range(len(image)):
+        res=[]
+        for j in range(len(image[0])):
+            res1=[]
+            for k in range(3):
+                res1.append(image[i][j][k])
+            res.append(res1)
+        imageRGB.append(res)
+        
+    imageRGB=np.array(imageRGB, dtype=np.uint8)
+
+    gray = cv2.cvtColor(imageRGB, cv2.COLOR_BGR2GRAY)
     faces = detector(gray)
 
     activity=""
@@ -445,7 +459,7 @@ def image_detector(request,quiz_id):
         activity=IllegalAttempt.objects.get(submission=submission)
     except:
         activity=IllegalAttempt.objects.create(submission=submission)
-    
+
     if len(faces)>1:
         format, imgstr=img.split(';base64,') 
         ext=format.split('/')[-1] 
