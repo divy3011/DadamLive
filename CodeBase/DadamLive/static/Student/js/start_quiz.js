@@ -465,12 +465,14 @@ async function startSharing() {
         }
         alert("Please share the screen in full screen mode only to start the quiz.")
         startSharing();
+        return ;
     }
     if(video1.srcObject.getVideoTracks()[0].getSettings().displaySurface!="monitor" && screenSharingTry<totalTry){
         alert("Do not share tab or window. Just share the entire screen to start the quiz ASAP.");
         screenSharingTry++;
         stopSharing();
         startSharing();
+        return ;
     }
     connectWithBrowserSwitching();
     if(oneTimeCalled){
@@ -491,11 +493,11 @@ function stopSharing(){
 
 function checkScreenSharing(){
     setInterval(function() {
-        if(video1.srcObject==null){
+        if(video1.srcObject["active"]==false){
             logIllegalActivity(8);
             if(screenSharingTry<totalTry){
-                startSharing();
                 screenSharingTry++;
+                startSharing();
             }
         }
     }, 10000);
