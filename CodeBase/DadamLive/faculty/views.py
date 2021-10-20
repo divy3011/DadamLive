@@ -375,7 +375,11 @@ def manage_quiz_helper(request, data, quiz):
                     if "Correct Options" not in data.columns:
                         field_with_unknown_values.append(i+1)
                         mcq.delete()
-                    correct_answers=str(data["Correct Options"][i]).split(",")
+                    correct_answers=[]
+                    try:
+                        correct_answers.append(float(data["Correct Options"][i]))
+                    except:
+                        correct_answers=str(data["Correct Options"][i]).split(",")
                     for correct_option in correct_answers:
                         mcq.correct_answers.append(int(correct_option)-1)
                     mcq.save()

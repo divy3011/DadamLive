@@ -308,6 +308,7 @@
             <p style="padding-bottom: 10px">4. Compulsory Columns are : Question Type(Value can be Subjective or Objective), Question, Maximum Marks(Integer).</p>
             <p style="padding-bottom: 10px">5. For objective questions, options need to be given, so maximum 6 options can be given and column name must be Option1, Option2, ... Option6, one with Correct Option(out of 1-6) and the Marking Scheme(1 for partial and 2 for no partial).</p>
             <p style="padding-bottom: 10px">6. Note: If maximum options in any objective question are 3 for example then there no need to mention Option4-Option6. If there are multiple options correct then separate then with comma(,)</p>
+            <p style="padding-bottom: 10px">7. Do not copy paste in the excel sheet from any kind of browser to avoid any errors.</p>
 
             <form action="{% url 'manage_quiz' quiz_id=quiz.id %}" class="form-inline" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
