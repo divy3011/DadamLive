@@ -469,7 +469,7 @@ async function startSharing() {
             logIllegalActivity(7);
             return false;
         }
-        alert("Please share the screen in full screen mode only to start the quiz.")
+        alert(error+"Unable to capture the screen. We will try again.")
         startSharing();
         return ;
     }

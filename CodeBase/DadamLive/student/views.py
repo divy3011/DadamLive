@@ -138,7 +138,7 @@ def quiz_identification(quiz):
 
     if quiz.start_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()<quiz.start_date.time():
         return JsonResponse({"message": "Quiz has not been started yet."}, status=400)
-
+    print(datetime.datetime.now().time(), quiz.end_date.time())
     if quiz.end_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()>quiz.end_date.time():
         return JsonResponse({"message": "Quiz is no longer available."}, status=400)
 
