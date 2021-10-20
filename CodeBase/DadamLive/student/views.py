@@ -138,7 +138,7 @@ def quiz_identification(quiz):
 
     if quiz.start_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()<quiz.start_date.time():
         return JsonResponse({"message": "Quiz has not been started yet."}, status=400)
-    print(datetime.datetime.now().time(), quiz.end_date.time())
+    # print(datetime.datetime.now().time(), quiz.end_date.time())
     if quiz.end_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()>quiz.end_date.time():
         return JsonResponse({"message": "Quiz is no longer available."}, status=400)
 
@@ -298,10 +298,15 @@ def freeze_answer(request):
         part=PartOfSubmission.objects.get(id=int(request.GET.get("part_id")))
     except:
         return JsonResponse({"message": "Part not found"}, status=400)
-
-    if part.answer_locked==False:
-        part.answer_locked=True
+    if quiz.disable_previous:
+        if part.answer_locked==False:    
+            part.answer=request.GET.get("answer")
+            part.answer_locked=True
+            part.save()
+    else:
+        part.answer=request.GET.get("answer")
         part.save()
+
     return JsonResponse({"message": "Part locked"}, status=200)
 
 

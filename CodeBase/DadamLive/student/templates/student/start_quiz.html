@@ -12,8 +12,8 @@
     <link href="{% static 'Student/css/style.css' %}" rel='stylesheet'>
 </head>
 <body>
-    <video id="video" width="320" height="240" autoplay muted></video>
-    <canvas id="canvas" width="320" height="240"></canvas>
+    <video id="video" width="320" height="240" autoplay muted hidden></video>
+    <canvas id="canvas" width="320" height="240" hidden></canvas>
     <p id="quiz_id" style="display: none;">{{quiz.id}}</p>
     <p id="user_id" style="display: none;">{{request.user.id}}</p>
     <video id="video1" width="800" height="680" autoplay hidden></video>
@@ -34,15 +34,17 @@
                         </ul>
                     </div>
                     <div class="d-flex flex-row justify-content-between align-items-center p-3 bg-white">
+                        <div id="prev_btn">
                         {% if quiz.disable_previous %}{% else %}
-                        <button class="btn btn-primary d-flex align-items-center btn-primary prev" type="button" id="prev_button">
+                        <button class="btn btn-primary d-flex align-items-center btn-primary prev" type="button" onclick="freezeAnswer(-1)" hidden="false">
                             <i class="fa fa-angle-left mt-1 mr-1"></i>&nbsp;previous
                         </button>
                         {% endif %}
+                        </div>
                         <button class="btn btn-primary d-flex align-items-center btn-danger" type="button" onclick="end_quiz(event)">
                             End Quiz Now
                         </button>
-                        <button class="btn btn-primary border-success align-items-center btn-success next" id="next_btn" type="button" onclick="freezeAnswer()">
+                        <button class="btn btn-primary border-success align-items-center btn-success next" id="next_btn" type="button" onclick="freezeAnswer(1)">
                             Next<i class="fa fa-angle-right ml-2"></i>
                         </button>
                     </div>

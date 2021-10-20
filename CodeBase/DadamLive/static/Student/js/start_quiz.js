@@ -1,4 +1,5 @@
 window.onload = function() {
+    document.getElementById("prev_btn").style.display="none";
     getQuestions();
     setWindowsTimeOut();
     sendIP();
@@ -10,30 +11,82 @@ window.onload = function() {
 const video1 = document.getElementById("video1");
 
 question_ids_in_order=[];
-current_id=0
+partOfSubmissionObject=[];
+mcqObject=[];
+current_id=1
 prev_disabled=false;
 
-function freezeAnswer(){
-    if(prev_disabled){
-        quiz_id=document.getElementById("quiz_id").innerHTML;
-        part_id=question_ids_in_order[current_id++];
-        if(current_id==question_ids_in_order.length-1){
-            document.getElementById("next_btn").style.display="none";
-        }
-        serializedData={"quiz_id": quiz_id, "part_id": part_id};
-        while(internetConnected()==false){}
-        $.ajax({
-            type: 'GET',
-            url: "freeze/answer/",
-            data: serializedData,
-            success: function (response) {
-                
-            },
-            error: function (response) {
-                alert(response["responseJSON"]["message"])
-            }
-        });
+function freezeAnswer(val){
+    quiz_id=document.getElementById("quiz_id").innerHTML;
+    part_id=question_ids_in_order[current_id-1];
+    current_id+=val;
+    if(current_id<1)    current_id=1;
+    if(current_id>=question_ids_in_order.length)    current_id=question_ids_in_order.length;
+    if(current_id==question_ids_in_order.length){
+        document.getElementById("next_btn").style.display="none";
     }
+    else{
+        document.getElementById("next_btn").style.display="block";
+    }
+    if(current_id==1){
+        document.getElementById("prev_btn").style.display="none";
+    }
+    else{
+        document.getElementById("prev_btn").style.display="block";
+    }
+    textBox_id="";
+    simple_id=""
+    for(i=0;i<Object.keys(partOfSubmissionObject).length;i++){
+        if(partOfSubmissionObject[i].pk==part_id){
+            if(partOfSubmissionObject[i].fields.question_type==1)
+                textBox_id+="MCQ"
+            if(partOfSubmissionObject[i].fields.question_type==2)
+                textBox_id+="Written";
+            textBox_id+=partOfSubmissionObject[i].fields.question_id;
+            simple_id=partOfSubmissionObject[i].fields.question_id;
+            break;
+        }
+    }
+    written=1;
+    if(textBox_id[0]!='W')  written=0;        
+    serializedData={}
+    if(written==1){
+        answer=document.getElementById(textBox_id).value;
+        serializedData={"quiz_id": quiz_id, "part_id": part_id, "answer": answer};
+    }
+    if(written==0){
+        myMcq=false;
+        for(i=0;i<Object.keys(mcqObject).length;i++){
+            if(mcqObject[i].pk==simple_id){
+                myMcq=mcqObject[i];
+                break;
+            }
+        }
+        options=myMcq.fields.options.split(",")
+        total_opt=options.length;
+        answer="";
+        for(i=0;i<total_opt;i++){
+            option_id=textBox_id+"Option"+i;
+            if(document.getElementById(option_id).checked){
+                answer+=i+",";
+            }
+        }
+        if(answer[answer.length - 1]==",")
+        answer=answer.substr(0, answer.length - 1)
+        serializedData={"quiz_id": quiz_id, "part_id": part_id, "answer": answer};
+    }
+    while(internetConnected()==false){}
+    $.ajax({
+        type: 'GET',
+        url: "freeze/answer/",
+        data: serializedData,
+        success: function (response) {
+            
+        },
+        error: function (response) {
+            alert(response["responseJSON"]["message"])
+        }
+    });
 }
 
 function getQuestions(){
@@ -47,16 +100,16 @@ function getQuestions(){
         success: function (response) {
             // console.log(response);
             mcq=JSON.parse(response["mcq"]);
+            mcqObject=mcq;
             written=JSON.parse(response["written"]);
             quiz=JSON.parse(response["quiz"]);
-
             //Setting the timer
             setTimer(quiz);
 
             document.getElementById("total_q").innerHTML="Total Questions : "+(Object.keys(written).length+Object.keys(mcq).length)
 
             partOfSubmission=JSON.parse(response["partOfSubmission"]);
-            
+            partOfSubmissionObject=partOfSubmission;
             prev_disabled=quiz[0].fields.disable_previous;
             if(prev_disabled){
                 alert("There is no previous button. So, once you click on the next button you can not change the previous marked answer.")
@@ -115,6 +168,7 @@ function getQuestions(){
 
                 options=mcq[i].fields.options.split(",")
                 manager="";
+                statusbar="";
                 prev_answers=false;
                 for(j=0;j<Object.keys(partOfSubmission).length;j++){
                     if(partOfSubmission[j].fields.question_id==mcq[i].pk && partOfSubmission[j].fields.question_type==1){
@@ -555,6 +609,7 @@ function end_quiz(e){
         e.preventDefault();
         return false;
     }
+    freezeAnswer(0);
     sendEndSignal();
 }
 
