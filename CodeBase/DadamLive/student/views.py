@@ -16,7 +16,7 @@ from staff.forms import FileForm
 from .models import *
 from faculty.models import *
 import pytz
-import dlib
+# import dlib
 import cv2
 import base64
 from io import BytesIO
@@ -433,7 +433,10 @@ def image_detector(request,quiz_id):
     image=request.POST.get("image")
     img=request.POST.get("image1")
     img1=copy.deepcopy(img)
-    detector = dlib.get_frontal_face_detector()
+
+    face_cascade = cv2.CascadeClassifier('static/Student/js/haarcascade_frontalface_default.xml')
+    # print(face_cascade)
+    # detector = dlib.get_frontal_face_detector()
     image = base64.b64decode(image)
     image = Image.open(BytesIO(image))
     image  = np.array(image)
@@ -452,8 +455,9 @@ def image_detector(request,quiz_id):
     imageRGB=np.array(imageRGB, dtype=np.uint8)
 
     gray = cv2.cvtColor(imageRGB, cv2.COLOR_BGR2GRAY)
-    faces = detector(gray)
-
+    # faces = detector(gray)
+    faces=face_cascade.detectMultiScale(gray, 1.1, 4)
+    # print(len(faces))
     activity=""
     try:
         activity=IllegalAttempt.objects.get(submission=submission)
