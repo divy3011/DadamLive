@@ -483,16 +483,18 @@ def image_detector(request,quiz_id):
         ext=format.split('/')[-1] 
         img=ContentFile(base64.b64decode(imgstr), name='temp.' + ext) 
         ImagesForActivity.objects.create(submission=submission,image=img,typeAct=2)
-
+        print("Multiple faces were detected")
         activity.numberOfTimesMultiplePersonsDetected=activity.numberOfTimesMultiplePersonsDetected+1
         activity.save()
     elif len(faces)==0:
+        print("No person was detected.")
         activity.noPersonDetected=activity.noPersonDetected+1
         activity.save()
     try:
         mobileDetection(image, activity, img1, submission)
     except:
-        print("Error in mobile detection fnc")
+        pass
+        # print("Error in mobile detection fnc")
 
     return JsonResponse({"message": "Image Detection Done"}, status=200)
 

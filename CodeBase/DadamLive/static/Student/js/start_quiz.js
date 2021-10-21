@@ -145,7 +145,7 @@ function getQuestions(){
                         break;
                     }
                 }
-                text_box='<div class="ans ml-12"><textarea rows="12" id="Written'+written[i].pk+'">'+answer+'</textarea></div></div>'+statusbar+'</li>'
+                text_box='<div class="ans ml-12"><textarea style="width: 450px;" rows="12" id="Written'+written[i].pk+'">'+answer+'</textarea></div></div>'+statusbar+'</li>'
                 $("#questions").append(question+text_box)
                 syncWrittenQuestion("Written"+written[i].pk)
             }

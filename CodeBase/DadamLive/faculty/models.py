@@ -137,7 +137,7 @@ class ImagesForActivity(models.Model):
 class PartOfSubmission(models.Model):
     submission=models.ForeignKey(Submission, on_delete=models.CASCADE, null=True, blank=True)
     question_id=models.IntegerField(null=True, default=0)
-    answer=models.CharField(null=True, max_length=1000000)
+    answer=models.CharField(blank=True, max_length=1000000, default="")
     mark=models.FloatField(default=0.0)
 
     question_type=models.IntegerField(null=True, default=2)
