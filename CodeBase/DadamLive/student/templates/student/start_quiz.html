@@ -12,7 +12,6 @@
     <link href="{% static 'Student/css/style.css' %}" rel='stylesheet'>
 </head>
 <body>
-    <video id="video" width="320" height="240" autoplay muted hidden></video>
     <canvas id="canvas" width="320" height="240" hidden></canvas>
     <p id="quiz_id" style="display: none;">{{quiz.id}}</p>
     <p id="user_id" style="display: none;">{{request.user.id}}</p>
@@ -52,7 +51,8 @@
             </div>
         </div>
     </div>
-
+    <br><br>
+    <video id="video" width="320" height="240" autoplay muted></video>
 
     <script src="{% static 'jquery.js' %}"></script>
     <script src="{% static 'Student/js/start_quiz.js' %}"></script>

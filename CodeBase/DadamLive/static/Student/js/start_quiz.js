@@ -424,7 +424,7 @@ async function AudioVideoDetection(){
         return ;
     }
 
-    let delayTime=10000
+    let delayTime=5000;
     
     setInterval(function(){
         canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);

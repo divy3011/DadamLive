@@ -29,6 +29,7 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 import copy
 import io
 from django.core.files.base import ContentFile
+import ntplib
 
 # Create your views here.
 class Email_thread(Thread):
@@ -130,16 +131,23 @@ def quiz_identification(quiz):
     if quiz.hidden:
         return JsonResponse({"message": "Quiz has been moved to hidden section and is no longer available to you."}, status=400)
 
-    if quiz.end_date.date()<datetime.datetime.now().date():
+    client = ntplib.NTPClient()
+    response = client.request('pool.ntp.org')
+    Internet_date_and_time = datetime.datetime.fromtimestamp(response.tx_time)
+
+    # print(Internet_date_and_time.time(), quiz.start_date.time())
+    # print(Internet_date_and_time.date(), quiz.start_date.date())
+
+    if quiz.end_date.date()<Internet_date_and_time.date():
         return JsonResponse({"message": "Quiz is no longer avaiable."}, status=400)
     
-    if quiz.start_date.date()>datetime.datetime.now().date():
+    if quiz.start_date.date()>Internet_date_and_time.date():
         return JsonResponse({"message": "Quiz has not been started yet."}, status=400)
 
-    if quiz.start_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()<quiz.start_date.time():
+    if quiz.start_date.date()==Internet_date_and_time.date() and Internet_date_and_time.time()<quiz.start_date.time():
         return JsonResponse({"message": "Quiz has not been started yet."}, status=400)
-    # print(datetime.datetime.now().time(), quiz.end_date.time())
-    if quiz.end_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()>quiz.end_date.time():
+    
+    if quiz.end_date.date()==Internet_date_and_time.date() and Internet_date_and_time.time()>quiz.end_date.time():
         return JsonResponse({"message": "Quiz is no longer available."}, status=400)
 
     return True
@@ -463,6 +471,7 @@ def image_detector(request,quiz_id):
     # faces = detector(gray)
     faces=face_cascade.detectMultiScale(gray, 1.1, 4)
     # print(len(faces))
+    # print(faces)
     activity=""
     try:
         activity=IllegalAttempt.objects.get(submission=submission)
@@ -590,12 +599,15 @@ def end_test(request, quiz_id):
     return JsonResponse({"message": "Already Submitted"}, status=200)
 
 def checkForQuizStatus(quiz):
-    if quiz.end_date.date()<datetime.datetime.now().date():
+    client = ntplib.NTPClient()
+    response = client.request('pool.ntp.org')
+    Internet_date_and_time = datetime.datetime.fromtimestamp(response.tx_time)
+    if quiz.end_date.date()<Internet_date_and_time.date():
         if quiz.quizHeld==False:
             quiz.quizHeld=True
             quiz.save()
 
-    if quiz.end_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()>quiz.end_date.time():
+    if quiz.end_date.date()==Internet_date_and_time.date() and Internet_date_and_time.time()>quiz.end_date.time():
         if quiz.quizHeld==False:
             quiz.quizHeld=True
             quiz.save()
