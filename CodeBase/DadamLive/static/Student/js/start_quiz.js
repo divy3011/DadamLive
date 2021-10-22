@@ -218,7 +218,7 @@ function getQuestions(){
             location.reload();
         }
     });
-    // console.log(question_ids_in_order)
+    console.log(question_ids_in_order)
 }
 
 function syncMCQQuestion(Option_id, max_options){
@@ -455,7 +455,7 @@ function audioDetection(stream){
     level3=200;
     
     // When audioCounter reaches maxCounter an illegal attempt will be saved
-    maxCounter=150;
+    maxCounter=20;
 
     audioCounter=0;
     try{
