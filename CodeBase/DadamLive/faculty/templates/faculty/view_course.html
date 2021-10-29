@@ -4,11 +4,22 @@
 
 {% block heading %}{{course.courseName}}{% endblock %}
 
-{% block css %}{% endblock %}
+{% block css %}
+<link rel="stylesheet" href="http://cdn.datatables.net/1.10.2/css/jquery.dataTables.min.css"></style>
+{% endblock %}
 
 {% block extra_js %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script type="text/javascript " src="{% static 'Faculty/NewCourse/start_new_course.js' %} "></script>
+<script type="text/javascript" src="http://cdn.datatables.net/1.10.2/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script>
+  $(document).ready(function(){
+      $('#myTable').dataTable();
+      $('#myTable1').dataTable();
+  });
+</script>
+<script type="text/javascript" src="{% static 'Faculty/NewCourse/view_course.js' %} "></script>
 {% endblock %}
 
 {% block main_body %}    
@@ -77,6 +88,23 @@
         <div class="card-footer">
           <div class="stats">
             <a data-toggle="modal" data-target="#modal4" href="#">Download Excel File</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3 col-md-6 col-sm-6">
+      <div class="card card-stats">
+        <div class="card-header card-header-info card-header-icon">
+          <div class="card-icon">
+            <i class="material-icons">emoji_events</i>
+          </div>
+          <p class="card-category">Manage TA</p>
+          <h5 class="card-title">
+            <small>Permissions</small></h5>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            <a data-toggle="modal" data-target="#modal5" href="#">Ease your work</a>
           </div>
         </div>
       </div>
@@ -299,6 +327,103 @@
                 </div>
                 <input type="submit" class="btn btn-primary mb-2" value="Announce Quiz">
             </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 5 -->
+  <div class="modal fade" id="modal5" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Manage Teaching Assistants and Permissions</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <h4 style="padding-bottom: 12px"><b>Below mentioned is the list of TA's. You can add multiple main TA and manage their permissions. A page refresh is needed to see effects in new permissions in this table</b></h4>
+            <table id="myTable1">  
+              <thead>  
+                <tr>  
+                  <th>TA Username</th>  
+                  <th>TA Email</th> 
+                  <th>Main TA</th>
+                  <th>Manage Permissions</th>
+                </tr>  
+              </thead>  
+              <tbody>
+                {% for each in TA_permissions %}
+                <tr>
+                  <td>{{each.enrolment.user.username}}</td>
+                  <td>{{each.enrolment.user.email}}</td>
+                  <td>{% if each.isMainTA %}Yes{% else %}No{% endif %}</</td>
+                  <td><button class="btn btn-primary" data-toggle="modal" data-target="#modal6" onclick="getTAData('{{each.id}}', '{{course.id}}')">View/Edit</button></td>
+                </tr>
+                {% endfor %}
+              </tbody>  
+            </table>
+            
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 5 -->
+  <div class="modal fade" id="modal6" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">View/Edit Permissions</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <h4 style="padding-bottom: 12px" id="ta_details"></h4>
+            <form method="POST" enctype="multipart/form-data" id="ta_form">{% csrf_token %}
+                <input type="hidden" name="permission_id" id="permission_id">
+                <input type="hidden" name="course_id_ta" id="course_id_ta">
+                <div class="form-group">
+                  <label class="bmd-label-floating">Head Teaching Assistant <b>(If this permission is Yes then TA can avail all the features as the faculty but its limited to only this particular course)</b></label>
+                  <select class="form-control" id="select_head_ta" name="select_head_ta">
+
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="bmd-label-floating">Can Manage Permissions of other Teaching Assistants <b>(Includes changing permission for him/her self)</b></label>
+                  <select class="form-control" id="canManageTAPermissions" name="canManageTAPermissions">
+
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="bmd-label-floating">Can Check Answer Sheets</label>
+                  <select class="form-control" id="canCheckAnswerSheets" name="canCheckAnswerSheets">
+
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="bmd-label-floating">Can Make Announcements</label>
+                  <select class="form-control" id="canAnnounce" name="canAnnounce">
+
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="bmd-label-floating">Can Manage Quiz <b>(Includes permission for creating a new quiz and other features)</b></label>
+                  <select class="form-control" id="canManageQuiz" name="canManageQuiz">
+
+                  </select>
+                </div>
+                <input type="submit" class="btn btn-primary mb-2" value="Update Permissions">  
+            </form>
+            
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

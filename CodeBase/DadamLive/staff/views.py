@@ -116,7 +116,7 @@ def add_users_helper(request, data, staff):
         username=data['Username'][i]
         account_type=data['Account Type'][i]
 
-        if email and username and account_type:
+        if email!="" and username!="" and account_type!="":
             try:
                 User.objects.get(username=username)
                 field_with_duplicate_data.append(i+1)
@@ -138,7 +138,7 @@ def add_users_helper(request, data, staff):
             user.set_password(password)
             user.save()
             subject="Welcome to DadamLive!"
-            message="Your email has been used to create "+account_type+" account in DadamLive. Login Credentials are as follows : \nUsername : "+username+"\nPassword : "+password+"\nPassword is auto generated so it is recommended to change ASAP."
+            message="Your email has been used to create "+str(account_type)+" account in DadamLive. Login Credentials are as follows : \nUsername : "+str(username)+"\nPassword : "+password+"\nPassword is auto generated so it is recommended to change ASAP."
             try:
                 Email_thread(subject,message,email).start()
             except:

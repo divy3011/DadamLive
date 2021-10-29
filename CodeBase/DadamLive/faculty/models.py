@@ -23,6 +23,26 @@ class Enrolment(models.Model):
     def __str__(self):
         return self.course.courseName
 
+class TeachingAssistantPermission(models.Model):
+    enrolment=models.ForeignKey(Enrolment, on_delete=models.CASCADE, null=True, blank=True)
+
+    isMainTA=models.BooleanField(default=False)
+    # If this feature is on the TA is like faculty and can do all those things that a faculty can do.
+
+    canManageTAPermissions=models.BooleanField(default=False)
+    # Very sensittive feature - Must not be given to every TA
+
+    canCheckAnswerSheets=models.BooleanField(default=True)
+    # Must be given to maximum TA otherwise who will check the answer sheets
+
+    canAnnounce=models.BooleanField(default=True)
+
+    canManageQuiz=models.BooleanField(default=False)
+    # Includes creating quiz creating questions, quiz hidder, disable previous and all the features.
+
+    def __str__(self):
+        return self.enrolment.course.courseName
+
 class Quiz(models.Model):
     course=models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
     quiz_name=models.CharField(null=True, max_length=500)

@@ -87,6 +87,60 @@ def start_new_course(request):
     else:
         return render(request,"faculty/start_new_course.html",context={})
 
+def get_permission_data(request):
+    faculty=basicChecking(request)
+    if faculty==False:
+        return redirect('home')
+    if request.method!="POST":
+        return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    course=""
+    try:
+        course=Course.objects.get(id=int(request.POST.get('course_id')))
+        if course.instructor!=request.user:
+            return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    except:
+        return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    try:
+        taap=TeachingAssistantPermission.objects.get(id=int(request.POST.get('ta_permission_id')))
+        if taap.enrolment.course!=course:
+            return JsonResponse({"message": "The TA was never enroled in the course"}, status=400)
+        return JsonResponse({"data": serializers.serialize('json', [taap])}, status=200)
+    except:
+        return JsonResponse({"message": "TA Permissions were not found on this server"}, status=400)
+
+def update_ta_permissions(request):
+    faculty=basicChecking(request)
+    if faculty==False:
+        return redirect('home')
+    if request.method!="POST":
+        return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    course=""
+    try:
+        course=Course.objects.get(id=int(request.POST.get('course_id_ta')))
+        if course.instructor!=request.user:
+            return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    except:
+        return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    try:
+        taap=TeachingAssistantPermission.objects.get(id=int(request.POST.get('permission_id')))
+        if taap.enrolment.course!=course:
+            return JsonResponse({"message": "The TA was never enroled in the course"}, status=400)
+        taap.isMainTA=str_to_bool_converter(request.POST.get("select_head_ta"))
+        taap.canManageTAPermissions=str_to_bool_converter(request.POST.get("canManageTAPermissions"))
+        taap.canCheckAnswerSheets=str_to_bool_converter(request.POST.get("canCheckAnswerSheets"))
+        taap.canAnnounce=str_to_bool_converter(request.POST.get("canAnnounce"))
+        taap.canManageQuiz=str_to_bool_converter(request.POST.get("canManageQuiz"))
+        taap.save()
+        return JsonResponse({"message": "TA Permissions were saved successfully."}, status=200)
+    except:
+        return JsonResponse({"message": "TA Permissions were not found on this server"}, status=400)
+
+def str_to_bool_converter(input):
+    if int(input)==1:
+        return True
+    return False
+    
+
 def view_course(request,course_id):
     faculty=basicChecking(request)
     if faculty==False:
@@ -105,8 +159,9 @@ def view_course(request,course_id):
         enrolments=Enrolment.objects.filter(course=course)
         announcements=Announcement.objects.filter(course=course)
         quizes=Quiz.objects.filter(course=course)
+        TA_permissions=TeachingAssistantPermission.objects.filter(enrolment__course=course)
         #Also to add thesr in post request later
-        context={"course": course, "enrolments": enrolments, "announcements": announcements, "quizes": quizes}
+        context={"course": course, "enrolments": enrolments, "announcements": announcements, "quizes": quizes,"TA_permissions": TA_permissions}
         return render(request,"faculty/view_course.html",context=context)
 
 def add_student_ta(request,course_id):
@@ -195,7 +250,8 @@ def add_student_ta_helper(request, data, course):
                 except:
                     field_with_unknown_values.append(i+1)
                     continue 
-            Enrolment.objects.create(user=user, course=course, userType=userType)
+            enrolment=Enrolment.objects.create(user=user, course=course, userType=userType)
+            TeachingAssistantPermission.objects.create(enrolment=enrolment)
             subject="Enrolment Confirmation in DadamLive"
             message="You have been enroled as "+role+" in "+course.courseName+" in DadamLive. You can leave the course if you want but all the progress including tests will be lost if you do so."
             try:
