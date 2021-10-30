@@ -72,6 +72,20 @@ li {
     font-family: 'Oswald', sans-serif;
     text-transform: none;
 }
+.section-title h2{
+    color: #666;
+    //font-style: italic;
+    font-size: 35px;
+    font-family: 'Oswald', sans-serif;
+    text-transform: none;
+}
+.section-title h4{
+    color: #666;
+    //font-style: italic;
+    font-size: 23px;
+    font-family: 'Oswald', sans-serif;
+    text-transform: none;
+}
 
 .section-title p {
     padding-bottom: 60px;

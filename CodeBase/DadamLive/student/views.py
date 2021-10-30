@@ -339,7 +339,7 @@ def mark_activity(request, quiz_id):
     try:
         submission=Submission.objects.get(quiz=quiz, user=request.user)
         if submission.submitted:
-            return JsonResponse({"message": "Quiz submitted that means you can't cheat."}, status=400)
+            return JsonResponse({"message": "Quiz has been submitted."}, status=400)
     except:
         if submission==False:
             submission=Submission.objects.create(quiz=quiz, user=request.user)
@@ -382,7 +382,7 @@ def mark_ip(request, quiz_id):
     try:
         submission=Submission.objects.get(quiz=quiz, user=request.user)
         if submission.submitted:
-            return JsonResponse({"message": "Quiz submitted that means you can't cheat."}, status=400)
+            return JsonResponse({"message": "Quiz has been submitted."}, status=400)
     except:
         if submission==False:
             submission=Submission.objects.create(quiz=quiz, user=request.user)
@@ -439,7 +439,7 @@ def image_detector(request,quiz_id):
     try:
         submission=Submission.objects.get(quiz=quiz, user=request.user)
         if submission.submitted:
-            return JsonResponse({"message": "Quiz submitted that means you can't cheat."}, status=400)
+            return JsonResponse({"message": "Quiz has been submitted."}, status=400)
     except:
         if submission==False:
             submission=Submission.objects.create(quiz=quiz, user=request.user)
@@ -518,7 +518,7 @@ def tab_change_image_save(request, quiz_id):
     try:
         submission=Submission.objects.get(quiz=quiz, user=request.user)
         if submission.submitted:
-            return JsonResponse({"message": "Quiz submitted that means you can't cheat."}, status=400)
+            return JsonResponse({"message": "Quiz has been submitted."}, status=400)
     except:
         if submission==False:
             submission=Submission.objects.create(quiz=quiz, user=request.user)
@@ -584,7 +584,7 @@ def end_test(request, quiz_id):
     try:
         submission=Submission.objects.get(quiz=quiz, user=request.user)
         if submission.submitted:
-            return JsonResponse({"message": "Quiz submitted that means you can't cheat."}, status=400)
+            return JsonResponse({"message": "Quiz has been submitted."}, status=400)
     except:
         if submission==False:
             submission=Submission.objects.create(quiz=quiz, user=request.user)

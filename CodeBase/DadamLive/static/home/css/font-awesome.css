@@ -683,6 +683,9 @@
 .fa-users:before {
   content: "\f0c0";
 }
+.fa-userstwo:before {
+  content: "\e068";
+}
 .fa-chain:before,
 .fa-link:before {
   content: "\f0c1";
