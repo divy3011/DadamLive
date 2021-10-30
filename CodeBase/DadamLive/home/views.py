@@ -22,6 +22,7 @@ from functools import lru_cache
 import pandas as pd
 from staff.views import dashboardStaff
 from student.views import dashboardStudent
+from ta.views import dashboardTA
 
 class Email_thread(Thread):
     def __init__(self,subject,message,email):
@@ -98,6 +99,9 @@ def login_redirecter(request):
         if info.userType.userTypeCode==settings.CODE_STUDENT:
             #Student User
             return redirect(dashboardStudent)
+        if info.userType.userTypeCode==settings.CODE_TA:
+            # Teaching Assistant User
+            return redirect(dashboardTA)
     except:
         return HttpResponse("<h1>Unable to fetch account details</h1>")
 

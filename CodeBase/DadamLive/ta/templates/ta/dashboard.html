@@ -1,0 +1,52 @@
+{% extends 'faculty/base.html' %} {% load static %}
+
+{% block title %}{{request.user.email}} | Teaching Assistant in DadamLive{% endblock %}
+
+{% block heading %}Dashboard{% endblock %}
+
+{% block css %}{% endblock %}
+
+{% block extra_js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript" src="{% static 'Faculty/NewCourse/dashboard.js' %} "></script>
+{% endblock %}
+
+{% block main_body %}    
+      <div class="row">
+        {% for each in enrolments %}
+        <div class="col-md-4">
+          <div class="card card-chart">
+            {% if each.course.image %}
+            <img src="{{each.course.image.url}}">
+            {% else %}
+            <img src="{% static 'images/demo.jpg' %}">
+            {% endif %}
+            <a href="{% url 'view_course_ta' course_id=each.course.id %}">
+              <div class="card-body">
+                <h4 class="card-title">{{each.course.courseName}}</h4>
+                <p class="card-category">Started {{each.course.created_on}}</p>
+              </div>
+              <div class="card-footer">
+                <div class="stats" style="color: purple;">
+                  Click to view more...
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+
+      
+{% endblock %}
+
+
+{% block left_panel %}
+<li class="nav-item active">
+    <a class="nav-link" href="{% url 'dashboardTA' %}">
+      <i class="material-icons">dashboard</i>
+      <p>Dashboard</p>
+    </a>
+</li>
+{% endblock %}

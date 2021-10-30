@@ -143,7 +143,7 @@ def add_users_helper(request, data, staff):
                 Email_thread(subject,message,email).start()
             except:
                 print("Unable to send email")
-            if account_type == "Student" or account_type == "TA":
+            if account_type == "Student":
                 userType=UserType.objects.get(userTypeCode=int(settings.CODE_STUDENT))
                 userInformation=UserInformation.objects.create(user=user, userType=userType)
                 Student.objects.create(user=user, userInformation=userInformation)

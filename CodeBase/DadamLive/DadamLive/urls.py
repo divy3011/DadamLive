@@ -24,6 +24,7 @@ urlpatterns = [
     path('dashboard/staff/',include('staff.urls')),
     path('dashboard/faculty/',include('faculty.urls')),
     path('dashboard/student/',include('student.urls')),
+    path('dashboard/teaching_assistant/',include('ta.urls')),
     # path('dashboard/',include('dashboard.urls')),
     
 ]
