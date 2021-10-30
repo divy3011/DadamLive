@@ -1,0 +1,205 @@
+.button {
+    border: none; 
+    color: white; 
+    padding: 10px 20px; 
+    text-align: center; 
+    text-decoration: none; 
+    display: inline-block; 
+    font-size: 16px; 
+    margin: 4px 20px; 
+    cursor: pointer; 
+    border-radius: 5px;}   
+.button1 {
+    background-color: #5eb961;
+} 
+.button2 {
+    background-color: #1fb6e9;
+} 
+.button1:hover {
+    background-color: #268829;
+}
+.button2:hover {
+    background-color: #237c99;
+} 
+.box {
+    height: 50px; 
+    width: 100px; 
+    background-color: #555;
+}
+.text-danger{
+    color: rgb(48, 153, 88)!important;
+}
+label.checkbox {
+    cursor: pointer
+}
+label.checkbox input {
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    visibility: hidden; 
+    pointer-events: none;
+}
+label.checkbox span {
+    padding: 4px 0px; 
+    border: 1px solid #9c27b0; 
+    display: inline-block; color: 
+    #9c27b0; width: 100px; 
+    text-align: center; 
+    border-radius: 3px; 
+    margin-top: 7px; 
+    text-transform: uppercase
+}
+label.checkbox input:checked+span {
+    border-color: #9c27b0; 
+    background-color: #9c27b0; 
+    color: #fff
+}
+.ans {
+    margin-left: 36px !important
+}
+.btn:focus {
+    outline: 0 !important; 
+    box-shadow: none !important
+}
+.btn:active {
+    outline: 0 !important; 
+    box-shadow: none !important
+}
+.green{
+    color: rgb(48, 153, 88);
+}
+.grey{
+    color: #555;
+}
+.red{
+    color:rgb(216, 20, 20) !important;
+}
+.left{
+    text-align: left;
+}
+.answer{
+    border-style: solid;
+    border-color: black;
+    padding: 10px 10px;
+    width: fit-content;
+    /* color: red; */
+    border-width: 2px;
+    border-radius: 10px;
+    box-shadow: 3px 3px #555;
+}
+.summary{
+    padding-top: 10%;
+}
+.space{
+    margin-bottom: 10px;
+}
+body{
+    font-family: 'Nunito', sans-serif;
+    padding: 50px;
+}
+.card{
+    border-radius: 10px;
+    background: rgba(71, 69, 69, 0.349);
+    box-shadow: 0 6px 10px rgba(0,0,0,.08), 0 0 6px rgba(0,0,0,.05);
+    transition: .3s transform cubic-bezier(.155,1.105,.295,1.12),.3s box-shadow,.3s -webkit-transform cubic-bezier(.155,1.105,.295,1.12);
+    padding: 14px 40px 18px 36px;
+    cursor: pointer;
+    height: 160px;
+}
+
+.card:hover{
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06);
+}
+
+.card h3{
+    font-weight: 600;
+}
+.pos{
+    position:absolute;
+    top:320px;
+    right:40px;
+    font-size: 3rem !important; 
+    color: rgb(88, 153, 23);
+}
+
+.pos .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: rgb(255, 216, 157);
+    /* background-color: #000; */
+    color: #000;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    font-size: 14px;
+    
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 100;
+    top: -35px;
+    left: -250%;
+}
+
+.pos:hover .tooltiptext{
+    visibility: visible !important;  
+}
+
+.card img{
+    position: absolute;
+    top: 20px;
+    right: 15px;
+    max-height: 120px;
+}
+.container{
+    padding-bottom: 30px;
+}
+.val{
+    font-size: 50px;
+    width: fit-content;
+    float: right;
+    /* padding-left: 75%;[] */
+}
+.inp{
+    writing-mode:unset;
+    border-radius: 20px;
+    padding: 7px 10px 7px 15px;
+    border-color: rgb(88, 153, 23);
+}
+.course-head{
+    position: relative;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    /* color: cornflowerblue; */
+    color: #164896;
+    font-family: "UbuntuLight";
+    font-size: 1.3em;
+    font-weight: 500;
+    text-indent: 20px;
+    border-bottom: 1px solid #164896;
+    cursor: pointer;
+}
+.panel-title{
+    text-decoration: none;
+    color: rgb(122, 13, 13) !important;
+    padding-top: 15px;
+    font-size: 20px;
+}
+.panel-title:hover{
+    cursor: pointer;
+}
+.list-group-item{
+    padding: 10px 10px;
+}
+@media(max-width: 990px){
+    .card{
+        margin: 20px;
+    }
+}
