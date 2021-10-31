@@ -1,3 +1,4 @@
+// File shared among bw TA and Faculty
 function getTAData(ta_permission_id, course_id){
     serializedData={"ta_permission_id": ta_permission_id, "course_id": course_id}
     $.ajax({
@@ -127,7 +128,7 @@ $("#ta_form").submit(function (e) {
             alert("Permissions updated successfully.")
         },
         error: function (response) {
-            alert("Unable to update permission for the TA. Please refresh the page and try again.")
+            alert(response["responseJSON"]["message"])
         }
     })
 })
