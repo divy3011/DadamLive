@@ -123,8 +123,8 @@ def view_course_student(request, course_id):
         Enrolment.objects.get(course=course, user=request.user)
     except:
         return JsonResponse({"message": "Course was not found on this server or you have not been invited by the instructor."}, status=400)
-    announcements=Announcement.objects.filter(course=course)
-    quizes=Quiz.objects.filter(course=course, hidden=False)
+    announcements=Announcement.objects.filter(course=course).order_by('-id')
+    quizes=Quiz.objects.filter(course=course, hidden=False).order_by('-id')
     return render(request,"student/view_course_student.html",context={"student": student, "course": course, "announcements": announcements, "quizes": quizes})
 
 def quiz_identification(quiz):

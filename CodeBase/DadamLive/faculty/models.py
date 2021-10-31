@@ -174,6 +174,7 @@ class PartOfSubmission(models.Model):
 
 class Announcement(models.Model):
     course=models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
+    created_by=models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     message=models.CharField(null=True, max_length=5000)
     created_on=models.DateTimeField(default=datetime.datetime.now())
 

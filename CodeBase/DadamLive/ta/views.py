@@ -62,6 +62,39 @@ def view_course_ta(request, course_id):
     ta=basicChecking(request)
     if ta[0]==False:
         return ta[1]
+    enrolment=False
+    course=False
+    try:
+        course=Course.objects.get(id=int(course_id))
+        enrolment=Enrolment.objects.get(user=request.user, course=course)
+    except:
+        return JsonResponse({"message": "Course was not found on this server or you aren't assigned as TA by the faculty."}, status=400)
+    enrolments=Enrolment.objects.filter(course=course)
+    announcements=Announcement.objects.filter(course=course).order_by('-id')
+    quizes=Quiz.objects.filter(course=course).order_by('-id')
+    TA_permissions=TeachingAssistantPermission.objects.filter(enrolment__course=course)
+    permissions=TeachingAssistantPermission.objects.get(enrolment=enrolment)
+    context={"course": course, "enrolments": enrolments, "announcements": announcements, "quizes": quizes,"TA_permissions": TA_permissions, "permissions": permissions}
+    return render(request, 'ta/view_course.html', context=context)
 
-    # pending ................
-    return HttpResponse("To be completed soon.........")
+def ta_announcement(request, course_id):
+    ta=basicChecking(request)
+    if ta[0]==False:
+        return ta[1]
+    enrolment=False
+    course=False
+    try:
+        course=Course.objects.get(id=int(course_id))
+        enrolment=Enrolment.objects.get(user=request.user, course=course)
+        permissions=TeachingAssistantPermission.objects.get(enrolment=enrolment)
+        if (not permissions.isMainTA) and (not permissions.canAnnounce):
+            return JsonResponse({"message": "It seems you have not been given permission to announce in the class.."}, status=400)
+    except:
+        return JsonResponse({"message": "Course was not found on this server or you aren't assigned as TA by the faculty."}, status=400)
+
+    if request.method=="POST":
+        message=request.POST.get("ann_message")
+        Announcement.objects.create(course=course, message=message, created_by=request.user)
+        return redirect('view_course_ta', course_id)
+    else:
+        return JsonResponse({"error": "Course was not found on this server or you aren't assigned as TA by the faculty."}, status=400)

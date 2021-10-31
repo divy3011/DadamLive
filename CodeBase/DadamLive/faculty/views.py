@@ -157,28 +157,42 @@ def view_course(request,course_id):
         pass
     else:
         enrolments=Enrolment.objects.filter(course=course)
-        announcements=Announcement.objects.filter(course=course)
-        quizes=Quiz.objects.filter(course=course)
+        announcements=Announcement.objects.filter(course=course).order_by('-id')
+        quizes=Quiz.objects.filter(course=course).order_by('-id')
         TA_permissions=TeachingAssistantPermission.objects.filter(enrolment__course=course)
         #Also to add thesr in post request later
         context={"course": course, "enrolments": enrolments, "announcements": announcements, "quizes": quizes,"TA_permissions": TA_permissions}
         return render(request,"faculty/view_course.html",context=context)
 
+# Not advised to uncomment the return render because user have to g back in order to avail other features.
 def add_student_ta(request,course_id):
     faculty=basicChecking(request)
+    course=False
     if faculty==False:
-        return redirect('home')
-    course=""
-    try:
-        course=Course.objects.get(id=int(course_id))
-        if course.instructor!=request.user:
+        try:
+            ta=TeachingAssistant.objects.get(user=request.user)
+            enrolment=False
+            try:
+                course=Course.objects.get(id=int(course_id))
+                enrolment=Enrolment.objects.get(user=request.user, course=course)
+                permissions=TeachingAssistantPermission.objects.get(enrolment=enrolment)
+                if (not permissions.isMainTA) and (not permissions.canAnnounce):
+                    return JsonResponse({"message": "It seems you have not been given permission to add students and ta's in the class.."}, status=400)
+            except:
+                return JsonResponse({"message": "Course was not found on this server or you aren't assigned as TA by the faculty."}, status=400)
+        except:
+            return redirect('home')
+    else:
+        try:
+            course=Course.objects.get(id=int(course_id))
+            if course.instructor!=request.user:
+                return JsonResponse({"message": "Course was not found on this server"}, status=400)
+        except:
             return JsonResponse({"message": "Course was not found on this server"}, status=400)
-    except:
-        return JsonResponse({"message": "Course was not found on this server"}, status=400)
 
     if request.method!="POST":
         return JsonResponse({"message": "Course was not found on this server"}, status=400)
-
+    user_re=int(request.POST.get("user"))
     form=FileForm(request.POST,request.FILES)
     if form.is_valid():
         file=form.cleaned_data['file']
@@ -189,18 +203,34 @@ def add_student_ta(request,course_id):
             # excel file
             data=pd.read_excel(file)
         else:
-            return render(request,"faculty/view_course.html",context={"course": course, "message": "Not an excel or csv file"})
-        return add_student_ta_helper(request, data, course)
-    return render(request,"faculty/view_course.html",context={"course": course, "message": "Error Occured."})
+            return JsonResponse({"message": "Not an excel or csv file"})
+            # if user_re==2:
+            #     permissions=TeachingAssistantPermission.objects.get(enrolment=Enrolment.objects.get(user=request.user, course=course))
+            #     return render(request,"ta/view_course.html",context={"course": course, "message": "Not an excel or csv file", "permissions": permissions})
+            # return render(request,"faculty/view_course.html",context={"course": course, "message": "Not an excel or csv file"})
+        return add_student_ta_helper(request, data, course, user_re)
+    return JsonResponse({"message": "An Error Occured. Try Again!"}, status=400)
+    # if user_re==2:
+    #     permissions=TeachingAssistantPermission.objects.get(enrolment=Enrolment.objects.get(user=request.user, course=course))
+    #     return render(request,"ta/view_course.html",context={"course": course, "message": "Error Occured.", "permissions": permissions})
+    # return render(request,"faculty/view_course.html",context={"course": course, "message": "Error Occured."})
 
-def add_student_ta_helper(request, data, course):
+def add_student_ta_helper(request, data, course, user_re):
     if 'Email' not in data.columns and 'Username' not in data.columns:
-        return render(request,"faculty/view_course.html",context={"course": course, "message": "Email column was not found in the file."})     
+        return JsonResponse({"message": "Email column was not found in the file."})
+        # if user_re==2:
+        #     permissions=TeachingAssistantPermission.objects.get(enrolment=Enrolment.objects.get(user=request.user, course=course))
+        #     return render(request,"ta/view_course.html",context={"course": course, "message": "Email column was not found in the file.", "permissions": permissions})
+        # return render(request,"faculty/view_course.html",context={"course": course, "message": "Email column was not found in the file."})     
     emailGiven=True 
     if 'Email' not in data.columns:
         emailGiven=False
     if 'Role' not in data.columns:
-        return render(request,"faculty/view_course.html",context={"course": course, "message": "Account Type column was not found in the file."})      
+        return JsonResponse({"message": "Account Type column was not found in the file."})
+        # if user_re==2:
+        #     permissions=TeachingAssistantPermission.objects.get(enrolment=Enrolment.objects.get(user=request.user, course=course))
+        #     return render(request,"ta/view_course.html",context={"course": course, "message": "Email column was not found in the file.", "permissions": permissions})
+        # return render(request,"faculty/view_course.html",context={"course": course, "message": "Account Type column was not found in the file."})      
 
     total_accounts=0
     try:
@@ -262,7 +292,11 @@ def add_student_ta_helper(request, data, course):
             field_with_unknown_values.append(i+1)
 
     if len(field_with_unknown_values)==0 and len(field_with_duplicate_data)==0:
-        return render(request,"faculty/view_course.html",context={"course": course, "message": "All users have been added successfully."})    
+        return JsonResponse({"message": "All users have been added successfully."})
+        # if user_re==2:
+        #     permissions=TeachingAssistantPermission.objects.get(enrolment=Enrolment.objects.get(user=request.user, course=course))
+        #     return render(request,"ta/view_course.html",context={"course": course, "message": "All users have been added successfully.", "permissions": permissions})
+        # return render(request,"faculty/view_course.html",context={"course": course, "message": "All users have been added successfully."})    
     elif len(field_with_unknown_values)==0:  
         error="Rows with duplicate data are : "+str(field_with_duplicate_data)+" . You can cross-verify, users have been added from rest of the rows."
     elif len(field_with_duplicate_data)==0:  
@@ -271,7 +305,11 @@ def add_student_ta_helper(request, data, course):
         error1="Rows with duplicate data are : "+str(field_with_duplicate_data)+" ."
         error2="Rows with empty email and empty username or undefined role are : "+str(field_with_unknown_values)+" .\nYou can cross-verify, users have been added from rest of the rows."
         error=error1+"\n"+error2
-    return render(request,"faculty/view_course.html",context={"course": course, "message": error})
+    return JsonResponse({"message": error})
+    # if user_re==2:
+    #     permissions=TeachingAssistantPermission.objects.get(enrolment=Enrolment.objects.get(user=request.user, course=course))
+    #     return render(request,"ta/view_course.html",context={"course": course, "message": error, "permissions": permissions})
+    # return render(request,"faculty/view_course.html",context={"course": course, "message": error})
 
 def faculty_announcement(request,course_id):
     faculty=basicChecking(request)
@@ -287,7 +325,7 @@ def faculty_announcement(request,course_id):
     
     if request.method=="POST":
         message=request.POST.get("ann_message")
-        Announcement.objects.create(course=course, message=message)
+        Announcement.objects.create(course=course, message=message, created_by=request.user)
         return redirect('view_course', course_id)
     else:
         return JsonResponse({"error": "Course was not found on this server"}, status=400)
