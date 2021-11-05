@@ -6,7 +6,7 @@ function submitForm(part_id){
         url: "upload/marks/",
         data: serializedData,
         success: function (response) {
-            document.getElementById("current"+part_id).innerHTML="Current Marks: "+marks
+            document.getElementById("current"+part_id).innerHTML=marks
         },
         error: function (response) {
             alert(response["responseJSON"]["message"])
@@ -22,7 +22,7 @@ function marks_given_for_all_q(submission_id){
         url: "final/",
         data: serializedData,
         success: function (response) {
-            alert("This student's marks are freezed at the moment.")
+            alert("This student's marks are freezed successfully.")
         },
         error: function (response) {
             alert(response["responseJSON"]["message"])
