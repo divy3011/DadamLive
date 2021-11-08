@@ -11,6 +11,9 @@ from faculty.models import *
 from threading import *
 from home.models import *
 from twilio.rest import Client
+import pandas as pd
+from staff.forms import FileForm
+from faculty.views import quizOngoing
 # Create your views here.
 
 class Email_thread(Thread):
@@ -194,3 +197,245 @@ def str_to_bool_converter(input):
     if int(input)==1:
         return True
     return False
+
+def ta_manage_quiz(request, quiz_id):
+    ta=basicChecking(request)
+    if ta[0]==False:
+        return ta[1]
+    enrolment=False
+    course=False
+    quiz=""
+    try:
+        quiz=Quiz.objects.get(id=int(quiz_id))
+        course=quiz.course
+        enrolment=Enrolment.objects.get(user=request.user, course=course)
+        permissions=TeachingAssistantPermission.objects.get(enrolment=enrolment)
+        if (not permissions.isMainTA) and (not permissions.canManageQuiz) and (not permissions.canCheckAnswerSheets):
+            return JsonResponse({"message": "It seems you have not been given permission to manage Quiz in the class.."}, status=400)
+    except:
+        return JsonResponse({"message": "Course was not found on this server or you aren't assigned as TA by the faculty."}, status=400)
+    
+    manager=False
+    if permissions.isMainTA or permissions.canManageQuiz:
+        manager=True
+    
+    if request.method=="POST":
+        if manager==False:
+            return JsonResponse({"message": "Permission Denied"}, status=400)
+        question_type=request.POST.get("question_type")
+        if int(question_type)==1:
+            question_written=request.POST.get("question_written")
+            max_marks_written=float(request.POST.get("max_marks_written"))
+            scheme=int(request.POST.get("marking_scheme"))
+            mcq=MCQ.objects.create(quiz=quiz, question=question_written, maximum_marks=max_marks_written, markingScheme=scheme)
+            index=0
+            for i in range(1,7):
+                select=request.POST.get("sel"+str(i))
+                if int(select)!=1:
+                    option=request.POST.get("opt"+str(i))
+                    mcq.options.append(option)
+                    if int(select)==2:
+                        mcq.correct_answers.append(index)
+                    index=index+1
+            mcq.save()
+            quiz.maximum_marks+=max_marks_written
+            quiz.save()
+
+        elif int(question_type)==2:
+            question_written=request.POST.get("question_written")
+            max_marks_written=float(request.POST.get("max_marks_written"))
+            WrittenQuestion.objects.create(quiz=quiz, question=question_written, maximum_marks=max_marks_written)
+            quiz.maximum_marks+=max_marks_written
+            quiz.save()
+
+        elif int(question_type)==3:
+            form=FileForm(request.POST,request.FILES)
+            if form.is_valid():
+                file=form.cleaned_data['file']
+                if str(file).endswith('.csv'):
+                    # csv file
+                    data=pd.read_csv(file)
+                elif str(file).endswith('.xlsx'):
+                    # excel file
+                    data=pd.read_excel(file)
+                else:
+                    mcq=MCQ.objects.filter(quiz=quiz)
+                    written=WrittenQuestion.objects.filter(quiz=quiz)
+                    submissions=False
+                    if quiz.quizHeld:
+                        submissions=Submission.objects.filter(quiz=quiz)
+                    return render(request,"ta/manage_quiz.html",context={"quiz": quiz, "mcq": mcq, "written": written, "message": "Not an excel or csv file", "submissions": submissions, "permissions": permissions})
+                return manage_quiz_helper(request, data, quiz, permissions)
+        return redirect('ta_manage_quiz',quiz_id)
+    else:
+        mcq=MCQ.objects.filter(quiz=quiz)
+        written=WrittenQuestion.objects.filter(quiz=quiz)
+        submissions=0
+        if quiz.quizHeld:
+            submissions=Submission.objects.filter(quiz=quiz)
+        return render(request,"ta/manage_quiz.html",context={"quiz": quiz, "mcq": mcq, "written": written, "submissions": submissions, "permissions": permissions})
+
+def manage_quiz_helper(request, data, quiz, permissions):
+    mcq=MCQ.objects.filter(quiz=quiz)
+    written=WrittenQuestion.objects.filter(quiz=quiz)
+    if 'Question Type' not in data.columns and 'Question' not in data.columns and 'Maximum Marks' not in data.columns:
+        return render(request,"ta/manage_quiz.html",context={"quiz": quiz, "mcq": mcq, "written": written, "message": "Either of Question Type, Question or Maximum Marks Column was not found in the file.", "permissions": permissions})
+
+    field_with_unknown_values=[]
+    field_with_duplicate_data=[]
+    for i in range(len(data["Question"])):
+        typeOfQ=data["Question Type"][i]
+        question_written=data["Question"][i]
+        max_marks_written=data["Maximum Marks"][i]
+        if typeOfQ=="Subjective":
+            try:
+                WrittenQuestion.objects.get(quiz=quiz, question=question_written, maximum_marks=max_marks_written)
+                field_with_duplicate_data.append(i+1)
+            except:
+                WrittenQuestion.objects.create(quiz=quiz, question=question_written, maximum_marks=max_marks_written)
+                quiz.maximum_marks+=max_marks_written
+                quiz.save()
+        elif typeOfQ=="Objective":
+            try:
+                MCQ.objects.get(quiz=quiz, question=question_written, maximum_marks=max_marks_written)
+                field_with_duplicate_data.append(i+1)
+            except:
+                try:
+                    scheme=data["Marking Scheme"][i]
+                    mcq=MCQ.objects.create(quiz=quiz, question=question_written, maximum_marks=max_marks_written, markingScheme=scheme)
+                    quiz.maximum_marks+=max_marks_written
+                    quiz.save()
+                    index=0
+                    for j in range(1,7):
+                        if "Option"+str(j) not in data.columns:
+                            break
+                        option=data["Option"+str(j)][i]
+                        if str(option)!="nan":
+                            mcq.options.append(option)
+                    if "Correct Options" not in data.columns:
+                        field_with_unknown_values.append(i+1)
+                        mcq.delete()
+                    correct_answers=[]
+                    try:
+                        correct_answers.append(float(data["Correct Options"][i]))
+                    except:
+                        correct_answers=str(data["Correct Options"][i]).split(",")
+                    for correct_option in correct_answers:
+                        mcq.correct_answers.append(int(correct_option)-1)
+                    mcq.save()
+                except:
+                    field_with_unknown_values.append(i+1)
+                    mcq.delete()
+    mcq=MCQ.objects.filter(quiz=quiz)
+    written=WrittenQuestion.objects.filter(quiz=quiz)
+    if len(field_with_unknown_values)==0 and len(field_with_duplicate_data)==0:
+        return render(request,"ta/manage_quiz.html",context={"quiz": quiz, "mcq": mcq, "written": written, "message": "All questions have been added successfully.", "permissions": permissions})    
+    elif len(field_with_unknown_values)==0:  
+        error="Rows with duplicate data are : "+str(field_with_duplicate_data)+" . You can cross-verify, questions have been added from rest of the rows."
+    elif len(field_with_duplicate_data)==0:  
+        error="Rows with empty or not found values are : "+str(field_with_unknown_values)+" . You can cross-verify, questions have been added from rest of the rows."
+    else:
+        error1="Rows with duplicate data are : "+str(field_with_duplicate_data)+" ."
+        error2="Rows with empty or not found values are : "+str(field_with_unknown_values)+" .\nYou can cross-verify, questions have been added from rest of the rows."
+        error=error1+"\n"+error2
+    return render(request,"ta/manage_quiz.html",context={"quiz": quiz, "mcq": mcq, "written": written, "message": error, "permissions": permissions})
+
+def ta_change_quiz_status(request,quiz_id):
+    ta=basicChecking(request)
+    if ta[0]==False:
+        return ta[1]
+    enrolment=False
+    course=False
+    quiz=""
+    try:
+        quiz=Quiz.objects.get(id=int(quiz_id))
+        course=quiz.course
+        enrolment=Enrolment.objects.get(user=request.user, course=course)
+        permissions=TeachingAssistantPermission.objects.get(enrolment=enrolment)
+        if (not permissions.isMainTA) and (not permissions.canManageQuiz):
+            return JsonResponse({"message": "It seems you have not been given permission to hide Quiz in the class.."}, status=400)
+    except:
+        return JsonResponse({"message": "Course was not found on this server or you aren't assigned as TA by the faculty."}, status=400)
+
+    if quiz.hidden:
+        quiz.hidden=False
+    else:
+        if quizOngoing(quiz)==False:
+            return JsonResponse({"message": "This option is not available during quiz"}, status=400)
+        quiz.hidden=True
+    quiz.save()
+    return redirect('ta_manage_quiz',quiz_id)
+
+def ta_change_prev_status(request,quiz_id):
+    ta=basicChecking(request)
+    if ta[0]==False:
+        return ta[1]
+    enrolment=False
+    course=False
+    quiz=""
+    try:
+        quiz=Quiz.objects.get(id=int(quiz_id))
+        course=quiz.course
+        enrolment=Enrolment.objects.get(user=request.user, course=course)
+        permissions=TeachingAssistantPermission.objects.get(enrolment=enrolment)
+        if (not permissions.isMainTA) and (not permissions.canManageQuiz):
+            return JsonResponse({"message": "It seems you have not been given permission to hide Quiz in the class.."}, status=400)
+    except:
+        return JsonResponse({"message": "Course was not found on this server or you aren't assigned as TA by the faculty."}, status=400)
+
+    if quizOngoing(quiz)==False:
+        return JsonResponse({"message": "This option is not available during quiz"}, status=400)
+    if quiz.disable_previous:
+        quiz.disable_previous=False
+    else:
+        quiz.disable_previous=True
+    quiz.save()
+    return redirect('ta_manage_quiz',quiz_id)
+
+def ta_quiz_analysis(request):
+    ta=basicChecking(request)
+    if ta[0]==False:
+        return ta[1]
+    enrolment=False
+    course=False
+    quiz=""
+    if request.method!="POST":
+        return JsonResponse({"message": "Unable to process this request."}, status=400)
+    try:
+        quiz=Quiz.objects.get(id=int(request.POST.get("quiz_id")))
+        course=quiz.course
+        enrolment=Enrolment.objects.get(user=request.user, course=course)
+        permissions=TeachingAssistantPermission.objects.get(enrolment=enrolment)
+        if (not permissions.isMainTA) and (not permissions.canManageQuiz):
+            return JsonResponse({"message": "It seems you have not been given permission to hide Quiz in the class.."}, status=400)
+    except:
+        return JsonResponse({"message": "Course was not found on this server or you aren't assigned as TA by the faculty."}, status=400)
+    
+    if quiz.quizHeld==False:
+        return JsonResponse({"message": "Analysis can not be done until quiz gets over."}, status=400)
+    
+    submissions=Submission.objects.filter(quiz=quiz)
+    illegal_attempts=[]
+    for each in submissions:
+        try:
+            attempt=IllegalAttempt.objects.get(submission=each)
+            illegal_attempts.append(attempt)
+        except:
+            pass
+    part_of_submissions=0
+    attempt=0
+    for each in submissions:
+        try:
+            part=PartOfSubmission.objects.filter(submission=each)
+            if attempt==0:
+                part_of_submissions=part
+            else:
+                part_of_submissions.append(part)
+        except:
+            pass
+    submissions=serializers.serialize('json', submissions)
+    illegal_attempts=serializers.serialize('json', illegal_attempts)
+    part_of_submissions=serializers.serialize('json', part_of_submissions)
+    users=serializers.serialize('json', User.objects.all())
+    written=serializers.serialize('json', WrittenQuestion.objects.filter(quiz=quiz))
+    return JsonResponse({"users": users, "written": written, "submissions": submissions, "illegal_attempts": illegal_attempts, "part_of_submissions": part_of_submissions}, status=200)

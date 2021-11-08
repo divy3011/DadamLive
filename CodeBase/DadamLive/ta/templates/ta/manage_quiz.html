@@ -1,6 +1,6 @@
-{% extends 'faculty/base.html' %} {% load static %}
+{% extends 'ta/base.html' %} {% load static %}
 
-{% block title %}{{request.user.email}} | Faculty in DadamLive{% endblock %}
+{% block title %}{{request.user.email}} | Teaching Assistant in DadamLive{% endblock %}
 
 {% block heading %}{{quiz.quiz_name}}{% endblock %}
 
@@ -44,12 +44,17 @@
               {% if quiz.quizHeld %}
               <a data-toggle="modal" data-target="#modal4" href="#">Assign Marks</a>
               {% else %}
+                {% if permissions.isMainTA or permissions.canManageQuiz %}
                 <a data-toggle="modal" data-target="#modal0" href="#">Upload File for questions</a>
+                {% else %}
+                Permission Required
+                {% endif %}
               {% endif %}
           </div>
         </div>
       </div>
     </div>
+    {% if quiz.quizHeld %}{% else %}
     <div class="col-lg-3 col-md-6 col-sm-6">
       <div class="card card-stats">
         <div class="card-header card-header-alert card-header-icon">
@@ -57,31 +62,26 @@
             <i class="material-icons">flaky</i>
           </div>
           <p class="card-category">
-            {% if quiz.quizHeld %}
-            Calculate Score
-            {% else %}
             MCQ
-            {% endif %}
           </p>
           <h5 class="card-title">
-            {% if quiz.quizHeld %}
-            <small>for MCQ</small>
-            {% else %}
             <small>Medium Level</small>
-            {% endif %}
           </h5>
         </div>
         <div class="card-footer">
           <div class="stats">
-              {% if quiz.quizHeld %}
-              <a href="{% url 'generate_score' quiz_id=quiz.id %}" onclick="return confirm('It will take a moment to calculate the marks so please wait until it do.')">Generate Score for MCQ's</a>
-              {% else %}
+                {% if permissions.isMainTA or permissions.canManageQuiz %}
                 <a data-toggle="modal" data-target="#modal1" href="#">Add MCQ Question to quiz</a>
-              {% endif %}
+                {% else %}
+                Permission Required
+                {% endif %}
           </div>
         </div>
       </div>
     </div>
+    {% endif %}
+
+    {% if quiz.quizHeld %}{% else %}
     <div class="col-lg-3 col-md-6 col-sm-6">
       <div class="card card-stats">
         <div class="card-header card-header-success card-header-icon">
@@ -89,46 +89,24 @@
             <i class="material-icons">create</i>
           </div>
           <p class="card-category">
-            {% if quiz.quizHeld %}
-            Plagiarism
-            {% else %}
             Written
-            {% endif %}
           </p>
           <h5 class="card-title"><small>
-            {% if quiz.quizHeld %}
-            Written
-            {% else %}
             Hard Level
-            {% endif %}
           </small></h5>
         </div>
         <div class="card-footer">
           <div class="stats">
-            {% if quiz.quizHeld %}
-              {% if quiz.webDetectionDone %}
-                Web Detection Done
-              {% else %}
-                <a href="{% url 'detect_web_sources' quiz_id=quiz.id %}" onclick="return confirm('It will take few minutes for web detection. Do not close the webpage.')">Detect Web Sources</a>
-              {% endif %}
-            {% else %}
-            <a data-toggle="modal" data-target="#modal2" href="#">Add short/long question to quiz</a>
-            {% endif %}
+                {% if permissions.isMainTA or permissions.canManageQuiz %}
+                <a data-toggle="modal" data-target="#modal2" href="#">Add short/long question to quiz</a>
+                {% else %}
+                Permission Required
+                {% endif %}
           </div>
         </div>
-        {% if quiz.quizHeld %}
-          <div class="card-footer">
-            <div class="stats">
-              {% if quiz.studentAnswersMatched %}
-                  Students Answers Matched
-              {% else %}
-                  <a href="{% url 'match_student_answers' quiz_id=quiz.id %}" onclick="return confirm('It will take few minutes to match the answers of all students. Do not close the webpage.')">Match Student's Answers</a>
-              {% endif %}
-            </div>
-          </div>
-        {% endif %}
       </div>
     </div>
+    {% endif %}
     <div class="col-lg-3 col-md-6 col-sm-6">
       <div class="card card-stats">
         <div class="card-header card-header-info card-header-icon">
@@ -143,7 +121,11 @@
         </div>
         <div class="card-footer">
           <div class="stats">
-            <a href="{% url 'change_quiz_status' quiz_id=quiz.id %}">{% if quiz.hidden %}Unhide Quiz{% else %}Hide Quiz{% endif %}</a>
+                {% if permissions.isMainTA or permissions.canManageQuiz %}
+                <a href="{% url 'ta_change_quiz_status' quiz_id=quiz.id %}">{% if quiz.hidden %}Unhide Quiz{% else %}Hide Quiz{% endif %}</a>
+                {% else %}
+                Permission Required
+                {% endif %}
           </div>
         </div>
       </div>
@@ -163,7 +145,11 @@
           </div>
           <div class="card-footer">
             <div class="stats">
-              <a href="{% url 'change_prev_status' quiz_id=quiz.id %}">{% if quiz.disable_previous %}Enable Previous{% else %}Disable Previous{% endif %}</a>
+                {% if permissions.isMainTA or permissions.canManageQuiz %}
+                <a href="{% url 'ta_change_prev_status' quiz_id=quiz.id %}">{% if quiz.disable_previous %}Enable Previous{% else %}Disable Previous{% endif %}</a>
+                {% else %}
+                Permission Required
+                {% endif %}
             </div>
           </div>
         </div>
@@ -310,7 +296,7 @@
             <p style="padding-bottom: 10px">6. Note: If maximum options in any objective question are 3 for example then there no need to mention Option4-Option6. If there are multiple options correct then separate then with comma(,)</p>
             <p style="padding-bottom: 10px">7. Do not copy paste in the excel sheet from any kind of browser to avoid any errors.</p>
 
-            <form action="{% url 'manage_quiz' quiz_id=quiz.id %}" class="form-inline" method="POST" enctype="multipart/form-data">
+            <form action="{% url 'ta_manage_quiz' quiz_id=quiz.id %}" class="form-inline" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="mb-2">
                     <input type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="" name="file" required>
@@ -342,7 +328,7 @@
           <h5 style="padding-bottom: 12px"><b>3. Editing feature for question is not available at this moment and ignore comma in the options</b></h5>
           <h5 style="padding-bottom: 12px"><b>4. Only activated options will be considered<b></h5>
 
-          <form action="{% url 'manage_quiz' quiz_id=quiz.id %}" method="POST" enctype="multipart/form-data">
+          <form action="{% url 'ta_manage_quiz' quiz_id=quiz.id %}" method="POST" enctype="multipart/form-data">
               {% csrf_token %}
               <input type="hidden" name="question_type" value="1" required>
               <div class="form-group">
@@ -440,7 +426,7 @@
             <h4 style="padding-bottom: 12px"><b>2. Questions will not be visible to students unless quiz is hided</b></h4>
             <h4 style="padding-bottom: 12px"><b>3. Editing feature for question is not available at this moment</b></h4>
 
-            <form action="{% url 'manage_quiz' quiz_id=quiz.id %}" method="POST" enctype="multipart/form-data">
+            <form action="{% url 'ta_manage_quiz' quiz_id=quiz.id %}" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="hidden" name="question_type" value="2" required>
                 <div class="form-group">
@@ -529,7 +515,7 @@
                   <td>{{each.user.username}}</td>
                   <td>{{each.user.email}}</td>
                   <td>{% if each.marks_assigned %}Yes{% else %}No{% endif %}</td>
-                  <td><a href="{% url 'view_submission' submission_id=each.id %}">View</a></td>
+                  <td><a href="#">View</a></td>
                 </tr>
                 {% endfor %}
               </tbody>  
@@ -551,15 +537,9 @@
 
 {% block left_panel %}
 <li class="nav-item">
-    <a class="nav-link" href="{% url 'dashboardFaculty' %}">
+    <a class="nav-link" href="{% url 'dashboardTA' %}">
       <i class="material-icons">dashboard</i>
       <p>Dashboard</p>
-    </a>
-  </li>
-  <li class="nav-item ">
-    <a class="nav-link" href="{% url 'start_new_course' %}">
-      <i class="material-icons">content_paste</i>
-      <p>New Course</p>
     </a>
   </li>
 {% endblock %}
