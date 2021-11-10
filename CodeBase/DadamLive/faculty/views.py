@@ -23,6 +23,7 @@ from .models import *
 import requests
 from sklearn.feature_extraction.text import TfidfVectorizer
 from .forms import *
+from background_task import background
 
 # Create your views here.
 class Email_thread(Thread):
@@ -352,12 +353,12 @@ def announce_quiz(request, course_id):
             hide=False
         start_date=datetime.datetime.strptime(start_date, '%Y-%m-%dT%H:%M')
         end_date=datetime.datetime.strptime(end_date, '%Y-%m-%dT%H:%M')
-        print(start_date)
         if end_date<start_date:
             return JsonResponse({"error": "Start time must be less than end time"}, status=400)
         if start_date<datetime.datetime.now():
             return JsonResponse({"error": "Quiz can only be started in future"}, status=400)
-        Quiz.objects.create(course=course, quiz_name=quiz_name, start_date=start_date, end_date=end_date, hidden=hide)
+        quiz=Quiz.objects.create(course=course, quiz_name=quiz_name, start_date=start_date, end_date=end_date, hidden=hide)
+        TestEnder(quiz.id).start()
         return redirect('view_course', course_id)
     else:
         return JsonResponse({"error": "Course was not found on this server"}, status=400)
@@ -538,6 +539,7 @@ def change_prev_status(request,quiz_id):
     quiz.save()
     return redirect('manage_quiz',quiz_id)
 
+# False if quiz ongoing
 def quizOngoing(quiz):
     if quiz.end_date.date()<datetime.datetime.now().date():
         return True
@@ -546,6 +548,16 @@ def quizOngoing(quiz):
         return True
 
     if quiz.start_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()<quiz.start_date.time():
+        return True
+
+    if quiz.end_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()>quiz.end_date.time():
+        return True
+    
+    return False
+
+# True if quiz ended
+def quizEnded(quiz):
+    if quiz.end_date.date()<datetime.datetime.now().date():
         return True
 
     if quiz.end_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()>quiz.end_date.time():
@@ -916,3 +928,28 @@ def upload_course_image(request):
             return redirect('dashboardFaculty')
         except:
             return redirect('dashboardFaculty')
+        
+class TestEnder(Thread):
+    def __init__(self, quiz_id):
+        self.quiz_id=quiz_id
+        Thread.__init__(self)
+
+    def run(self):
+        try:
+            quiz=Quiz.objects.get(id=int(self.quiz_id))
+        except:
+            return False
+        number=(quiz.end_date-datetime.datetime.now()).total_seconds() + 20
+        save_test_state(quiz.id, schedule=int(number))
+
+@background(schedule=60)
+def save_test_state(quiz_id):
+    try:
+        quiz=Quiz.objects.get(id=int(quiz_id))
+    except:
+        return False
+    if quizEnded(quiz):
+        quiz.quizHeld=True
+        quiz.save()
+    else:
+        TestEnder(quiz.id).start()

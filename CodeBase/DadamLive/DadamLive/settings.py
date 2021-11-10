@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'ta',
     'faculty',
     'student',
-    'django_cleanup'
+    'django_cleanup',
+    'background_task',
 ]
 
 MIDDLEWARE = [
