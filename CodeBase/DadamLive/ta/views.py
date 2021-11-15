@@ -441,7 +441,7 @@ def ta_quiz_analysis(request):
 
 def view_profile_ta(request):
     if not request.user.is_authenticated:
-        return JsonResponse({"message": "Please login before viewing profile."}, status=400)
+        return redirect('login_request') 
     ta=TeachingAssistant.objects.get(user=request.user)
     if request.method=="POST":
         user=User.objects.get(id=request.user.id)
@@ -499,3 +499,15 @@ def generate_code(n):
     for i in range(n) :
         password += digits[math.floor(random.random() * 62)]
     return password
+
+def change_password_ta(request):
+    if not request.user.is_authenticated:
+        return redirect('login_request') 
+
+    if request.method=="POST":
+        user=User.objects.get(id=request.user.id)
+        password=request.POST.get("password2")
+        user.set_password(password)
+        user.save()
+        return JsonResponse({"success": "Password changed"}, status=200)
+    return render(request,"ta/change_password.html",context={})

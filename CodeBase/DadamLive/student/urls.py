@@ -15,6 +15,7 @@ urlpatterns = [
     path('quiz/start/freeze/answer/',views.freeze_answer,name="freeze_answer"),
     path('quiz/start/tab/change/image/<str:quiz_id>',views.tab_change_image_save,name="tab_change_image_save"),
     path('profile/',views.view_profile_st,name="view_profile_st"),
+    path('change_password/',views.change_password_st,name="change_password_st"),
     
     
 

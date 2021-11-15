@@ -14,5 +14,7 @@ urlpatterns = [
     path('course/manage/quiz/analysis/',views.ta_quiz_analysis,name="ta_quiz_analysis"),
     path('profile/',views.view_profile_ta,name="view_profile_ta"),
     path('profile/contact_number/verify/<str:unique_code>',views.verify_number,name="verify_number"),
+    path('change_password/',views.change_password_ta,name="change_password_ta"),
     
+
 ]

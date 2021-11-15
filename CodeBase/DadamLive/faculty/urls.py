@@ -25,5 +25,7 @@ urlpatterns = [
     path('course/view/update/permissions/',views.update_ta_permissions,name="update_ta_permissions"),
     path('get/report/<str:course_id>',views.get_report,name="get_report"),
     path('profile/',views.view_profile_fa,name="view_profile_fa"),
+    path('change_password/',views.change_password_fa,name="change_password_fa"),
+    
 
 ]

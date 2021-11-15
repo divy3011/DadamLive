@@ -1058,7 +1058,7 @@ def save_test_state(quiz_id):
 
 def view_profile_fa(request):
     if not request.user.is_authenticated:
-        return JsonResponse({"message": "Please login before viewing profile."}, status=400)
+        return redirect('login_request') 
 
     if request.method=="POST":
         user=User.objects.get(id=request.user.id)
@@ -1067,3 +1067,15 @@ def view_profile_fa(request):
         user.save()
         return redirect('view_profile_fa')
     return render(request,"faculty/view_profile.html",context={})
+
+def change_password_fa(request):
+    if not request.user.is_authenticated:
+        return redirect('login_request') 
+
+    if request.method=="POST":
+        user=User.objects.get(id=request.user.id)
+        password=request.POST.get("password2")
+        user.set_password(password)
+        user.save()
+        return JsonResponse({"success": "Password changed"}, status=200)
+    return render(request,"faculty/change_password.html",context={})
