@@ -14,11 +14,8 @@ urlpatterns = [
     path('quiz/start/end/test/<str:quiz_id>',views.end_test,name="end_test"),
     path('quiz/start/freeze/answer/',views.freeze_answer,name="freeze_answer"),
     path('quiz/start/tab/change/image/<str:quiz_id>',views.tab_change_image_save,name="tab_change_image_save"),
-
+    path('profile/',views.view_profile,name="view_profile"),
     
-    
-    # If face recognition starts then uncomment it
-    # path('image/clipping/',views.image_clipping,name="image_clipping"),
     
 
 ]

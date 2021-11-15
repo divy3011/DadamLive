@@ -25,10 +25,6 @@ class UserInformation(models.Model):
 class Student(models.Model):
     user=models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     userInformation=models.ForeignKey(UserInformation, on_delete=models.CASCADE, null=True, blank=True)
-    image=models.ImageField(upload_to='post_images/', default="us_ma.png")
-    faceAdded=models.BooleanField(default=False)
-    faceCount=models.IntegerField(default=0)
-    addedOnce=models.BooleanField(default=False)
 
     def __str__(self):
         if self.user:

@@ -589,3 +589,15 @@ def checkForQuizStatus(quiz):
         if quiz.quizHeld==False:
             quiz.quizHeld=True
             quiz.save()
+
+def view_profile(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({"message": "Please login before viewing profile."}, status=400)
+
+    if request.method=="POST":
+        user=User.objects.get(id=request.user.id)
+        user.first_name=request.POST.get("first_name")
+        user.last_name=request.POST.get("last_name")
+        user.save()
+        return redirect('view_profile')
+    return render(request,"student/view_profile.html",context={})
