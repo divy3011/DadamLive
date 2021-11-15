@@ -2,32 +2,21 @@ from django.http.response import JsonResponse
 from django.core import serializers
 from django.shortcuts import render,HttpResponse,redirect
 from django.contrib.auth.models import User
-from django.contrib import messages
-from django.contrib.auth import (login,authenticate,logout)
 from django.conf import settings
 from django.core.mail import send_mail
-import math,random,string,datetime
-from twilio.rest import Client
+import datetime
 from faculty.models import Enrolment
 from home.models import *
 from threading import *
-import pandas as pd
-from staff.forms import FileForm
 from .models import *
 from faculty.models import *
 import pytz
-# import dlib
 import cv2
 import base64
 from io import BytesIO
 from PIL import Image
 import numpy as np
-from copy import deepcopy
-from sklearn.feature_extraction.text import TfidfVectorizer
 utc=pytz.UTC
-from django.contrib.staticfiles.storage import staticfiles_storage
-import copy
-import io
 from django.core.files.base import ContentFile
 import ntplib
 
@@ -41,15 +30,6 @@ class Email_thread(Thread):
 
     def run(self):
         SENDMAIL(self.subject,self.message,self.email)
-
-# Create your views here.
-def SEND_OTP_TO_PHONE(mobile_number, country_code, message):
-    client = Client(settings.PHONE_ACCOUNT_SID_TWILIO, settings.PHONE_ACCOUNT_AUTH_TOKEN_TWILIO)
-    message = client.messages.create(
-                        body=str(message),
-                        from_= settings.PHONE_NUMBER_TWILIO,
-                        to=str(country_code)+str(mobile_number)
-                    )
 
 def SENDMAIL(subject, message, email):
     try:

@@ -67,3 +67,9 @@ class TeachingAssistant(models.Model):
             return self.user.username
         else:
             return 'NILL'
+
+class Query(models.Model):
+    name=models.CharField(null=True, max_length=30)
+    email=models.CharField(null=True, max_length=30)
+    phone=models.CharField(null=True, max_length=15)
+    message=models.TextField(null=True)

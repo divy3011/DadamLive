@@ -2,15 +2,12 @@ from django.http.response import JsonResponse
 from django.core import serializers
 from django.shortcuts import render,HttpResponse,redirect
 from django.contrib.auth.models import User
-from django.contrib import messages
-from django.contrib.auth import (login,authenticate,logout)
 from django.conf import settings
 from django.core.mail import send_mail
 from .models import *
 from faculty.models import *
 from threading import *
 from home.models import *
-from twilio.rest import Client
 import pandas as pd
 from staff.forms import FileForm
 from faculty.views import quizOngoing
@@ -25,14 +22,6 @@ class Email_thread(Thread):
 
     def run(self):
         SENDMAIL(self.subject,self.message,self.email)
-
-def SEND_OTP_TO_PHONE(mobile_number, country_code, message):
-    client = Client(settings.PHONE_ACCOUNT_SID_TWILIO, settings.PHONE_ACCOUNT_AUTH_TOKEN_TWILIO)
-    message = client.messages.create(
-                        body=str(message),
-                        from_= settings.PHONE_NUMBER_TWILIO,
-                        to=str(country_code)+str(mobile_number)
-                    )
 
 def SENDMAIL(subject, message, email):
     try:

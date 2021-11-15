@@ -1,14 +1,9 @@
 from faculty.views import dashboardFaculty
 from django.http.response import JsonResponse
-from django.core import serializers
 from django.shortcuts import render,HttpResponse,redirect
 from django.contrib.auth.models import User
-from django.contrib import messages
 from django.contrib.auth import (login,authenticate,logout)
 from django.conf import settings
-from django.core.mail import send_mail
-import math,random,string,datetime
-from twilio.rest import Client
 from home.models import *
 from .forms import *
 from .models import *
@@ -16,10 +11,6 @@ from threading import *
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from email.mime.image import MIMEImage
-from django.contrib.staticfiles import finders
-from functools import lru_cache
-import pandas as pd
 from staff.views import dashboardStaff
 from student.views import dashboardStudent
 from ta.views import dashboardTA
@@ -33,15 +24,6 @@ class Email_thread(Thread):
 
     def run(self):
         SENDMAIL(self.subject,self.message,self.email)
-
-# Create your views here.
-def SEND_OTP_TO_PHONE(mobile_number, country_code, message):
-    client = Client(settings.PHONE_ACCOUNT_SID_TWILIO, settings.PHONE_ACCOUNT_AUTH_TOKEN_TWILIO)
-    message = client.messages.create(
-                        body=str(message),
-                        from_= settings.PHONE_NUMBER_TWILIO,
-                        to=str(country_code)+str(mobile_number)
-                    )
 
 def SENDMAIL(subject, message, email):
     email_from = settings.EMAIL_HOST_USER
@@ -109,3 +91,13 @@ def logout_request(request):
     if request.user.is_authenticated:
         logout(request)
     return redirect('home')
+
+def save_query(request):
+    if request.method=="POST":
+        name=request.POST.get("name")
+        email=request.POST.get("email")
+        phone=request.POST.get("phone")
+        message=request.POST.get("message")
+        Query.objects.create(name=name, email=email, phone=phone, message=message)
+        return JsonResponse({"message": "Success"}, status=200)
+    return JsonResponse({"message": "POST request is only allowed."}, status=400)
