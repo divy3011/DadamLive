@@ -18,7 +18,7 @@
               <p class="card-category">You have only view permission for email and username and edit permission for first name and last name.</p>
             </div>
             <div class="card-body">
-              <form action="{% url 'view_profile' %}" enctype="multipart/form-data" method="POST">
+              <form action="{% url 'view_profile_st' %}" enctype="multipart/form-data" method="POST">
                 {% csrf_token %}
                     <br>
                     <div class="form-group">
@@ -62,7 +62,7 @@
     </a>
   </li>
   <li class="nav-item active">
-    <a class="nav-link" href="{% url 'view_profile' %}">
+    <a class="nav-link" href="{% url 'view_profile_st' %}">
       <i class="material-icons">person</i>
       <p>View Profile</p>
     </a>

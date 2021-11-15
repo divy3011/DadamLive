@@ -1055,3 +1055,15 @@ def save_test_state(quiz_id):
         quiz.save()
     else:
         TestEnder(quiz.id).start()
+
+def view_profile_fa(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({"message": "Please login before viewing profile."}, status=400)
+
+    if request.method=="POST":
+        user=User.objects.get(id=request.user.id)
+        user.first_name=request.POST.get("first_name")
+        user.last_name=request.POST.get("last_name")
+        user.save()
+        return redirect('view_profile_fa')
+    return render(request,"faculty/view_profile.html",context={})
