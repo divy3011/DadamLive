@@ -24,6 +24,8 @@ import requests
 from sklearn.feature_extraction.text import TfidfVectorizer
 from .forms import *
 from background_task import background
+import xlsxwriter
+from io import BytesIO
 
 # Create your views here.
 class Email_thread(Thread):
@@ -953,6 +955,41 @@ def marks_given_for_all_q(request):
     submission.marks_assigned=True
     submission.save()
     return redirect(view_submission, request.GET.get("submission_id"))
+
+def get_report(request, course_id):
+    faculty=basicChecking(request)
+    ta=basicCheckingWithTA(request)
+    if faculty==False and ta==False:
+        return redirect('home')
+    course=""
+    try:
+        course=Course.objects.get(id=int(course_id))
+        if faculty!=False and course.instructor!=request.user:
+            return JsonResponse({"message": "Course was not found on this server"}, status=400)
+        if ta!=False:
+            Enrolment.objects.get(user=ta.user, course=course)
+    except:
+        return JsonResponse({"message": "Course was not found on this server"}, status=400)
+    
+    report_dataframe=generate_report(course)
+    excelFilename=course.courseName+" Report "+str(datetime.datetime.now().date())+".xlsx"
+    
+    with BytesIO() as b:
+        writer = pd.ExcelWriter(b, engine='xlsxwriter')
+        report_dataframe.to_excel(writer, sheet_name='Sheet1')
+        writer.save()
+        filename=excelFilename
+        response=HttpResponse(
+            b.getvalue(),
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition']='attachment; filename=%s' % filename
+        return response
+    
+def generate_report(course):
+    df=pd.DataFrame([[1,2,3],[3,4,6]])
+    return df 
+    
 
 def upload_course_image(request):
     faculty=basicChecking(request)

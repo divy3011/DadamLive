@@ -9,6 +9,7 @@ class Course(models.Model):
     instructor=models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     image=models.ImageField(upload_to='post_images/', default="demo.jpg", null=True)
     courseName=models.CharField(null=True, max_length=200)
+    progress_report=models.FileField(upload_to='post_files/', null=True)
     created_on=models.DateTimeField(default=datetime.datetime.now())
 
     def __str__(self):

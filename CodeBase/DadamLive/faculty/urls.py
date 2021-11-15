@@ -23,4 +23,6 @@ urlpatterns = [
     path('quiz/image/captured/<str:submission_id>',views.images_for_illegal_att,name="images_for_illegal_att"),
     path('course/view/get/permission/data/',views.get_permission_data,name="get_permission_data"),
     path('course/view/update/permissions/',views.update_ta_permissions,name="update_ta_permissions"),
+    path('get/report/<str:course_id>',views.get_report,name="get_report"),
+    
 ]
