@@ -987,7 +987,42 @@ def get_report(request, course_id):
         return response
     
 def generate_report(course):
-    df=pd.DataFrame([[1,2,3],[3,4,6]])
+    df=pd.DataFrame()
+    col_names=["Roll Number"]
+    data=[]
+    temp=[]
+    users=[]
+    userType=UserType.objects.get(userTypeCode=int(settings.CODE_STUDENT))
+    enrolments=Enrolment.objects.filter(course=course, userType=userType)
+    for en in enrolments:
+        temp.append(en.user.username)
+        users.append(en.user)
+    data.append(temp)
+    quiz=Quiz.objects.filter(course=course)
+    total=[]
+    for q in quiz:
+        col_names.append(q.quiz_name)
+        temp=[]
+        for en in enrolments:
+            try:
+                submission=Submission.objects.get(quiz=q, user=en.user)
+                temp.append(submission.score)
+            except:
+                temp.append(0)
+        data.append(temp)
+        if len(total)==0:
+            total=temp
+        else:
+            total1=[]
+            for i in range(len(total)):
+                total1.append(total[i]+temp[i])
+            total=total1
+    
+    col_names.append("Total Score")
+    data.append(total)
+    
+    for i in range(len(col_names)):
+        df[col_names[i]]=data[i]            
     return df 
     
 
