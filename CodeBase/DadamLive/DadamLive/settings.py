@@ -167,3 +167,7 @@ WEB_URL="http://127.0.0.1:8000/"
 # WEB_URL="https://dadamlive.herokuapp.com/"
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+
+PHONE_ACCOUNT_SID_TWILIO = 'ACbef25a8219317fe5d2c257e56ca6b54b'
+PHONE_ACCOUNT_AUTH_TOKEN_TWILIO = '2db793c10b49aea993604aa46b730870'
+PHONE_NUMBER_TWILIO = '+17019229169'

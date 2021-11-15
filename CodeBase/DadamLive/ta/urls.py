@@ -13,5 +13,6 @@ urlpatterns = [
     path('course/manage/quiz/previous/status/<str:quiz_id>',views.ta_change_prev_status,name="ta_change_prev_status"),
     path('course/manage/quiz/analysis/',views.ta_quiz_analysis,name="ta_quiz_analysis"),
     path('profile/',views.view_profile_ta,name="view_profile_ta"),
-
+    path('profile/contact_number/verify/<str:unique_code>',views.verify_number,name="verify_number"),
+    
 ]

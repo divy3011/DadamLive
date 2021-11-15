@@ -11,6 +11,8 @@ from home.models import *
 import pandas as pd
 from staff.forms import FileForm
 from faculty.views import quizOngoing
+from twilio.rest import Client
+import math,random
 # Create your views here.
 
 class Email_thread(Thread):
@@ -30,6 +32,14 @@ def SENDMAIL(subject, message, email):
         send_mail( subject, message, email_from, recipient_list )
     except:
         print("Unable to send the email")
+
+def SEND_OTP_TO_PHONE(mobile_number, country_code, message):
+    client = Client(settings.PHONE_ACCOUNT_SID_TWILIO, settings.PHONE_ACCOUNT_AUTH_TOKEN_TWILIO)
+    message = client.messages.create(
+                        body=str(message),
+                        from_= settings.PHONE_NUMBER_TWILIO,
+                        to=str(country_code)+str(mobile_number)
+                    )
 
 def basicChecking(request):
     if request.user.is_authenticated==False:
@@ -439,6 +449,53 @@ def view_profile_ta(request):
         user.last_name=request.POST.get("last_name")
         user.save()
         contact_number=request.POST.get("contact_number")
-
-        return redirect('view_profile_ta')
+        if len(contact_number)==0:
+            ta.contact_number=contact_number
+            ta.save()
+        if ta.contact_number==contact_number:
+            return redirect('view_profile_ta')
+        try:
+            unique_code=generate_code(25)
+            link=settings.WEB_URL+"dashboard/teaching_assistant/profile/contact_number/verify/"+unique_code
+            message="Hi "+ta.user.username+",\nClick on "+link+" to update your contact number in the profile."
+            print(message)
+            SEND_OTP_TO_PHONE(contact_number,'+91',message)
+            ta.dummy_number=contact_number
+            ta.unique_code=unique_code
+            ta.save()
+            return render(request,"ta/view_profile.html",context={"ta": ta, "success": "A confirmation link is send to your mobile number. Click on it to update the contact number. This link will remain valid for 5 minutes."})
+        except:
+            return render(request,"ta/view_profile.html",context={"ta": ta, "error": "Unable to send confirmation link on your mobile phone. Either your mobile is not registered in twilio free account or mobile number given was in an inappropriate manner."})
     return render(request,"ta/view_profile.html",context={"ta": ta})
+
+def verify_number(request,unique_code):
+    try:
+        ta=TeachingAssistant.objects.filter(unique_code=unique_code)
+        if len(ta)!=1:
+            return JsonResponse({"error": "There was internal clash. Please try to update your contact after 10 minutes."}, status=400)
+        ta=ta[0]
+        uni_time=ta.uni_time
+        ta.uni_time=datetime.datetime.now()
+        ta.save()
+        ta=TeachingAssistant.objects.get(id=ta.id)
+        new_time=ta.uni_time
+        time_delta=(new_time-uni_time)
+        minutes=(time_delta.total_seconds())/60
+        print(minutes)
+        if minutes>6:
+            return JsonResponse({"error": "This link has been expired."}, status=400)
+        if ta.dummy_number!="-":
+            ta.contact_number=ta.dummy_number
+        ta.dummy_number="-"
+        ta.unique_code=str(ta.id)
+        ta.save()
+        return render(request,"ta/view_profile.html",context={"ta": ta, "success": "Contact Number updated successfully."})
+    except:
+        return JsonResponse({"error": "We were not able to update your contact number due to some internal error"}, status=400)
+
+def generate_code(n):
+    digits = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#$!"
+    password = ""
+    for i in range(n) :
+        password += digits[math.floor(random.random() * 62)]
+    return password

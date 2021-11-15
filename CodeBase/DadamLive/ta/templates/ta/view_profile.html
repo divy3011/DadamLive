@@ -24,6 +24,15 @@
         <form action="{% url 'view_profile_ta' %}" enctype="multipart/form-data" method="POST">
           {% csrf_token %}
               <br>
+              {% if error %}
+              <p style="color: red;">{{error}}</p>
+              <br>
+              {% endif %}
+              <br>
+              {% if success %}
+              <p style="color: green;">{{success}}</p>
+              <br>
+              {% endif %}
               <div class="form-group">
                   <label>Email address</label><br>
                   <input type="email" class="form-control" aria-describedby="emailHelp" placeholder="Email" value={{request.user.email}} readonly>

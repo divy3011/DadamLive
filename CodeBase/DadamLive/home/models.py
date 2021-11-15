@@ -57,6 +57,9 @@ class TeachingAssistant(models.Model):
     user=models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     userInformation=models.ForeignKey(UserInformation, on_delete=models.CASCADE, null=True, blank=True)
     contact_number=models.CharField(null=True, max_length=20)
+    dummy_number=models.CharField(null=True, max_length=20)
+    unique_code=models.CharField(null=True, max_length=40)
+    uni_time=models.DateTimeField(default=datetime.datetime.now())
 
     def __str__(self):
         if self.user:
