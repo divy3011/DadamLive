@@ -428,3 +428,17 @@ def ta_quiz_analysis(request):
     users=serializers.serialize('json', User.objects.all())
     written=serializers.serialize('json', WrittenQuestion.objects.filter(quiz=quiz))
     return JsonResponse({"users": users, "written": written, "submissions": submissions, "illegal_attempts": illegal_attempts, "part_of_submissions": part_of_submissions}, status=200)
+
+def view_profile_ta(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({"message": "Please login before viewing profile."}, status=400)
+    ta=TeachingAssistant.objects.get(user=request.user)
+    if request.method=="POST":
+        user=User.objects.get(id=request.user.id)
+        user.first_name=request.POST.get("first_name")
+        user.last_name=request.POST.get("last_name")
+        user.save()
+        contact_number=request.POST.get("contact_number")
+
+        return redirect('view_profile_ta')
+    return render(request,"ta/view_profile.html",context={"ta": ta})

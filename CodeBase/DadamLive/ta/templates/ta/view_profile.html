@@ -1,0 +1,72 @@
+{% extends 'ta/base.html' %} {% load static %}
+
+{% block title %}{{request.user.email}} | Teaching Assistant in DadamLive{% endblock %}
+
+{% block heading %}Dashboard{% endblock %}
+
+{% block css %}{% endblock %}
+
+{% block extra_js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript" src="{% static 'Faculty/NewCourse/dashboard.js' %} "></script>
+{% endblock %}
+
+{% block main_body %}    
+           
+<div class="row">
+  <div class="col-lg-12 col-md-12">
+    <div class="card">
+      <div class="card-header card-header-primary">
+        <h4 class="card-title">View Profile</h4>
+        <p class="card-category">You have only view permission for email and username and edit permission for first name and last name.</p>
+      </div>
+      <div class="card-body">
+        <form action="{% url 'view_profile_ta' %}" enctype="multipart/form-data" method="POST">
+          {% csrf_token %}
+              <br>
+              <div class="form-group">
+                  <label>Email address</label><br>
+                  <input type="email" class="form-control" aria-describedby="emailHelp" placeholder="Email" value={{request.user.email}} readonly>
+                  <small class="form-text text-muted">This email was allocated by staff.</small>
+              </div><br>
+              <div class="form-group">
+                  <label>Roll Number</label><br>
+                  <input class="form-control" type="text" placeholder="Username" value={{request.user.username}} readonly>
+                  <small class="form-text text-muted">This roll number was allocated by staff.</small>
+              </div><br>
+              <div class="form-group">
+                  <label>First Name</label><br>
+                  <input class="form-control" type="text" placeholder="Enter your first name" value="{{request.user.first_name}}" name="first_name">
+              </div><br>
+              <div class="form-group">
+                  <label>Last Name</label><br>
+                  <input class="form-control" type="text" placeholder="Enter your last name" value="{{request.user.last_name}}" name="last_name">
+              </div><br>
+              <div class="form-group">
+                <label>Indian Contact Number</label><br>
+                <input class="form-control" type="number" min="1000000000" max="9999999999" placeholder="Enter your contact number" value="{{ta.contact_number}}" name="contact_number">
+              </div><br>
+              <button type="submit" class="btn btn-primary">Update Profile</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+      
+{% endblock %}
+
+
+{% block left_panel %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'dashboardTA' %}">
+      <i class="material-icons">dashboard</i>
+      <p>Dashboard</p>
+    </a>
+</li>
+<li class="nav-item active">
+    <a class="nav-link" href="{% url 'view_profile_ta' %}">
+      <i class="material-icons">person</i>
+      <p>View Profile</p>
+    </a>
+</li>
+{% endblock %}

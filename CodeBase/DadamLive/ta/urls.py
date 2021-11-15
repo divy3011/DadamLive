@@ -12,5 +12,6 @@ urlpatterns = [
     path('course/manage/quiz/change/status/<str:quiz_id>',views.ta_change_quiz_status,name="ta_change_quiz_status"),
     path('course/manage/quiz/previous/status/<str:quiz_id>',views.ta_change_prev_status,name="ta_change_prev_status"),
     path('course/manage/quiz/analysis/',views.ta_quiz_analysis,name="ta_quiz_analysis"),
-    
+    path('profile/',views.view_profile_ta,name="view_profile_ta"),
+
 ]
