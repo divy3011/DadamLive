@@ -46,7 +46,7 @@ function getSimilarity(part_id){
             all=my_sub.fields.sub_id.split(",")
             per_match=my_sub.fields.percentage_match.split(",")
             answer="<div><b><p>Submission ID #"+my_sub.fields.submission+"</p></b><p>Answer: "+my_sub.fields.answer+"</p></div>"
-            liner="<p>--------------------------------------------------</p>"
+            liner="<hr>"
             $("#inside_modal").append(answer+liner)
             for(i=0;i<Object.keys(other_subs).length;i++){
                 sub_id=-1
@@ -58,7 +58,7 @@ function getSimilarity(part_id){
                 }
                 if(sub_id!=-1){
                     answer="<div><b><p>Submission ID #"+other_subs[i].fields.submission+" - Content Match percentage is "+per_match[sub_id]+"%</p></b><p>Answer: "+other_subs[i].fields.answer+"</p></div>"
-                    liner="<p>--------------------------------------------------</p>"
+                    liner="<hr>"
                     $("#inside_modal").append(answer+liner)
                 }
             }            

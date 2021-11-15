@@ -64,6 +64,18 @@ def basicChecking(request):
         return False
     except:
         return False
+    
+def basicCheckingWithTA(request):
+    if request.user.is_authenticated==False:
+        return False
+    try:
+        info=UserInformation.objects.get(user=request.user)
+        if info.userType.userTypeCode==settings.CODE_TA:
+            ta=TeachingAssistant.objects.get(user=request.user)
+            return ta
+        return False
+    except:
+        return False
 
 def dashboardFaculty(request):
     faculty=basicChecking(request)
@@ -783,15 +795,22 @@ def sendPlagRequest(data):
 
 def view_submission(request, submission_id):
     faculty=basicChecking(request)
-    if faculty==False:
+    ta=basicCheckingWithTA(request)
+    if faculty==False and ta==False:
         return redirect('home')
     submission=""
     quiz=""
+    permissions=""
     try:
         submission=Submission.objects.get(id=int(submission_id))
         quiz=submission.quiz
-        if submission.quiz.course.instructor!=request.user:
+        if faculty!=False and submission.quiz.course.instructor!=request.user:
             return JsonResponse({"message": "Course was not found on this server"}, status=400)
+        if ta!=False:
+            enrolment=Enrolment.objects.get(user=ta.user, course=quiz.course)
+            permissions=TeachingAssistantPermission.objects.get(enrolment=enrolment)
+            if (not permissions.isMainTA) and (not permissions.canManageQuiz) and (not permissions.canCheckAnswerSheets):
+                return JsonResponse({"message": "It seems you have not been given permission to check answer sheets.."}, status=400)
     except:
         return JsonResponse({"message": "Submission was not found on this server"}, status=400)
     
@@ -809,18 +828,26 @@ def view_submission(request, submission_id):
 
 def upload_marks(request):
     faculty=basicChecking(request)
-    if faculty==False:
+    ta=basicCheckingWithTA(request)
+    if faculty==False and ta==False:
         return redirect('home')
+    submission=""
     part=""
     quiz=""
+    permissions=""
     try:
         part=PartOfSubmission.objects.get(id=int(request.GET.get("part_id")))
         quiz=part.submission.quiz
-        if part.submission.quiz.course.instructor!=request.user:
+        if faculty!=False and quiz.course.instructor!=request.user:
             return JsonResponse({"message": "Course was not found on this server"}, status=400)
+        if ta!=False:
+            enrolment=Enrolment.objects.get(user=ta.user, course=quiz.course)
+            permissions=TeachingAssistantPermission.objects.get(enrolment=enrolment)
+            if (not permissions.isMainTA) and (not permissions.canManageQuiz) and (not permissions.canCheckAnswerSheets):
+                return JsonResponse({"message": "It seems you have not been given permission to check answer sheets.."}, status=400)
     except:
-        return JsonResponse({"message": "This question was not found on this server"}, status=400)
-    
+        return JsonResponse({"message": "Submission was not found on this server"}, status=400)
+
     if quiz.quizHeld==False:
         return JsonResponse({"message": "Marks can not be assigned until quiz gets over."}, status=400)
     marks=float(request.GET.get("marks"))
@@ -835,17 +862,25 @@ def upload_marks(request):
 
 def get_submission(request):
     faculty=basicChecking(request)
-    if faculty==False:
+    ta=basicCheckingWithTA(request)
+    if faculty==False and ta==False:
         return redirect('home')
+    submission=""
     part=""
     quiz=""
+    permissions=""
     try:
         part=PartOfSubmission.objects.get(id=int(request.GET.get("part_id")))
         quiz=part.submission.quiz
-        if part.submission.quiz.course.instructor!=request.user:
+        if faculty!=False and quiz.course.instructor!=request.user:
             return JsonResponse({"message": "Course was not found on this server"}, status=400)
+        if ta!=False:
+            enrolment=Enrolment.objects.get(user=ta.user, course=quiz.course)
+            permissions=TeachingAssistantPermission.objects.get(enrolment=enrolment)
+            if (not permissions.isMainTA) and (not permissions.canManageQuiz) and (not permissions.canCheckAnswerSheets):
+                return JsonResponse({"message": "It seems you have not been given permission to check answer sheets.."}, status=400)
     except:
-        return JsonResponse({"message": "This question was not found on this server"}, status=400)
+        return JsonResponse({"message": "Submission was not found on this server"}, status=400)
     
     if quiz.quizHeld==False:
         return JsonResponse({"message": "Answer can not be viewed until quiz gets over."}, status=400)
@@ -865,17 +900,24 @@ def get_submission(request):
 
 def images_for_illegal_att(request, submission_id):
     faculty=basicChecking(request)
-    if faculty==False:
+    ta=basicCheckingWithTA(request)
+    if faculty==False and ta==False:
         return redirect('home')
     submission=""
     quiz=""
+    permissions=""
     try:
         submission=Submission.objects.get(id=int(submission_id))
         quiz=submission.quiz
-        if submission.quiz.course.instructor!=request.user:
+        if faculty!=False and submission.quiz.course.instructor!=request.user:
             return JsonResponse({"message": "Course was not found on this server"}, status=400)
+        if ta!=False:
+            enrolment=Enrolment.objects.get(user=ta.user, course=quiz.course)
+            permissions=TeachingAssistantPermission.objects.get(enrolment=enrolment)
+            if (not permissions.isMainTA) and (not permissions.canManageQuiz) and (not permissions.canCheckAnswerSheets):
+                return JsonResponse({"message": "It seems you have not been given permission to check answer sheets.."}, status=400)
     except:
-        return JsonResponse({"message": "This course was not found on this server"}, status=400)
+        return JsonResponse({"message": "Submission was not found on this server"}, status=400)
     
     if quiz.quizHeld==False:
         return JsonResponse({"message": "Images can not be viewed until quiz gets over."}, status=400)
@@ -886,15 +928,22 @@ def images_for_illegal_att(request, submission_id):
 
 def marks_given_for_all_q(request):
     faculty=basicChecking(request)
-    if faculty==False:
+    ta=basicCheckingWithTA(request)
+    if faculty==False and ta==False:
         return redirect('home')
     submission=""
     quiz=""
+    permissions=""
     try:
         submission=Submission.objects.get(id=int(request.GET.get("submission_id")))
         quiz=submission.quiz
-        if submission.quiz.course.instructor!=request.user:
+        if faculty!=False and submission.quiz.course.instructor!=request.user:
             return JsonResponse({"message": "Course was not found on this server"}, status=400)
+        if ta!=False:
+            enrolment=Enrolment.objects.get(user=ta.user, course=quiz.course)
+            permissions=TeachingAssistantPermission.objects.get(enrolment=enrolment)
+            if (not permissions.isMainTA) and (not permissions.canManageQuiz) and (not permissions.canCheckAnswerSheets):
+                return JsonResponse({"message": "It seems you have not been given permission to check answer sheets.."}, status=400)
     except:
         return JsonResponse({"message": "Submission was not found on this server"}, status=400)
     

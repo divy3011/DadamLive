@@ -515,7 +515,7 @@
                   <td>{{each.user.username}}</td>
                   <td>{{each.user.email}}</td>
                   <td>{% if each.marks_assigned %}Yes{% else %}No{% endif %}</td>
-                  <td><a href="#">View</a></td>
+                  <td><a href="{% url 'view_submission' submission_id=each.id %}">View</a></td>
                 </tr>
                 {% endfor %}
               </tbody>  
