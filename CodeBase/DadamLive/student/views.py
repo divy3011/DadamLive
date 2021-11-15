@@ -47,10 +47,6 @@ def basicChecking(request):
         if info.userType.userTypeCode==settings.CODE_STUDENT:
             student=Student.objects.get(user=request.user)
             return [True, student]
-            # if student.faceAdded:
-            #     return [True, student]
-            # else:
-            #     return [False, render(request, "student/faceCollection.html",context={})]
         return [False, redirect('home')]
     except:
         return [False, redirect('home')]
