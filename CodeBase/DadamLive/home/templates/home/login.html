@@ -20,7 +20,7 @@
                 <div id="logo">
                     <img src="{% static 'logo.png' %}" alt="Logo" style="width:50px;height:50px;">
                 </div>
-                <div id="name">
+                <a href="{% url 'home' %}"><div id="name">
                     <span>D</span>
                     <span>a</span>
                     <span>d</span>
@@ -32,6 +32,7 @@
                     <span>e</span>
                     <!-- <h1>DadamLive</h1> -->
                 </div>
+                </a>
             </div>
             
                 <div class="input_container">
@@ -45,7 +46,7 @@
                 </div>
                 <input type="submit" value="Login" id="login_button" class='input_field'>
             
-            <span><a href="#">Forgot Password ?</a></span>
+            <span><a href="{% url 'forgot_password' %}">Forgot Password ?</a></span>
         </form>
     </div>
 

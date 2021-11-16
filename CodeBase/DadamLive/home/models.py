@@ -72,3 +72,8 @@ class Query(models.Model):
     email=models.CharField(null=True, max_length=30)
     phone=models.CharField(null=True, max_length=15)
     message=models.TextField(null=True)
+    
+class ForgotPassword(models.Model):
+    user=models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    unique_code=models.CharField(null=True, max_length=40)
+    uni_time=models.DateTimeField(default=datetime.datetime.now())

@@ -1,0 +1,55 @@
+$("#form").submit(function (e) {
+    e.preventDefault();
+    if(validate()==false) {
+        return false;
+    }
+    document.getElementById("login_button").disabled = true;
+    var serializedData = $(this).serialize();
+    $.ajax({
+        type: 'POST',
+        url: "",
+        data: serializedData,
+        success: function (response) {
+            $("#form").trigger('reset');
+            alert("Your password has been changed. Now you can Login with your new password.")
+            location.reload();
+        },
+        error: function (response) {
+            alert(response["responseJSON"]["error"])
+            document.getElementById("login_button").disabled = false;
+        }
+    })
+})
+
+function validate() {
+    p1 = document.getElementById('password1').value
+    p2 = document.getElementById('password2').value
+    if(p1=="" || p2==""){
+        alert("Password must not be empty.")
+        return false;
+    }
+    if (p1 != p2) {
+        alert("Both the passwords are diferent");
+        return false;
+    } else {
+        var val = passwordchecker(p1)
+        if (!val) {
+            alert("Password must have atleast 8 characters with digits, letters and special characters");
+            return false
+        }
+        return true
+    }
+}
+
+function passwordchecker(str) {
+    if ((str.match(/[a-z]/g) || str.match(/[A-Z]/g)) && str.match(
+            /[0-9]/g) && str.match(
+            /[^a-zA-Z\d]/g) && str.length >= 8)
+        return true;
+    return false;
+}
+
+function fader(ID){
+    $(ID).fadeIn()
+    $(ID).delay(4000).fadeOut(4000)
+}

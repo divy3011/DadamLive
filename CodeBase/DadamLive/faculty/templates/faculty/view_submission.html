@@ -31,7 +31,7 @@
                         <div class="col-md-offset-2 col-md-8 text-center" style="margin-left: 16.67%;text-align: center;width: 100%;">
                             <h2 style="padding-bottom: 10px; font-family: Roboto;"><span class="blue">{{submission.user.email}} / Submission {{submission.id}}</span></h2>
                             <button onclick="return marks_given_for_all_q('{{submission.id}}')" class="button button1" >Freeze Marks</button>
-                            <a href="{% url 'images_for_illegal_att' submission_id=submission.id %}" class="button button2">Image Captures</a>                                
+                            <a href="{% url 'images_for_illegal_att' submission_id=submission.id %}" target="_blank" class="button button2">Image Captures</a>                                
                         </div>
                     </div>
                 </div>
