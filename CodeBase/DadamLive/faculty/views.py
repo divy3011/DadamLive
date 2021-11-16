@@ -65,6 +65,23 @@ def dashboardFaculty(request):
     if faculty==False:
         return redirect('home')
     courses=Course.objects.filter(instructor=request.user)
+    if request.method=="POST":
+        course=False
+        new_name=request.POST.get("name")
+        try:
+            course=Course.objects.get(id=int(request.POST.get("course_id")))
+            if course.instructor!=request.user:
+                return JsonResponse({"message": "Course not found"}, status=400)
+        except:
+            return JsonResponse({"message": "Course not found"}, status=400)
+        try:
+            Course.objects.get(instructor=request.user, courseName=new_name)
+            return JsonResponse({"error": "Course Name is already taken by you. Try another one!"}, status=400)
+        except:
+            pass
+        course.courseName=new_name
+        course.save()
+        return redirect('dashboardFaculty')
     return render(request,"faculty/dashboard.html",context={"faculty": faculty, "courses": courses})
 
 def start_new_course(request):
@@ -156,8 +173,11 @@ def view_course(request,course_id):
         announcements=Announcement.objects.filter(course=course).order_by('-id')
         quizes=Quiz.objects.filter(course=course).order_by('-id')
         TA_permissions=TeachingAssistantPermission.objects.filter(enrolment__course=course)
-        #Also to add thesr in post request later
-        context={"course": course, "enrolments": enrolments, "announcements": announcements, "quizes": quizes,"TA_permissions": TA_permissions}
+        ta_contacts=[]
+        for each in enrolments:
+            if each.userType.userTypeCode==settings.CODE_TA:
+                ta_contacts.append(TeachingAssistant.objects.get(user=each.user))
+        context={"course": course, "enrolments": enrolments, "announcements": announcements, "quizes": quizes,"TA_permissions": TA_permissions, "ta_contacts": ta_contacts}
         return render(request,"faculty/view_course.html",context=context)
 
 # Not advised to uncomment the return render because user have to g back in order to avail other features.

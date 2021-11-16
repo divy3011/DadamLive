@@ -76,7 +76,11 @@ def view_course_ta(request, course_id):
     quizes=Quiz.objects.filter(course=course).order_by('-id')
     TA_permissions=TeachingAssistantPermission.objects.filter(enrolment__course=course)
     permissions=TeachingAssistantPermission.objects.get(enrolment=enrolment)
-    context={"course": course, "enrolments": enrolments, "announcements": announcements, "quizes": quizes,"TA_permissions": TA_permissions, "permissions": permissions}
+    ta_contacts=[]
+    for each in enrolments:
+        if each.userType.userTypeCode==settings.CODE_TA:
+            ta_contacts.append(TeachingAssistant.objects.get(user=each.user))
+    context={"course": course, "enrolments": enrolments, "announcements": announcements, "quizes": quizes,"TA_permissions": TA_permissions, "permissions": permissions, "ta_contacts": ta_contacts}
     return render(request, 'ta/view_course.html', context=context)
 
 def ta_announcement(request, course_id):
@@ -462,6 +466,7 @@ def view_profile_ta(request):
             SEND_OTP_TO_PHONE(contact_number,'+91',message)
             ta.dummy_number=contact_number
             ta.unique_code=unique_code
+            ta.uni_time=datetime.datetime.now()
             ta.save()
             return render(request,"ta/view_profile.html",context={"ta": ta, "success": "A confirmation link is send to your mobile number. Click on it to update the contact number. This link will remain valid for 5 minutes."})
         except:

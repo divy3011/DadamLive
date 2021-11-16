@@ -21,11 +21,11 @@
             {% else %}
             <img src="{% static 'images/demo.jpg' %}" data-toggle="modal" data-target="#modal" onclick="setID('{{course.id}}')">
             {% endif %}
-            <a href="{% url 'view_course' course_id=course.id %}">
               <div class="card-body">
-                <h4 class="card-title">{{course.courseName}}</h4>
+                <h4 class="card-title">{{course.courseName}}<a href="#" data-toggle="modal" data-target="#modal1" class="material-icons" style="float: right;" onclick="setIDName('{{course.id}}','{{course.courseName}}')">edit</a></h4>
                 <p class="card-category">Started {{course.created_on}}</p>
               </div>
+              <a href="{% url 'view_course' course_id=course.id %}">
               <div class="card-footer">
                 <div class="stats" style="color: purple;">
                   Click to view more...
@@ -53,6 +53,30 @@
                   <h4>Upload an image for the course</h4>
                   <input type="file" name="image"  required><br><br>
                   <button type="submit" class="btn btn-primary">Upload</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="modal1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="title1">Change Course Name</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" enctype="multipart/form-data" action="{% url 'dashboardFaculty' %}">{% csrf_token %}
+                  <input type="hidden" name="course_id" id="course_id1" class="form-control" required>
+                  <h4>Edit Course Name</h4>
+                  <input type="text" name="name" class="form-control" id="cour_name" required><br><br>
+                  <button type="submit" class="btn btn-primary">Edit</button>
                 </form>
             </div>
             <div class="modal-footer">

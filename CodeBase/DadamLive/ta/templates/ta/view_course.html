@@ -160,6 +160,7 @@
             </div>
           </div>
         </div>
+
         <div class="card-body">
           <div class="tab-content">
             <div class="tab-pane active" id="studs">
@@ -173,7 +174,15 @@
                         {% for each in enrolments %}
                         {% ifequal each.userType.userTypeCode 645 %}
                         <tr>
+                          {% if each.user.first_name %}
+                          <td>{{each.user.first_name}} {{each.user.last_name}}</td>
+                          {% else %}
+                            {% if each.user.last_name %}
                             <td>{{each.user.first_name}} {{each.user.last_name}}</td>
+                            {% else %}
+                            <td>-</td>
+                            {% endif %}
+                          {% endif %}
                             <td>{{each.user.email}}</td>
                             <td>{{each.user.username}}</td>
                         </tr>
@@ -188,14 +197,32 @@
                       <th>Teaching Assistant Name</th>
                       <th>Email Address</th>
                       <th>Roll Number / Username</th>
+                      <th>Contact Number</th>
                     </thead>
                     <tbody>
                         {% for each in enrolments %}
                         {% ifnotequal each.userType.userTypeCode 645 %}
                         <tr>
-                            <td>{{each.user.first_name}} {{each.user.last_name}}</td>
+                              {% if each.user.first_name %}
+                              <td>{{each.user.first_name}} {{each.user.last_name}}</td>
+                              {% else %}
+                                {% if each.user.last_name %}
+                                <td>{{each.user.first_name}} {{each.user.last_name}}</td>
+                                {% else %}
+                                <td>-</td>
+                                {% endif %}
+                              {% endif %}
                             <td>{{each.user.email}}</td>
                             <td>{{each.user.username}}</td>
+                            {% for each1 in ta_contacts %}
+                            {% ifequal each1.user each.user %}
+                              {% if each1.contact_number %}
+                              <td>{{each1.contact_number}}</td>
+                              {% else %}
+                              <td>-</td>
+                              {% endif %}
+                            {% endifequal %}
+                            {% endfor %}
                         </tr>
                         {% endifnotequal %}
                         {% endfor %}
