@@ -142,9 +142,13 @@
                                                 </div>
                                                 <div id="collapse1" class="panel-collapse collapse">
                                                     <ul class="list-group">
-                                                        {% if each.sources %}
-                                                            <li class="list-group-item">{{each.sources}}</li>
-                                                        {% endif %}
+                                                        {% for each1 in plag_results %}
+                                                        {% ifequal each1.id each.id %}
+                                                            {% for s in each1.sources %}
+                                                            <li class="list-group-item"><a href="{{s}}" target="_blank">{{s}}</a></li>
+                                                            {% endfor %}
+                                                        {% endifequal %}
+                                                        {% endfor %}
                                                     </ul>
                                                 </div>
                                                 </div>

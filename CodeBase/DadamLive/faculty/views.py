@@ -16,6 +16,7 @@ from .forms import *
 from background_task import background
 import xlsxwriter
 from io import BytesIO
+import copy
 
 # Create your views here.
 class Email_thread(Thread):
@@ -827,7 +828,20 @@ def view_submission(request, submission_id):
         attempt=IllegalAttempt.objects.get(submission=submission)
     except:
         attempt=IllegalAttempt.objects.create(submission=submission)
-    return render(request, "faculty/view_submission.html", context={"parts": parts, "submission": submission, "quiz": quiz, "written": written, "mcq": mcq, "attempt": attempt})
+    plag_results=[]
+    for each in parts:
+        if each.question_type==2:
+            if each.sources==None:
+                plag_results.append(each.sources)
+                continue
+            sources=each.sources[1:]
+            sources=sources[:-1]
+            sources=sources.split(", ")
+            for i in range(len(sources)):
+                sources[i]=sources[i][1:]
+                sources[i]=sources[i][:-1]
+            plag_results.append({"id": each.id, "sources": sources})
+    return render(request, "faculty/view_submission.html", context={"parts": parts, "submission": submission, "quiz": quiz, "written": written, "mcq": mcq, "attempt": attempt, "plag_results": plag_results})
 
 def upload_marks(request):
     faculty=basicChecking(request)
