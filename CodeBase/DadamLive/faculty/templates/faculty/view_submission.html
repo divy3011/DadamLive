@@ -177,35 +177,28 @@
                                     <div class="border">
                                         <div class="question bg-white p-3 border-bottom">
                                             <div class="d-flex flex-row justify-content-between align-items-center mcq">
-                                                <h4 class="grey">Objective Question</h4><h5 class="grey">Marks : <span class="green">{{each.mark}}</span></h5>
+                                                <h4 class="grey">Objective Question</h4><h5 class="grey">Marks : <span {% ifnotequal each.mark 0 %} class="green" {% else %} class="red" {% endifnotequal %}>{{each.mark}}</span></h5>
                                             </div>
                                         </div>
                                         <div class="question bg-white p-3 border-bottom">
-                                            <p><b>Options</b>: {{m.options}}</p>
-                                            <p><b>Correct Answers</b>: {{m.correct_answers}}</p>
-                                            <p><b>Marked Answers</b>: {{each.answer}}</p>
                                             <div class="d-flex flex-row align-items-center question-title">
                                                 <h3 class="text-danger">Q.</h3>
                                                 <h5 class="grey">{{m.question}}</h5>
                                             </div>
-                                            <label> 
-                                                <input type="checkbox" name="brazil" disabled="disabled" value="brazil"> <span>Brazil</span>
+                                            {% for op in m.option_chr %}
+                                            <label>
+                                                <input type="checkbox" disabled="disabled" {% if op.marked %} checked="checked" {% endif %}> <span><b>{{op.bold}}</b>{{op.not_bold}}</span>
+                                                {% ifequal op.checker 1 %}
+                                                    <i class="icon fa fa-remove text-danger fa-fw red" title="Incorrect" aria-label="Incorrect"></i><br>
+                                                {% endifequal %}
+                                                {% ifequal op.checker 2 %}
+                                                    <i class="icon fa fa-check text-success fa-fw " title="Correct" aria-label="Correct"></i><br>
+                                                {% endifequal %}
                                             </label><br>
-                                            <label> 
-                                                <input type="checkbox" name="Germany" disabled="disabled" value="Germany"> <span>Germany</span>
-                                            </label><br>
-                                            <label> 
-                                                <input type="checkbox" name="Indonesia" disabled="disabled" value="Indonesia">  
-                                                <span>Indonesia</span>
-                                            </label><br>
-                                            <label> 
-                                                <input type="checkbox" name="Russia" disabled="disabled" value="Russia" checked="checked"> 
-                                                <span>Russia</span>
-                                            </label>
-                                            <i class="icon fa fa-check text-success fa-fw " title="Correct" aria-label="Correct"></i><br>
+                                            {% endfor %}                           
                                         </div>
                                         <div class="d-flex flex-row justify-content-between align-items-center p-3 bg-white">
-                                            <h4 class="grey">Correct Answer : </h4><h5 class="green left">Russia</h5>
+                                            <h4 class="grey">Correct Answer : </h4><h5 class="green left">{{m.correct_answers}}</h5>
                                         </div>
                                     </div>
                                 </div>

@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.mail import send_mail
 import datetime
+
+from numpy import character
 from home.models import *
 from threading import *
 import pandas as pd
@@ -841,7 +843,32 @@ def view_submission(request, submission_id):
                 sources[i]=sources[i][1:]
                 sources[i]=sources[i][:-1]
             plag_results.append({"id": each.id, "sources": sources})
-    return render(request, "faculty/view_submission.html", context={"parts": parts, "submission": submission, "quiz": quiz, "written": written, "mcq": mcq, "attempt": attempt, "plag_results": plag_results})
+    mcq_new=[]
+    for each in parts:
+        if each.question_type==1:
+            mcq_q=MCQ.objects.get(id=each.question_id)
+            options=mcq_q.options
+            character_ASCII=ord('A')
+            c_arr=[]
+            option_chr=[]
+            answer_marks=each.answer.split(',')
+            for i in range(len(options)):
+                marked=False
+                checker=0
+                if str(i) in answer_marks:
+                    marked=True
+                    checker=1
+                    if i in mcq_q.correct_answers:
+                        checker=2
+                option_chr.append({"bold": chr(character_ASCII)+".) ", "not_bold": options[i], "marked": marked, "checker": checker})
+                c_arr.append(chr(character_ASCII))
+                character_ASCII+=1
+            correct_answers=[]
+            for correct_index in mcq_q.correct_answers:
+                correct_answers.append(c_arr[correct_index])
+            correct_answers=', '.join(correct_answers)
+            mcq_new.append({"id": mcq_q.id, "question": mcq_q.question, "options": options, "correct_answers": correct_answers, "option_chr": option_chr})
+    return render(request, "faculty/view_submission.html", context={"parts": parts, "submission": submission, "quiz": quiz, "written": written, "mcq": mcq_new, "attempt": attempt, "plag_results": plag_results})
 
 def upload_marks(request):
     faculty=basicChecking(request)
