@@ -287,7 +287,7 @@ function setWindowsTimeOut(){
         $(window).blur(function() {
             if(numberOfTimesWindowsTimedOut<3){
                 numberOfTimesWindowsTimedOut++;
-                alert('It was noticed that you changed the tab, changed web address or opened any another application. Ignore doing that otherwise you will be logged out immediately out of the test.');
+                // alert('It was noticed that you changed the tab, changed web address or opened any another application. Ignore doing that otherwise you will be logged out immediately out of the test.');
             }
             logIllegalActivity(1)
         });
@@ -327,11 +327,8 @@ function enablePrevNext(){
 
 function setTimer(quiz){
     last_date=quiz[0].fields.end_date
-    date=last_date.substr(0,10)
-    time=last_date.substr(11,8)
-    date=date.split("-")
-    time=getMonth(date[1])+" "+date[2]+", "+date[0] + " "+time
-    var countDownDate = new Date(time).getTime();
+    countDownDate=new Date(last_date.substr(0,19))
+    countDownDate.setMinutes(countDownDate.getMinutes()+330);
     var x = setInterval(function() {
         var now = new Date().getTime();
         var distance = countDownDate - now;
@@ -441,6 +438,7 @@ async function AudioVideoDetection(){
                 
             },
             error: function (response) {
+                console.log(response)
                 alert(response["responseJSON"]["message"])
             }
         });
@@ -528,7 +526,7 @@ async function startSharing() {
         return ;
     }
     if(video1.srcObject.getVideoTracks()[0].getSettings().displaySurface!="monitor" && screenSharingTry<totalTry){
-        alert("Do not share tab or window. Just share the entire screen to start the quiz ASAP.");
+        // alert("Do not share tab or window. Just share the entire screen to start the quiz ASAP.");
         screenSharingTry++;
         stopSharing();
         startSharing();

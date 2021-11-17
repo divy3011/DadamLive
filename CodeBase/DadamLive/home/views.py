@@ -16,6 +16,7 @@ from student.views import dashboardStudent
 from ta.views import dashboardTA
 import math, random
 from django.core.mail import send_mail
+from pytz import timezone
 
 class Email_thread(Thread):
     def __init__(self,subject,message,email):

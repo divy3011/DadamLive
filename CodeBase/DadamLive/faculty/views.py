@@ -4,7 +4,7 @@ from django.shortcuts import render,HttpResponse,redirect
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.mail import send_mail
-import datetime
+import datetime,dateutil
 
 from numpy import character
 from home.models import *
@@ -19,7 +19,7 @@ from background_task import background
 import xlsxwriter
 from io import BytesIO
 import copy
-
+from pytz import timezone
 # Create your views here.
 class Email_thread(Thread):
     def __init__(self,subject,message,email):
@@ -373,13 +373,19 @@ def announce_quiz(request, course_id):
         end_date=datetime.datetime.strptime(end_date, '%Y-%m-%dT%H:%M')
         if end_date<start_date:
             return JsonResponse({"error": "Start time must be less than end time"}, status=400)
-        if start_date<datetime.datetime.now():
+        current_time=str(datetime.datetime.now(timezone('Asia/Kolkata')))[:-6]
+        print(start_date)
+        print(current_time)
+        if str(start_date)<current_time:
             return JsonResponse({"error": "Quiz can only be started in future"}, status=400)
         quiz=Quiz.objects.create(course=course, quiz_name=quiz_name, start_date=start_date, end_date=end_date, hidden=hide)
         TestEnder(quiz.id).start()
         return redirect('view_course', course_id)
     else:
         return JsonResponse({"error": "Course was not found on this server"}, status=400)
+    
+# def getTimeInFormat(time_in):
+#     return datetime.datetime.strptime(time_in[:19], '%Y-%m-%d %H:%M:%S')+datetime.timedelta(minutes=330)    
 
 def manage_quiz(request,quiz_id):
     faculty=basicChecking(request)
@@ -559,26 +565,26 @@ def change_prev_status(request,quiz_id):
 
 # False if quiz ongoing
 def quizOngoing(quiz):
-    if quiz.end_date.date()<datetime.datetime.now().date():
+    if quiz.end_date.date()<datetime.datetime.now(timezone('Asia/Kolkata')).date():
         return True
     
-    if quiz.start_date.date()>datetime.datetime.now().date():
+    if quiz.start_date.date()>datetime.datetime.now(timezone('Asia/Kolkata')).date():
         return True
 
-    if quiz.start_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()<quiz.start_date.time():
+    if quiz.start_date.date()==datetime.datetime.now(timezone('Asia/Kolkata')).date() and datetime.datetime.now(timezone('Asia/Kolkata')).time()<quiz.start_date.time():
         return True
 
-    if quiz.end_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()>quiz.end_date.time():
+    if quiz.end_date.date()==datetime.datetime.now(timezone('Asia/Kolkata')).date() and datetime.datetime.now(timezone('Asia/Kolkata')).time()>quiz.end_date.time():
         return True
     
     return False
 
 # True if quiz ended
 def quizEnded(quiz):
-    if quiz.end_date.date()<datetime.datetime.now().date():
+    if quiz.end_date.date()<datetime.datetime.now(timezone('Asia/Kolkata')).date():
         return True
 
-    if quiz.end_date.date()==datetime.datetime.now().date() and datetime.datetime.now().time()>quiz.end_date.time():
+    if quiz.end_date.date()==datetime.datetime.now(timezone('Asia/Kolkata')).date() and datetime.datetime.now(timezone('Asia/Kolkata')).time()>quiz.end_date.time():
         return True
     
     return False
@@ -1014,7 +1020,7 @@ def get_report(request, course_id):
         return JsonResponse({"message": "Course was not found on this server"}, status=400)
     
     report_dataframe=generate_report(course)
-    excelFilename=course.courseName+" Report "+str(datetime.datetime.now().date())+".xlsx"
+    excelFilename=course.courseName+" Report "+str(datetime.datetime.now(timezone('Asia/Kolkata')).date())+".xlsx"
     
     with BytesIO() as b:
         writer = pd.ExcelWriter(b, engine='xlsxwriter')
@@ -1102,7 +1108,7 @@ class TestEnder(Thread):
             quiz=Quiz.objects.get(id=int(self.quiz_id))
         except:
             return False
-        number=(quiz.end_date-datetime.datetime.now()).total_seconds() + 20
+        number=(quiz.end_date-datetime.datetime.now(timezone('Asia/Kolkata'))).total_seconds() + 20
         save_test_state(quiz.id, schedule=int(number))
 
 @background(schedule=60)

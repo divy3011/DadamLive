@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 import datetime
+from pytz import timezone
 
 # Create your models here.
 class UserType(models.Model):
@@ -59,7 +60,7 @@ class TeachingAssistant(models.Model):
     contact_number=models.CharField(null=True, max_length=20)
     dummy_number=models.CharField(null=True, max_length=20)
     unique_code=models.CharField(null=True, max_length=40)
-    uni_time=models.DateTimeField(default=datetime.datetime.now())
+    uni_time=models.DateTimeField(default=datetime.datetime.now(timezone('Asia/Kolkata')))
 
     def __str__(self):
         if self.user:
@@ -76,4 +77,4 @@ class Query(models.Model):
 class ForgotPassword(models.Model):
     user=models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     unique_code=models.CharField(null=True, max_length=40)
-    uni_time=models.DateTimeField(default=datetime.datetime.now())
+    uni_time=models.DateTimeField(default=datetime.datetime.now(timezone('Asia/Kolkata')))

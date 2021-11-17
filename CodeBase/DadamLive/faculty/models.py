@@ -3,13 +3,14 @@ from django.contrib.auth.models import User
 import datetime
 from home.models import UserType
 from django_mysql.models import ListTextField
+from pytz import timezone
 
 # Create your models here.
 class Course(models.Model):
     instructor=models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     image=models.ImageField(upload_to='post_images/', default="demo.jpg", null=True)
     courseName=models.CharField(null=True, max_length=200)
-    created_on=models.DateTimeField(default=datetime.datetime.now())
+    created_on=models.DateTimeField(default=datetime.datetime.now(timezone('Asia/Kolkata')))
 
     def __str__(self):
         return self.courseName
@@ -18,7 +19,7 @@ class Enrolment(models.Model):
     course=models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
     user=models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     userType=models.ForeignKey(UserType, on_delete=models.SET_NULL, null=True, blank=True)
-    enrolled_on=models.DateTimeField(default=datetime.datetime.now())
+    enrolled_on=models.DateTimeField(default=datetime.datetime.now(timezone('Asia/Kolkata')))
 
     def __str__(self):
         return self.course.courseName
@@ -46,9 +47,9 @@ class TeachingAssistantPermission(models.Model):
 class Quiz(models.Model):
     course=models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
     quiz_name=models.CharField(null=True, max_length=500)
-    start_date=models.DateTimeField(default=datetime.datetime.now())
-    end_date=models.DateTimeField(default=datetime.datetime.now())
-    created_on=models.DateTimeField(default=datetime.datetime.now())
+    start_date=models.DateTimeField(default=datetime.datetime.now(timezone('Asia/Kolkata')))
+    end_date=models.DateTimeField(default=datetime.datetime.now(timezone('Asia/Kolkata')))
+    created_on=models.DateTimeField(default=datetime.datetime.now(timezone('Asia/Kolkata')))
     quizHeld=models.BooleanField(default=False)
     hidden=models.BooleanField(default=True)
     mcqMarksGenerated=models.BooleanField(default=False)
@@ -151,7 +152,7 @@ class ImagesForActivity(models.Model):
     # 2 - Multiple Faces
     # 6 - Mobile Detected
 
-    timeStamp=models.DateTimeField(default=datetime.datetime.now())
+    timeStamp=models.DateTimeField(default=datetime.datetime.now(timezone('Asia/Kolkata')))
 
 
 class PartOfSubmission(models.Model):
@@ -176,7 +177,7 @@ class Announcement(models.Model):
     course=models.ForeignKey(Course, on_delete=models.CASCADE, null=True, blank=True)
     created_by=models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     message=models.CharField(null=True, max_length=5000)
-    created_on=models.DateTimeField(default=datetime.datetime.now())
+    created_on=models.DateTimeField(default=datetime.datetime.now(timezone('Asia/Kolkata')))
 
     def __str__(self):
         return self.course.courseName

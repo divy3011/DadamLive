@@ -13,6 +13,7 @@ from staff.forms import FileForm
 from faculty.views import quizOngoing
 from twilio.rest import Client
 import math,random
+from pytz import timezone
 # Create your views here.
 
 class Email_thread(Thread):
@@ -132,7 +133,7 @@ def ta_announce_quiz(request, course_id):
         end_date=datetime.datetime.strptime(end_date, '%Y-%m-%dT%H:%M')
         if end_date<start_date:
             return JsonResponse({"error": "Start time must be less than end time"}, status=400)
-        if start_date<datetime.datetime.now():
+        if start_date<datetime.datetime.now(timezone('Asia/Kolkata')):
             return JsonResponse({"error": "Quiz can only be started in future"}, status=400)
         Quiz.objects.create(course=course, quiz_name=quiz_name, start_date=start_date, end_date=end_date, hidden=hide)
         return redirect('view_course_ta', course_id)
@@ -466,7 +467,7 @@ def view_profile_ta(request):
             SEND_OTP_TO_PHONE(contact_number,'+91',message)
             ta.dummy_number=contact_number
             ta.unique_code=unique_code
-            ta.uni_time=datetime.datetime.now()
+            ta.uni_time=datetime.datetime.now(timezone('Asia/Kolkata'))
             ta.save()
             return render(request,"ta/view_profile.html",context={"ta": ta, "success": "A confirmation link is send to your mobile number. Click on it to update the contact number. This link will remain valid for 5 minutes."})
         except:
@@ -480,7 +481,7 @@ def verify_number(request,unique_code):
             return JsonResponse({"error": "There was internal clash. Please try to update your contact after 10 minutes."}, status=400)
         ta=ta[0]
         uni_time=ta.uni_time
-        ta.uni_time=datetime.datetime.now()
+        ta.uni_time=datetime.datetime.now(timezone('Asia/Kolkata'))
         ta.save()
         ta=TeachingAssistant.objects.get(id=ta.id)
         new_time=ta.uni_time

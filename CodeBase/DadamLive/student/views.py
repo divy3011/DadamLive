@@ -16,9 +16,9 @@ import base64
 from io import BytesIO
 from PIL import Image
 import numpy as np
-utc=pytz.UTC
 from django.core.files.base import ContentFile
-import ntplib
+from pytz import timezone
+import copy
 
 # Create your views here.
 class Email_thread(Thread):
@@ -106,24 +106,24 @@ def view_course_student(request, course_id):
 def quiz_identification(quiz):
     if quiz.hidden:
         return JsonResponse({"message": "Quiz has been moved to hidden section and is no longer available to you."}, status=400)
+    
+    Internet_date_and_time = datetime.datetime.now(timezone('Asia/Kolkata'))
+    start_date=quiz.start_date+datetime.timedelta(minutes=330)  
+    end_date=quiz.end_date+datetime.timedelta(minutes=330)  
+    
+    # print(Internet_date_and_time.time(), start_date.time())
+    # print(Internet_date_and_time.date(), start_date.date())
 
-    client = ntplib.NTPClient()
-    response = client.request('pool.ntp.org')
-    Internet_date_and_time = datetime.datetime.fromtimestamp(response.tx_time)
-
-    # print(Internet_date_and_time.time(), quiz.start_date.time())
-    # print(Internet_date_and_time.date(), quiz.start_date.date())
-
-    if quiz.end_date.date()<Internet_date_and_time.date():
+    if end_date.date()<Internet_date_and_time.date():
         return JsonResponse({"message": "Quiz is no longer avaiable."}, status=400)
     
-    if quiz.start_date.date()>Internet_date_and_time.date():
+    if start_date.date()>Internet_date_and_time.date():
         return JsonResponse({"message": "Quiz has not been started yet."}, status=400)
 
-    if quiz.start_date.date()==Internet_date_and_time.date() and Internet_date_and_time.time()<quiz.start_date.time():
+    if start_date.date()==Internet_date_and_time.date() and Internet_date_and_time.time()<start_date.time():
         return JsonResponse({"message": "Quiz has not been started yet."}, status=400)
     
-    if quiz.end_date.date()==Internet_date_and_time.date() and Internet_date_and_time.time()>quiz.end_date.time():
+    if end_date.date()==Internet_date_and_time.date() and Internet_date_and_time.time()>end_date.time():
         return JsonResponse({"message": "Quiz is no longer available."}, status=400)
 
     return True
@@ -577,15 +577,14 @@ def end_test(request, quiz_id):
     return JsonResponse({"message": "Already Submitted"}, status=200)
 
 def checkForQuizStatus(quiz):
-    client = ntplib.NTPClient()
-    response = client.request('pool.ntp.org')
-    Internet_date_and_time = datetime.datetime.fromtimestamp(response.tx_time)
-    if quiz.end_date.date()<Internet_date_and_time.date():
+    Internet_date_and_time = datetime.datetime.now(timezone('Asia/Kolkata'))
+    end_date=quiz.end_date+datetime.timedelta(minutes=330)  
+    if end_date.date()<Internet_date_and_time.date():
         if quiz.quizHeld==False:
             quiz.quizHeld=True
             quiz.save()
 
-    if quiz.end_date.date()==Internet_date_and_time.date() and Internet_date_and_time.time()>quiz.end_date.time():
+    if end_date.date()==Internet_date_and_time.date() and Internet_date_and_time.time()>end_date.time():
         if quiz.quizHeld==False:
             quiz.quizHeld=True
             quiz.save()
