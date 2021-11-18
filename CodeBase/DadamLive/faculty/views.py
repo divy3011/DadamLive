@@ -490,6 +490,7 @@ def manage_quiz_helper(request, data, quiz):
                             break
                         option=data["Option"+str(j)][i]
                         if str(option)!="nan":
+                            option=option.replace(",",";")
                             mcq.options.append(option)
                     if "Correct Options" not in data.columns:
                         field_with_unknown_values.append(i+1)

@@ -63,13 +63,13 @@ class Quiz(models.Model):
 
 class MCQ(models.Model):
     quiz=models.ForeignKey(Quiz, on_delete=models.CASCADE, null=True, blank=True)
-    question=models.CharField(null=True, max_length=500)
+    question=models.TextField(null=True)
 
-    options=ListTextField(base_field=models.CharField(default="", max_length=1000), size=10)
+    options=ListTextField(base_field=models.CharField(default="", max_length=100000), size=10)
     #Rearrange the array to make correct answer as first index
 
     correct_answers=ListTextField(base_field=models.IntegerField(default=0), size=10)
-    note=models.CharField(null=True, max_length=500)
+    note=models.TextField(null=True, max_length=500)
     maximum_marks=models.FloatField(null=True, blank=True, default=1)
     max_time_limit_allowed=models.IntegerField(default=600, null=True, blank=True)
     #In seconds for obvious. Default is 10 minutes
@@ -85,8 +85,8 @@ class MCQ(models.Model):
 
 class WrittenQuestion(models.Model):
     quiz=models.ForeignKey(Quiz, on_delete=models.CASCADE, null=True, blank=True)
-    question=models.CharField(null=True, max_length=500)
-    note=models.CharField(null=True, max_length=500)
+    question=models.TextField(null=True, max_length=500)
+    note=models.TextField(null=True, max_length=500)
     maximum_marks=models.FloatField(null=True, blank=True, default=1)
     max_time_limit_allowed=models.IntegerField(default=600, null=True, blank=True)
     #In seconds for obvious. Default is 10 minutes
@@ -158,7 +158,7 @@ class ImagesForActivity(models.Model):
 class PartOfSubmission(models.Model):
     submission=models.ForeignKey(Submission, on_delete=models.CASCADE, null=True, blank=True)
     question_id=models.IntegerField(null=True, default=0)
-    answer=models.CharField(blank=True, max_length=1000000, default="")
+    answer=models.TextField(default="", null=True)
     mark=models.FloatField(default=0.0)
 
     question_type=models.IntegerField(null=True, default=2)
