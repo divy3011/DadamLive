@@ -566,26 +566,31 @@ def change_prev_status(request,quiz_id):
 
 # False if quiz ongoing
 def quizOngoing(quiz):
-    if quiz.end_date.date()<datetime.datetime.now(timezone('Asia/Kolkata')).date():
+    
+    start_date=quiz.start_date+datetime.timedelta(minutes=330)  
+    end_date=quiz.end_date+datetime.timedelta(minutes=330) 
+    
+    if end_date.date()<datetime.datetime.now(timezone('Asia/Kolkata')).date():
         return True
     
-    if quiz.start_date.date()>datetime.datetime.now(timezone('Asia/Kolkata')).date():
+    if start_date.date()>datetime.datetime.now(timezone('Asia/Kolkata')).date():
         return True
 
-    if quiz.start_date.date()==datetime.datetime.now(timezone('Asia/Kolkata')).date() and datetime.datetime.now(timezone('Asia/Kolkata')).time()<quiz.start_date.time():
+    if start_date.date()==datetime.datetime.now(timezone('Asia/Kolkata')).date() and datetime.datetime.now(timezone('Asia/Kolkata')).time()<start_date.time():
         return True
 
-    if quiz.end_date.date()==datetime.datetime.now(timezone('Asia/Kolkata')).date() and datetime.datetime.now(timezone('Asia/Kolkata')).time()>quiz.end_date.time():
+    if end_date.date()==datetime.datetime.now(timezone('Asia/Kolkata')).date() and datetime.datetime.now(timezone('Asia/Kolkata')).time()>end_date.time():
         return True
     
     return False
 
 # True if quiz ended
 def quizEnded(quiz):
-    if quiz.end_date.date()<datetime.datetime.now(timezone('Asia/Kolkata')).date():
+    end_date=quiz.end_date+datetime.timedelta(minutes=330) 
+    if end_date.date()<datetime.datetime.now(timezone('Asia/Kolkata')).date():
         return True
 
-    if quiz.end_date.date()==datetime.datetime.now(timezone('Asia/Kolkata')).date() and datetime.datetime.now(timezone('Asia/Kolkata')).time()>quiz.end_date.time():
+    if end_date.date()==datetime.datetime.now(timezone('Asia/Kolkata')).date() and datetime.datetime.now(timezone('Asia/Kolkata')).time()>end_date.time():
         return True
     
     return False
@@ -1109,7 +1114,7 @@ class TestEnder(Thread):
             quiz=Quiz.objects.get(id=int(self.quiz_id))
         except:
             return False
-        number=(quiz.end_date-datetime.datetime.now(timezone('Asia/Kolkata'))).total_seconds() + 20
+        number=(quiz.end_date+datetime.timedelta(minutes=330) -datetime.datetime.now(timezone('Asia/Kolkata'))).total_seconds() + 20
         save_test_state(quiz.id, schedule=int(number))
 
 @background(schedule=60)

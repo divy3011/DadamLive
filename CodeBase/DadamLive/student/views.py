@@ -101,7 +101,19 @@ def view_course_student(request, course_id):
         return JsonResponse({"message": "Course was not found on this server or you have not been invited by the instructor."}, status=400)
     announcements=Announcement.objects.filter(course=course).order_by('-id')
     quizes=Quiz.objects.filter(course=course, hidden=False).order_by('-id')
-    return render(request,"student/view_course_student.html",context={"student": student, "course": course, "announcements": announcements, "quizes": quizes})
+    quiz_status=[]
+    for each in quizes:
+        going_on=False
+        given=False
+        try:
+            s=Submission.objects.get(quiz=each, user=request.user)
+            given=s.submitted
+        except:
+            pass
+        if quiz_identification(each)==True:
+            going_on=True
+        quiz_status.append({"id": each.id, "going_on": going_on, "given": given})
+    return render(request,"student/view_course_student.html",context={"student": student, "course": course, "announcements": announcements, "quizes": quizes, "quiz_status": quiz_status})
 
 def quiz_identification(quiz):
     if quiz.hidden:
@@ -148,7 +160,8 @@ def start_quiz(request, quiz_id):
     try:
         submission=Submission.objects.get(quiz=quiz, user=request.user)
         if submission.submitted:
-            return JsonResponse({"message": "You already have submitted the quiz 1 time."}, status=400)
+            return redirect('dashboardStudent')
+            # return JsonResponse({"message": "You already have submitted the quiz 1 time."}, status=400)
     except:
         submission=Submission.objects.create(quiz=quiz, user=request.user)
 

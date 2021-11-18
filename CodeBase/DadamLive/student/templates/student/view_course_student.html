@@ -59,19 +59,32 @@
                           {{each.start_date}} - {{each.end_date}}
                         </td>
                         <td>{{each.quiz_name}}   </td>
-                        {% if each.quizHeld %}
-                        <td class="td-actions text-right">
-                          <a href="#" type="button" rel="tooltip" title="View Quiz" class="btn btn-primary btn-link btn-sm">
-                            <i class="material-icons">visibility</i>
-                          </a>
-                        </td>
-                        {% else %}
-                        <td class="td-actions text-right">
-                          <a href="{% url 'start_quiz' quiz_id=each.id %}" type="button" rel="tooltip" title="Give Quiz" class="btn btn-primary btn-link btn-sm">
-                            <i class="material-icons">play_arrow</i>
-                          </a>
-                        </td>
-                        {% endif %}
+
+                        {% for qs in quiz_status %}
+                        {% ifequal qs.id each.id %}
+                          {% if qs.given %}
+                          <td class="td-actions text-right">
+                            <a href="#" type="button" rel="tooltip" title="Your response was saved." class="btn btn-primary btn-link btn-sm">
+                              <i class="material-icons">visibility</i>
+                            </a>
+                          </td>
+                          {% else %}
+                            {% if qs.going_on %}
+                            <td class="td-actions text-right">
+                              <a href="{% url 'start_quiz' quiz_id=each.id %}" type="button" rel="tooltip" title="Give Quiz" class="btn btn-primary btn-link btn-sm">
+                                <i class="material-icons">play_arrow</i>
+                              </a>
+                            </td>
+                            {% else %}
+                            <td class="td-actions text-right">
+                              <a href="#" type="button" rel="tooltip" title="Can't start this quiz at this time" class="btn btn-primary btn-link btn-sm">
+                                <i class="material-icons">visibility</i>
+                              </a>
+                            </td>
+                            {% endif %}
+                          {% endif %}
+                        {% endifequal %}
+                        {% endfor %}
                     </tr>
                     {% endif %}
                   {% endfor %}
