@@ -65,9 +65,12 @@ def dashboardStudent(request):
     audio=0
     for each in submissions:
         points+=each.score
-        att=IllegalAttempt.objects.get(submission=each)
-        no_face+=att.noPersonDetected
-        audio+=att.numberOfTimesAudioDetected
+        try:
+            att=IllegalAttempt.objects.get(submission=each)
+            no_face+=att.noPersonDetected
+            audio+=att.numberOfTimesAudioDetected
+        except:
+            pass
     
     advise="Going Good"
 
