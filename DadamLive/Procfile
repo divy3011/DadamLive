@@ -1,0 +1,2 @@
+web: python manage.py collectstatic --no-input; gunicorn DadamLive.wsgi --log-file - --log-level debug
+worker: python manage.py process_tasks

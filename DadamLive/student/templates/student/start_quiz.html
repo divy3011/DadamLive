@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="icon" href="{% static 'logo.png' %}" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz {{quiz.quiz_name}}</title>
+    <link href="{% static 'Student/css/bootstrap.min.css' %}" rel='stylesheet'>
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' rel='stylesheet'>
+    <link href="{% static 'Student/css/style.css' %}" rel='stylesheet'>
+</head>
+<body>
+    <canvas id="canvas" width="320" height="240" hidden></canvas>
+    <p id="quiz_id" style="display: none;">{{quiz.id}}</p>
+    <p id="user_id" style="display: none;">{{request.user.id}}</p>
+    <video id="video1" width="800" height="680" autoplay hidden></video>
+    <canvas id="canvas1" width="320" height="240" hidden></canvas>
+
+    <div class="container mt-5">
+        <div class="d-flex justify-content-center row">
+            <div class="col-md-10 col-lg-10">
+                <div class="border">
+                    <div class="question bg-white p-3 border-bottom">
+                        <div class="d-flex flex-row justify-content-between align-items-center mcq">
+                            <h4>{{quiz.quiz_name}}</h4><span id="total_q">Total Questions: </span>
+                            <p id="myTimer"></p>
+                        </div>
+                    </div>
+                    <div class="question bg-white p-3 border-bottom">
+                        <ul class="pagination"id="questions">
+                        </ul>
+                    </div>
+                    <div class="d-flex flex-row justify-content-between align-items-center p-3 bg-white">
+                        <div id="prev_btn">
+                        {% if quiz.disable_previous %}{% else %}
+                        <button class="btn btn-primary d-flex align-items-center btn-primary prev" type="button" onclick="freezeAnswer(-1)" hidden="false">
+                            <i class="fa fa-angle-left mt-1 mr-1"></i>&nbsp;previous
+                        </button>
+                        {% endif %}
+                        </div>
+                        <button class="btn btn-primary d-flex align-items-center btn-danger" type="button" onclick="end_quiz(event)">
+                            End Quiz Now
+                        </button>
+                        <button class="btn btn-primary border-success align-items-center btn-success next" id="next_btn" type="button" onclick="freezeAnswer(1)">
+                            Next<i class="fa fa-angle-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br><br>
+    <video id="video" width="320" height="240" autoplay muted></video>
+
+    <script src="{% static 'jquery.js' %}"></script>
+    <script src="{% static 'Student/js/start_quiz.js' %}"></script>
+    <script type='text/javascript' src="{% static 'Student/js/bootstrap.bundle.js' %}"></script>
+</body>
+</html>

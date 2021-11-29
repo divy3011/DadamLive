@@ -1,0 +1,69 @@
+{% extends 'faculty/base.html' %} {% load static %}
+
+{% block title %}{{request.user.email}} | Faculty in DadamLive{% endblock %}
+
+{% block heading %}New Course{% endblock %}
+
+{% block css %}{% endblock %}
+
+{% block extra_js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript " src="{% static 'Faculty/NewCourse/start_new_course.js' %} "></script>
+{% endblock %}
+
+{% block main_body %}    
+
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card">
+            <div class="card-header card-header-primary">
+              <h4 class="card-title">New Course</h4>
+              <p class="card-category">Manage a new course</p>
+            </div>
+            <div class="card-body">
+              <form id="course_form">  {% csrf_token %}
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label>1. Courses can not be deleted once created</label><br>
+                      <label>2. Do not give any course name which you have used earlier</label><br>
+                      <label>3. This product only supports function of 1 main instructor who started the course</label><br>
+                      <label>4. Please visit the respective course to add students/TAs or make any announcement</label><br>
+                      <label>5. Any student or TA added late will be able to see all the announcements even if announced before his/her joining</label>
+                      <div class="form-group">
+                        <label class="bmd-label-floating"> Enter the name of new course to create it</label>
+                        <textarea class="form-control" name="course" id="course" rows="1"></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <button type="submit" id="course_button" class="btn btn-primary pull-right">Create New Course</button>
+                <div class="clearfix"></div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+{% endblock %}
+
+
+{% block left_panel %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'dashboardFaculty' %}">
+      <i class="material-icons">dashboard</i>
+      <p>Dashboard</p>
+    </a>
+  </li>
+  <li class="nav-item active">
+    <a class="nav-link" href="{% url 'start_new_course' %}">
+      <i class="material-icons">content_paste</i>
+      <p>New Course</p>
+    </a>
+  </li>
+  <li class="nav-item ">
+    <a class="nav-link" href="{% url 'view_profile_fa' %}">
+      <i class="material-icons">person</i>
+      <p>View Profile</p>
+    </a>
+  </li>
+{% endblock %}

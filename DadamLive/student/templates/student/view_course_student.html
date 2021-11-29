@@ -1,0 +1,231 @@
+{% extends 'student/base.html' %} {% load static %}
+
+{% block title %}{{request.user.email}} | Student in DadamLive{% endblock %}
+
+{% block heading %}{{course.courseName}}{% endblock %}
+
+{% block css %}{% endblock %}
+
+{% block extra_js %}{% endblock %}
+
+{% block main_body %}    
+  <div class="row">
+    <div class="col-lg-12 col-md-12">
+      <div class="card">
+        <div class="card-header card-header-tabs card-header-primary">
+          <div class="nav-tabs-navigation">
+            <div class="nav-tabs-wrapper">
+              <span class="nav-tabs-title">Activity</span>
+              <ul class="nav nav-tabs" data-tabs="tabs"> 
+                <li class="nav-item">
+                  <a class="nav-link active" href="#announcemnts" data-toggle="tab">
+                    <i class="material-icons">lightbulb</i> Announcements
+                    <div class="ripple-container"></div>
+                  </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#quizes" data-toggle="tab">
+                      <i class="material-icons">quiz</i> Quiz's
+                      <div class="ripple-container"></div>
+                    </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="tab-content">
+            <div class="tab-pane active" id="announcemnts">
+              <table class="table">
+                <tbody>
+                  {% for each in announcements %}
+                  <tr>
+                    <td>
+                      Created on {{each.created_on}}
+                    </td>
+                    <td>{{each.message}}   </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <div class="tab-pane" id="quizes">
+              <table class="table">
+                <tbody>
+                  {% for each in quizes %}
+                    {% if each.hidden %}{% else %}
+                      <tr>
+                        <td>
+                          {{each.start_date}} - {{each.end_date}}
+                        </td>
+                        <td>{{each.quiz_name}}   </td>
+
+                        {% for qs in quiz_status %}
+                        {% ifequal qs.id each.id %}
+                          {% if qs.given %}
+                          <td class="td-actions text-right">
+                            <a href="#" type="button" rel="tooltip" title="Your response was saved." class="btn btn-primary btn-link btn-sm">
+                              <i class="material-icons">visibility</i>
+                            </a>
+                          </td>
+                          {% else %}
+                            {% if qs.going_on %}
+                            <td class="td-actions text-right">
+                              <a href="{% url 'start_quiz' quiz_id=each.id %}" type="button" rel="tooltip" title="Give Quiz" class="btn btn-primary btn-link btn-sm">
+                                <i class="material-icons">play_arrow</i>
+                              </a>
+                            </td>
+                            {% else %}
+                            <td class="td-actions text-right">
+                              <a href="#" type="button" rel="tooltip" title="Can't start this quiz at this time" class="btn btn-primary btn-link btn-sm">
+                                <i class="material-icons">visibility</i>
+                              </a>
+                            </td>
+                            {% endif %}
+                          {% endif %}
+                        {% endifequal %}
+                        {% endfor %}
+                    </tr>
+                    {% endif %}
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal 1 -->
+  <div class="modal fade" id="modal1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Students and TA's</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <h4 style="padding-bottom: 12px"><b>Please follow the instructions to add new Students or TA's in a genunine manner.</b></h4>
+            <p style="padding-bottom: 10px">1. Only CSV and EXCEL files are allowed. <a href="{% static 'Sample/sample_add_student_ta.xlsx' %}">Sample Excel File</a></p>
+            <p style="padding-bottom: 10px">2. There could be multiple columns, there order does not matter, for example - email can be given in the column after or before username but inside email column, only email should be there.</p>
+            <p style="padding-bottom: 10px">3. If any duplicate entry is found, then first copy will be taken to create account.</p>
+            <p style="padding-bottom: 10px">4. Compulsory Columns are : Email or Username(atleast one of them is needed), Role. Role can be "Student" or "TA". Column Names should be in title case.</p>
+            <p style="padding-bottom: 10px">5. All the students and tas will be added and informed through email</p>
+
+            <form class="form-inline" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-2">
+                    <input type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="" name="file" required>
+                </div>
+                <input type="submit" class="btn btn-primary mb-2" value="Add members">
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2 -->
+  <div class="modal fade" id="modal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Announce for class</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <h4 style="padding-bottom: 12px"><b>Take premium version to include file uploads in announcements</b></h4>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                  <label class="bmd-label-floating">Type Here Something...</label>
+                  <textarea class="form-control" name="ann_message" id="ann_message" rows="4" required></textarea>
+                </div>
+                <input type="submit" class="btn btn-primary mb-2" value="Announce">
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3 -->
+  <div class="modal fade" id="modal3" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Quiz Manager</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <h4 style="padding-bottom: 12px"><b>Quiz Announcements can only be deleted before it has been held.</b></h4>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                  <label class="bmd-label-floating">Quiz Name</label>
+                  <input type="text" class="form-control" id="quiz_name" name="quiz_name" required>
+                </div>
+                <div class="form-group">
+                  <label class="bmd-label-floating">Start Datetime of Quiz</label>
+                  <input type="datetime-local" class="form-control" id="start_date" name="start_date" required>
+                </div>
+                <div class="form-group">
+                  <label class="bmd-label-floating">End Datetime of Quiz</label>
+                  <input type="datetime-local" class="form-control" id="end_date" name="end_date" required>
+                </div>
+                <div class="form-group">
+                  <label class="bmd-label-floating">Hide Mode - Students will not able to see until quiz starts</label>
+                  <select class="form-control" id="hidden_quiz" name="hidden_quiz" required>
+                    <option value="1">On (Recommended)</option>
+                    <option value="2">Off</option>
+                  </select>
+                </div>
+                <input type="submit" class="btn btn-primary mb-2" value="Announce Quiz">
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+
+{% endblock %}
+
+
+{% block left_panel %}
+<li class="nav-item ">
+    <a class="nav-link" href="{% url 'dashboardStudent' %}">
+      <i class="material-icons">dashboard</i>
+      <p>Dashboard</p>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'my_courses' %}">
+      <i class="material-icons">content_paste</i>
+      <p>My courses</p>
+    </a>
+  </li>
+  <li class="nav-item ">
+    <a class="nav-link" href="{% url 'view_profile_st' %}">
+      <i class="material-icons">person</i>
+      <p>View Profile</p>
+    </a>
+  </li>
+{% endblock %}
